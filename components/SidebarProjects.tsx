@@ -54,6 +54,22 @@ const PRODUCTS: ProductGroup[] = [
       { name: "whitebox", url: "https://github.com/wkliwk/whitebox" },
     ],
   },
+  {
+    name: "AgentScore",
+    color: "#3b82f6",
+    boardNumber: 5,
+    repos: [
+      { name: "agent-score", url: "https://github.com/wkliwk/agent-score" },
+    ],
+  },
+  {
+    name: "PixSync",
+    color: "#06b6d4",
+    boardNumber: 9,
+    repos: [
+      { name: "pixsync", url: "https://github.com/wkliwk/pixsync" },
+    ],
+  },
 ];
 
 // Check if a repo is in the locally-discovered list
