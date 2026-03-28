@@ -2,6 +2,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { OrgChart } from "@/components/OrgChart";
 import { getProductRepos } from "@/lib/local";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Teams — Whitebox",
+};
+
 export const revalidate = 5;
 
 export default function TeamsPage() {

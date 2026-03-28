@@ -5,6 +5,12 @@ import { getProductRepos } from "@/lib/local";
 import { getProjectBoard } from "@/lib/projects";
 import { GitHubIcon } from "@/components/GitHubIcon";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products — Whitebox",
+};
+
 export const revalidate = 60;
 
 const platformLabel: Record<string, string> = {

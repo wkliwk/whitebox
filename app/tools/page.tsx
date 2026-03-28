@@ -2,6 +2,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { getProductRepos } from "@/lib/local";
 import { ToolsPanel } from "@/components/ToolsPanel";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Tools — Whitebox",
+};
+
 export default function ToolsPage() {
   const sidebarProjects = getProductRepos().map(r => ({
     name: r.name,

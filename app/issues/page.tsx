@@ -3,6 +3,12 @@ import { TaskList } from "@/components/TaskList";
 import { getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Issues — Whitebox",
+};
+
 export const revalidate = 30;
 
 export default async function IssuesPage() {

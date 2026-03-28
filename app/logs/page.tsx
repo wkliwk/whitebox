@@ -4,6 +4,12 @@ import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
 import { getDecisions, getLoopLog, getProductRepos } from "@/lib/local";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Logs — Whitebox",
+};
+
 export const revalidate = 10;
 
 export default async function LogsPage() {

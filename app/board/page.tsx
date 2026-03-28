@@ -5,6 +5,12 @@ import { getProductRepos } from "@/lib/local";
 import { getProjectBoard, BOARD_DEFS } from "@/lib/projects";
 import type { BoardItem } from "@/lib/projects";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Board — Whitebox",
+};
+
 export const revalidate = 30;
 
 const STATUS_ORDER = ["Todo", "In Progress", "Done"];

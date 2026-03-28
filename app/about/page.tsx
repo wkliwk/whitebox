@@ -4,6 +4,12 @@ import { AGENTS } from "@/lib/agents";
 import { SLASH_COMMANDS, COMMAND_CATEGORIES } from "@/lib/commands";
 import { getProductRepos } from "@/lib/local";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About — Whitebox",
+};
+
 export const revalidate = 3600;
 
 const agentColors: Record<string, string> = {

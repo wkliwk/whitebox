@@ -2,6 +2,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { SchedulePanel } from "@/components/SchedulePanel";
 import { getProductRepos } from "@/lib/local";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Schedule — Whitebox",
+};
+
 export default function SchedulePage() {
   const sidebarProjects = getProductRepos().map(r => ({
     name: r.name,

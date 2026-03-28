@@ -7,6 +7,12 @@ import {
 import { Sidebar } from "@/components/Sidebar";
 import { getProductRepos } from "@/lib/local";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Ecosystem — Whitebox",
+};
+
 export const revalidate = 3600;
 
 /* ------------------------------------------------------------------ */
