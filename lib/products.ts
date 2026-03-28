@@ -68,7 +68,6 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Full transparency into what every agent is doing at any moment.",
     antiGoals: ["No backend server — local reads only", "No auth"],
     status: "active",
-    productionUrl: "https://whitebox-khaki.vercel.app/",
   },
   "agentscore": {
     tagline: "AI agent reliability scoring",
