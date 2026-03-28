@@ -50,6 +50,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Eliminate the tedium of filling repetitive forms.",
     antiGoals: ["No storing sensitive documents server-side"],
     status: "wip",
+    productionUrl: "https://formpilot-brown.vercel.app/",
   },
   "health-credit": {
     tagline: "Private health document sharing",
@@ -58,6 +59,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Make private health document sharing safe and frictionless.",
     antiGoals: ["No storing unencrypted documents", "No identity verification v1"],
     status: "wip",
+    productionUrl: "https://health-credit-frontend.vercel.app/",
   },
   "whitebox": {
     tagline: "See inside your AI agents",
@@ -66,6 +68,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Full transparency into what every agent is doing at any moment.",
     antiGoals: ["No backend server — local reads only", "No auth"],
     status: "active",
+    productionUrl: "https://whitebox-khaki.vercel.app/",
   },
   "pixsync": {
     tagline: "Unlimited Google Photos backup",
