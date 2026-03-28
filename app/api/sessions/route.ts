@@ -16,7 +16,12 @@ export interface Session {
   sessionId: string | null;
   cwd: string | null;
   project: string | null;
+  /** Explicit label written by agent via cc-task file */
   label: string | null;
+  /** Display title — label if set, otherwise auto-derived from flags */
+  title: string;
+  /** true if title was explicitly set by agent, false if auto-derived */
+  titled: boolean;
   flags: string[];
 }
 
@@ -112,6 +117,21 @@ export async function GET() {
       const project = task?.project ?? null;
       const label = task?.label ?? null;
 
+      // Derive display title
+      let title: string;
+      let titled: boolean;
+      if (label) {
+        title = label;
+        titled = true;
+      } else {
+        // Auto-derive from flags / sessionId
+        if (flags.includes("telegram")) title = "Telegram Worker";
+        else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
+        else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
+        else title = "Claude Session";
+        titled = false;
+      }
+
       // Try to get cwd for display only (not for matching)
       let cwd: string | null = null;
       try {
@@ -120,7 +140,7 @@ export async function GET() {
         cwd = match?.[1] ?? null;
       } catch { /* skip */ }
 
-      sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, flags });
+      sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, title, titled, flags });
     }
 
     sessions.sort((a, b) => b.cpu - a.cpu);
