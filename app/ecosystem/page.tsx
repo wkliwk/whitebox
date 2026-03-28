@@ -55,10 +55,55 @@ const sessionLifecycle = [
 ];
 
 const memoryTypes = [
-  { type: "user", color: "#8b5cf6", desc: "Who Ricky is — role, language, goals, preferences", example: "Cantonese speaker, prefers MVP-first" },
-  { type: "feedback", color: "#ec4899", desc: "How to work — corrections and confirmed approaches", example: "Always create GitHub issue FIRST" },
-  { type: "project", color: "#3b82f6", desc: "Ongoing work context — pointers to decisions and status", example: "Money Flow MVP frontend ~70%" },
-  { type: "reference", color: "#22c55e", desc: "External resource locations and config details", example: "Quota alerts at 70/90/95% thresholds" },
+  {
+    type: "user", color: "#8b5cf6",
+    desc: "Who Ricky is — role, language, goals, preferences",
+    example: "Cantonese speaker, prefers MVP-first",
+    files: [
+      { name: "user_profile.md", desc: "Name, GitHub, Telegram ID, language, goals" },
+    ],
+  },
+  {
+    type: "feedback", color: "#ec4899",
+    desc: "How to work — corrections and confirmed approaches",
+    example: "Always create GitHub issue FIRST",
+    files: [
+      { name: "feedback_preferences.md", desc: "Simplicity > complexity, respond in Cantonese, lean memory" },
+      { name: "feedback_always_add_to_project.md", desc: "Create GitHub issue BEFORE any work — #1 rule" },
+      { name: "feedback_autonomous.md", desc: "Never stop mid-flow, continue to next task automatically" },
+      { name: "feedback_start_working.md", desc: "Check boards > pick Todo > if empty do product thinking" },
+      { name: "feedback_new_product_evaluation.md", desc: "Evaluate on product merit only, never drop for timing" },
+      { name: "feedback_product_registry.md", desc: "Update product-registry.md when launching new product" },
+      { name: "feedback_private_repo_no_secrets.md", desc: "Private backup can have personal data, NEVER secrets" },
+      { name: "feedback_topic_routing.md", desc: "Route infra topics to CC Manager, not general chat" },
+      { name: "feedback_agent_verification.md", desc: "Agents must verify (tsc, tests, diff) before committing" },
+      { name: "feedback_auto_merge_deploy.md", desc: "MVP stage: auto-merge PRs and deploy immediately" },
+      { name: "feedback_background_agents_check_issue_state.md", desc: "Workers must check issue is OPEN before starting" },
+    ],
+  },
+  {
+    type: "project", color: "#3b82f6",
+    desc: "Ongoing work context — pointers to decisions and status",
+    example: "Money Flow MVP frontend ~70%",
+    files: [
+      { name: "project_ai_company.md", desc: "Solo AI company vision, Money Flow MVP status" },
+      { name: "project_token_optimization.md", desc: "Run baseline after 20+ sessions, check Serena savings" },
+      { name: "project_work_loop_architecture.md", desc: "Cron sessions, sprint mode, parallel workers (ADR-008)" },
+      { name: "project_auto_route.md", desc: "Per-message model switching impossible; route at session level" },
+    ],
+  },
+  {
+    type: "reference", color: "#22c55e",
+    desc: "External resource locations and config details",
+    example: "Quota alerts at 70/90/95% thresholds",
+    files: [
+      { name: "reference_figma_mcp.md", desc: "Figma MCP is configured, use for design implementation" },
+      { name: "reference_telegram_setup.md", desc: "Bot config: access policy, delivery defaults, channel dirs" },
+      { name: "reference_token_quota_setup.md", desc: "Quota monitoring, Telegram alerts, auto-switch to proxy" },
+      { name: "reference_ai_research_pipeline.md", desc: "Weekly AI research: trigger, repo, agent setup" },
+      { name: "reference_statusline.md", desc: "Statusline layout: 2 lines, dynamic task label, rate limits" },
+    ],
+  },
 ];
 
 const autonomousLoopSteps = [
@@ -404,15 +449,29 @@ export default function EcosystemPage() {
             </p>
             <div className="space-y-2.5">
               {memoryTypes.map(mem => (
-                <div key={mem.type} className="flex items-start gap-4 p-3.5 rounded-lg border border-[#2a2a2a]"
+                <div key={mem.type} className="rounded-lg border border-[#2a2a2a]"
                   style={{ background: "#161616" }}>
-                  <div className="text-[10px] font-bold px-2 py-1 rounded shrink-0"
-                    style={{ background: mem.color + "22", color: mem.color }}>
-                    {mem.type}
+                  <div className="flex items-start gap-4 p-3.5">
+                    <div className="text-[10px] font-bold px-2 py-1 rounded shrink-0"
+                      style={{ background: mem.color + "22", color: mem.color }}>
+                      {mem.type}
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[11px] text-[#999] leading-relaxed">{mem.desc}</div>
+                      <div className="text-[10px] text-[#666] mt-1">
+                        {mem.files.length} file{mem.files.length !== 1 ? "s" : ""}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-[11px] text-[#999] leading-relaxed">{mem.desc}</div>
-                    <div className="text-[10px] text-[#666] mt-1 font-mono">e.g. "{mem.example}"</div>
+                  <div className="border-t border-[#222] px-4 py-2.5 space-y-1.5">
+                    {mem.files.map(f => (
+                      <div key={f.name} className="flex items-start gap-2.5">
+                        <code className="text-[10px] font-mono shrink-0 mt-0.5" style={{ color: mem.color }}>
+                          {f.name}
+                        </code>
+                        <span className="text-[10px] text-[#666] leading-relaxed">{f.desc}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
