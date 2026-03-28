@@ -44,7 +44,8 @@ lib/
 GITHUB_TOKEN=      # GitHub PAT with repo + read:project scopes
 GITHUB_OWNER=      # e.g. wkliwk
 GITHUB_REPO=       # primary repo for costs.json + decisions.jsonl (e.g. ai-company)
-PRODUCT_REPOS=     # comma-separated repos to scan for activity (e.g. money-flow-frontend,money-flow-backend)
+PRODUCT_REPOS=     # comma-separated repos to scan for activity
+                   # active value: money-flow-frontend,money-flow-backend,money-flow-mobile,FormPilot,health-credit-frontend,health-credit-backend,whitebox
 ```
 
 ## Commands
