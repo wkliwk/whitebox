@@ -132,6 +132,7 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
 
 export const BOARD_DEFS = [
   { number: 8, label: "Whitebox",     color: "#8b5cf6" },
+  { number: 3, label: "Ideas",        color: "#f97316" },
   { number: 1, label: "Money Flow",   color: "#ec4899" },
   { number: 6, label: "FormPilot",    color: "#22c55e" },
   { number: 7, label: "Health Credit",color: "#eab308" },
