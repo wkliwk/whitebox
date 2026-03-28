@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --muted: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --card: oklch(0.985 0 0);
+  --status-running: oklch(0.715 0.143 215);
+  --status-active: oklch(0.723 0.191 149);
+  --status-idle: oklch(0.795 0.184 86);
+  --status-error: oklch(0.637 0.237 25);
+  --status-paused: oklch(0.702 0.183 55);
+  --status-neutral: oklch(0.556 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --muted: oklch(0.556 0 0);
+  --border: oklch(0.269 0 0);
+  --card: oklch(0.205 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-status-running: var(--status-running);
+  --color-status-active: var(--status-active);
+  --color-status-idle: var(--status-idle);
+  --color-status-error: var(--status-error);
+  --color-status-paused: var(--status-paused);
+  --color-status-neutral: var(--status-neutral);
+  --animate-ping-slow: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
