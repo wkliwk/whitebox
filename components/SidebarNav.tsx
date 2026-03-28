@@ -15,7 +15,7 @@ export function SidebarNav() {
     { href: "/issues",   icon: CircleDot,        key: "nav_issues"    as const },
     { href: "/logs",     icon: ScrollText,        key: "nav_logs"      as const },
     { href: "/board",    icon: KanbanSquare,      key: "nav_board"     as const },
-    { href: "/mcp",      icon: Plug,             key: "nav_mcp"       as const },
+    { href: "/tools",    icon: Plug,             key: "nav_mcp"       as const },
     { href: "/schedule", icon: CalendarClock,     key: "nav_schedule"  as const },
     { href: "/about",    icon: Info,              key: "nav_about"     as const },
   ];

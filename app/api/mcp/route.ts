@@ -17,6 +17,16 @@ export interface McpServer {
   running: boolean;
 }
 
+export interface InstalledPlugin {
+  id: string;
+  name: string;
+  marketplace: string;
+  version: string;
+  scope: string;
+  installedAt: string;
+  lastUpdated: string;
+}
+
 const HOME = os.homedir();
 
 function readMcpServers(filePath: string, source: "global" | "project"): McpServer[] {
@@ -62,6 +72,32 @@ function isRunning(server: McpServer, psOutput: string): boolean {
     (needle.length > 3 ? psOutput.toLowerCase().includes(needle) : false);
 }
 
+function readPlugins(): InstalledPlugin[] {
+  try {
+    const filePath = path.join(HOME, ".claude/plugins/installed_plugins.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    const data = JSON.parse(raw);
+    const plugins: InstalledPlugin[] = [];
+    for (const [key, installs] of Object.entries(data.plugins ?? {})) {
+      const arr = installs as Array<Record<string, unknown>>;
+      const latest = arr[arr.length - 1];
+      const [name, marketplace] = key.split("@");
+      plugins.push({
+        id: key,
+        name,
+        marketplace: marketplace ?? "unknown",
+        version: (latest.version as string) ?? "?",
+        scope: (latest.scope as string) ?? "user",
+        installedAt: (latest.installedAt as string) ?? "",
+        lastUpdated: (latest.lastUpdated as string) ?? "",
+      });
+    }
+    return plugins;
+  } catch {
+    return [];
+  }
+}
+
 export async function GET() {
   const globalServers = readMcpServers(path.join(HOME, ".claude.json"), "global");
   const projectServers = readMcpServers(path.join(HOME, ".claude/mcp.json"), "project");
@@ -70,6 +106,7 @@ export async function GET() {
   const ps = getRunningProcesses();
 
   const servers = all.map(s => ({ ...s, running: isRunning(s, ps) }));
+  const plugins = readPlugins();
 
-  return NextResponse.json({ servers, updatedAt: new Date().toISOString() });
+  return NextResponse.json({ servers, plugins, updatedAt: new Date().toISOString() });
 }
