@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { McpServer } from "@/app/api/mcp/route";
+import type { McpServer } from "@/lib/mcp-types";
 
 const sourceColors = {
   global:  { text: "#8b5cf6", bg: "#8b5cf618" },

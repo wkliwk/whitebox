@@ -3,29 +3,11 @@ import os from "os";
 import path from "path";
 import { execSync } from "child_process";
 import { NextResponse } from "next/server";
+import type { McpServer, InstalledPlugin } from "@/lib/mcp-types";
 
 export const dynamic = "force-dynamic";
 
-export interface McpServer {
-  name: string;
-  source: "global" | "project";
-  type: "stdio" | "sse";
-  command: string;
-  args: string[];
-  env: Record<string, string>;
-  /** true if a matching process is currently running */
-  running: boolean;
-}
-
-export interface InstalledPlugin {
-  id: string;
-  name: string;
-  marketplace: string;
-  version: string;
-  scope: string;
-  installedAt: string;
-  lastUpdated: string;
-}
+export type { McpServer, InstalledPlugin };
 
 const HOME = os.homedir();
 
