@@ -2,7 +2,6 @@ import { Bot, CheckSquare, Activity } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { QuotaCard } from "@/components/QuotaCard";
-import { AgentSection } from "@/components/AgentSection";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { getDecisions, getAgentActivity, getProductRepos } from "@/lib/local";
@@ -69,8 +68,6 @@ export default async function Page() {
             />
           </div>
 
-          {/* Agent Status */}
-          <AgentSection />
         </div>
       </main>
     </div>
