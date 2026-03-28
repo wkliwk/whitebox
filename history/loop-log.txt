@@ -1,3 +1,4 @@
 2026-03-27 23:39 | whitebox | Migrated ai-company → whitebox. Deleted ai-company repo.
 2026-03-27 23:52 | whitebox | Pivoted data layer to local filesystem reads (#11)
 2026-03-27 23:57 | whitebox | Removed all ai-company references from commands + memory (#12)
+2026-03-28 00:06 | whitebox | Added live sessions panel with ps aux detection (#13)
