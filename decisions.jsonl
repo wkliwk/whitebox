@@ -1,4 +1,3 @@
-{"date":"2026-03-28","project":"money-flow-mobile","prompt":"PM audit + 3 issues: QuickAddRow stale chips, transaction search tags, haptic feedback","summary":"Fixed QuickAddRow stale data with useFocusEffect, added tag matching to transaction search, added haptic feedback to key UI interactions"}
 {"date":"2026-03-28","project":"pixsync","prompt":"Write ~/.pixsync/last-run.json after every push/run (#55)","summary":"Added write_last_run() to db.py, integrated into push/run CLI commands, --json flag for stdout output, 10 tests"}
 {"date":"2026-03-28","project":"whitebox","summary":"Global color contrast upgrade: text #333-#666 → #555-#888, row borders #1e1e1e → #222, hover bg → #242424, idle dots lifted to visible grey"}
 {"date":"2026-03-28","project":"agentscore","prompt":"issue #24 benchmark task grader","summary":"6 benchmark tasks with deterministic rubric grading, /benchmark page, API endpoint, profile CTA, 12 tests"}
@@ -48,3 +47,4 @@
 2026-03-28 18:24 | loop | #244 budget copy-last-month banner
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Budget template copy last month (#244)","summary":"CopyBudgetsBanner component + budgets.tsx integration — banner shown when current month empty but prev month has budgets, Promise.all copy, session-only dismiss"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Haptic feedback on key interactions (#248)","summary":"Medium haptic on swipe-delete confirm, Heavy on bulk-delete confirm, selectionAsync() on tab press"}
+{"date":"2026-03-28","project":"money-flow-mobile","prompt":"Upcoming recurring row with skip/edit (#256)","summary":"UpcomingRecurringRow component on dashboard — horizontal chips for items due this week, bottom sheet with skip/edit/view-all, optimistic skip via MMKV, repeat icon in Transactions header"}
