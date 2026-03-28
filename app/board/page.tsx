@@ -132,7 +132,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
       <Sidebar projects={sidebarProjects} />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-6 space-y-6">
+        <div className="max-w-[1400px] mx-auto px-8 py-6 space-y-8">
 
           {/* Header */}
           <div className="flex items-center justify-between">

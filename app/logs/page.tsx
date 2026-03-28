@@ -35,7 +35,7 @@ export default async function LogsPage() {
       <Sidebar projects={sidebarProjects} />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-6 space-y-10">
+        <div className="max-w-[1400px] mx-auto px-8 py-6 space-y-8">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Logs</div>
             <div className="text-sm text-[#888]">Activity history across all agents and projects</div>

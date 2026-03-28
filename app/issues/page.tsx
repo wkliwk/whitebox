@@ -38,7 +38,7 @@ export default async function IssuesPage() {
       <Sidebar projects={sidebarProjects} />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-6 space-y-8">
+        <div className="max-w-[1400px] mx-auto px-8 py-6 space-y-8">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Issues</div>
             <div className="text-sm text-[#888]">
