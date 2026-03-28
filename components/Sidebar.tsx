@@ -16,7 +16,7 @@ const agentColors: Record<string, string> = {
   finance: "#6366f1",
 };
 
-export function Sidebar({ agents, projects = ["money-flow-frontend", "money-flow-backend", "ai-company"] }: SidebarProps) {
+export function Sidebar({ agents, projects = [] }: SidebarProps) {
   const liveAgents = agents.filter(a => a.status === "running");
 
   return (
