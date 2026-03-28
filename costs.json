@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-03-28T00:00:00Z",
+  "month": "2026-03",
+  "budget": 5000,
+  "mtdSpend": 2000,
+  "currency": "USD",
+  "byAgent": {
+    "dev": 800,
+    "pm": 300,
+    "qa": 400,
+    "ops": 200,
+    "designer": 150,
+    "ceo": 100,
+    "finance": 50
+  },
+  "byCategory": {
+    "claude_pro": 2000,
+    "railway": 0,
+    "vercel": 0,
+    "mongodb_atlas": 0,
+    "github": 0
+  }
+}
