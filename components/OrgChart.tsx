@@ -221,6 +221,7 @@ export function OrgChart() {
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function refresh() {
@@ -229,11 +230,13 @@ export function OrgChart() {
         const data = await res.json();
         setSessions(data.sessions ?? []);
         setActiveTasks(data.activeTasks ?? []);
-      } catch { /* silent */ }
+      } catch { /* silent */ } finally {
+        setLoading(false);
+      }
     }
+    setMounted(true);
     refresh();
     const id = setInterval(refresh, 5000);
-    setMounted(true);
     return () => clearInterval(id);
   }, []);
 
@@ -248,7 +251,21 @@ export function OrgChart() {
         document.body
       )}
 
-      <div className="overflow-x-auto pb-8">
+      {loading && (
+        <div className="flex flex-col items-center gap-6 py-8 animate-pulse">
+          <div className="w-14 h-14 rounded-xl bg-[#1e1e1e]" />
+          <div className="flex items-start gap-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-[#1a1a1a]" />
+                <div className="h-2 w-12 rounded bg-[#1a1a1a]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
         <div className="flex flex-col items-center min-w-max">
           {/* Root */}
           <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
