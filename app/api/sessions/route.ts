@@ -24,6 +24,12 @@ export interface Session {
   label: string | null;
   /** Agent type from line 3 of cc-task file (e.g. "dev", "qa", "pm") */
   agentType: string | null;
+  /** GitHub issue number parsed from ISSUE= line in task file */
+  issueNumber: number | null;
+  /** GitHub repo parsed from ISSUE= line, e.g. "wkliwk/whitebox" (null if just #123 format) */
+  issueRepo: string | null;
+  /** Full GitHub URL to the issue (null if no repo context) */
+  issueUrl: string | null;
   /** Display title — label if set, otherwise auto-derived from flags */
   title: string;
   /** true if title was explicitly set by agent, false if auto-derived */
@@ -75,9 +81,44 @@ function inferAgentType(label: string): string | null {
 interface TaskEntry {
   label: string;
   agentType: string | null;
+  issueNumber: number | null;
+  issueRepo: string | null;
+  issueUrl: string | null;
   project: string;
   projectPath: string;
   updatedAt: string;
+}
+
+/** Parse an ISSUE= line from task file content lines. */
+function parseIssueLine(lines: string[]): { issueNumber: number | null; issueRepo: string | null; issueUrl: string | null } {
+  const issueLine = lines.find(l => l.startsWith("ISSUE="));
+  if (!issueLine) return { issueNumber: null, issueRepo: null, issueUrl: null };
+
+  const value = issueLine.slice("ISSUE=".length).trim();
+
+  // Format: owner/repo#123
+  const fullMatch = value.match(/^([a-zA-Z0-9_.\-]+\/[a-zA-Z0-9_.\-]+)#(\d+)$/);
+  if (fullMatch) {
+    const issueRepo = fullMatch[1];
+    const issueNumber = parseInt(fullMatch[2], 10);
+    return {
+      issueNumber,
+      issueRepo,
+      issueUrl: `https://github.com/${issueRepo}/issues/${issueNumber}`,
+    };
+  }
+
+  // Format: #123
+  const shortMatch = value.match(/^#(\d+)$/);
+  if (shortMatch) {
+    return {
+      issueNumber: parseInt(shortMatch[1], 10),
+      issueRepo: null,
+      issueUrl: null,
+    };
+  }
+
+  return { issueNumber: null, issueRepo: null, issueUrl: null };
 }
 
 function buildTaskMaps(): {
@@ -122,7 +163,9 @@ function buildTaskMaps(): {
       const explicitAgentType = lines[2] ?? null;
       const agentType = explicitAgentType || inferAgentType(label);
 
-      const entry: TaskEntry = { label, agentType, project, projectPath, updatedAt };
+      const { issueNumber, issueRepo, issueUrl } = parseIssueLine(lines);
+
+      const entry: TaskEntry = { label, agentType, issueNumber, issueRepo, issueUrl, project, projectPath, updatedAt };
 
       // New format: line 2 is PID
       const pid = parseInt(lines[1] ?? "");
@@ -266,6 +309,9 @@ export async function GET() {
           const project = task?.project ?? null;
           const label = task?.label ?? null;
           const agentType = task?.agentType ?? null;
+          const issueNumber = task?.issueNumber ?? null;
+          const issueRepo = task?.issueRepo ?? null;
+          const issueUrl = task?.issueUrl ?? null;
 
           let title: string;
           let titled: boolean;
@@ -280,7 +326,7 @@ export async function GET() {
             titled = false;
           }
 
-          sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
+          sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, issueNumber, issueRepo, issueUrl, title, titled, flags });
         }
 
         sessions.sort((a, b) => b.cpu - a.cpu);
