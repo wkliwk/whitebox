@@ -70,6 +70,15 @@ const RICH: Record<string, Partial<ProductDef>> = {
     status: "active",
     productionUrl: "https://whitebox-khaki.vercel.app/",
   },
+  "agentscore": {
+    tagline: "AI agent reliability scoring",
+    description: "Publish scored bundles, track agent quality over time. CLI + web dashboard.",
+    color: "#3b82f6",
+    goal: "Make AI agent quality measurable and comparable across teams.",
+    antiGoals: ["No vendor lock-in", "No storing raw agent prompts"],
+    status: "wip",
+    productionUrl: "https://agent-score-seven.vercel.app/",
+  },
   "pixsync": {
     tagline: "Unlimited Google Photos backup",
     description: "ADB-based photo relay — backs up photos via Pixel 1 auto-sync loophole.",
