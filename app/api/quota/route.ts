@@ -94,28 +94,17 @@ function readLegacyCache(): QuotaResponse | null {
 }
 
 export async function GET() {
-  // 1. Try statusline cache (good if Claude Code has run in last ~60s)
+  // 1. Statusline cache — use it if it exists at any age (freshness shown in UI)
   const statusline = readStatuslineCache();
-  if (statusline) {
-    const ageMs = statusline.updatedAt
-      ? Date.now() - new Date(statusline.updatedAt).getTime()
-      : Infinity;
-    // If cache is < 10 minutes old, use it directly
-    if (ageMs < 10 * 60 * 1000) {
-      return NextResponse.json(statusline);
-    }
-  }
-
-  // 2. Fetch live from Anthropic API
-  const live = await fetchLive();
-  if (live) return NextResponse.json(live);
-
-  // 3. Fall back to stale statusline cache (better than nothing)
   if (statusline) return NextResponse.json(statusline);
 
-  // 4. Final fallback: legacy usage-cache.json
+  // 2. Legacy usage-cache.json (written by capture.sh hook)
   const legacy = readLegacyCache();
   if (legacy) return NextResponse.json(legacy);
+
+  // 3. Last resort: live fetch from Anthropic API (slow if token expired)
+  const live = await fetchLive();
+  if (live) return NextResponse.json(live);
 
   return NextResponse.json({
     fiveHourPct: null, sevenDayPct: null, sevenDaySonnetPct: null,

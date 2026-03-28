@@ -168,19 +168,9 @@ export async function GET() {
       // 1. Try PID-based join (new format)
       let task = pidMap.get(pid) ?? null;
 
-      // 2. Fall back to cwd hash (old format)
-      if (!task) {
-        let cwd2: string | null = null;
-        try {
-          const cwdOut2 = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1500 }).toString();
-          const m = cwdOut2.match(/^n(.+)$/m);
-          cwd2 = m?.[1] ?? null;
-        } catch { /* skip */ }
-        if (cwd2 && cwd2 !== HOME && cwd2 !== `${HOME}/`) {
-          const cwdHash = createHash("md5").update(cwd2).digest("hex");
-          task = hashMap.get(cwdHash) ?? null;
-        }
-      }
+      // Note: lsof cwd lookup removed — all Claude processes report home dir,
+      // so hash matching never succeeds. activeTasks covers agent status instead.
+      const cwd: string | null = null;
 
       const project = task?.project ?? null;
       const label = task?.label ?? null;
@@ -198,13 +188,6 @@ export async function GET() {
         else title = "Claude Session";
         titled = false;
       }
-
-      const cwd: string | null = (() => {
-        try {
-          const cwdOut = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1000 }).toString();
-          return cwdOut.match(/^n(.+)$/m)?.[1] ?? null;
-        } catch { return null; }
-      })();
 
       sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
     }

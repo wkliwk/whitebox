@@ -20,30 +20,29 @@ export async function getRecentTasks(): Promise<RecentTask[]> {
   const repos = getProductRepos();
   const tasks: RecentTask[] = [];
 
-  for (const { owner, name: repo } of repos) {
-    try {
-      const { data } = await octokit.rest.issues.listForRepo({
-        owner, repo, state: "open", sort: "updated",
-        per_page: 20, direction: "desc",
-      });
+  // Fetch all repos in parallel
+  const results = await Promise.allSettled(
+    repos.map(({ owner, name: repo }) =>
+      octokit.rest.issues.listForRepo({ owner, repo, state: "open", sort: "updated", per_page: 20, direction: "desc" })
+        .then(({ data }) => ({ repo, data }))
+    )
+  );
 
-      for (const issue of data) {
-        if (issue.pull_request) continue;
-        const labels = issue.labels.map(l => typeof l === "object" ? l.name || "" : l);
-
-        let status: RecentTask["status"] = "todo";
-        if (labels.some(l => l.includes("in-progress"))) status = "in-progress";
-
-        let priority: RecentTask["priority"] = "p2";
-        if (labels.some(l => l.includes("p0"))) priority = "p0";
-        else if (labels.some(l => l.includes("p1"))) priority = "p1";
-
-        const agentLabel = labels.find(l => l.startsWith("agent:"));
-        const agent = agentLabel?.replace("agent:", "");
-
-        tasks.push({ number: issue.number, title: issue.title, status, priority, agent, updatedAt: issue.updated_at, url: issue.html_url, repo });
-      }
-    } catch { /* skip repo */ }
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    const { repo, data } = result.value;
+    for (const issue of data) {
+      if (issue.pull_request) continue;
+      const labels = issue.labels.map(l => typeof l === "object" ? l.name || "" : l);
+      let status: RecentTask["status"] = "todo";
+      if (labels.some(l => l.includes("in-progress"))) status = "in-progress";
+      let priority: RecentTask["priority"] = "p2";
+      if (labels.some(l => l.includes("p0"))) priority = "p0";
+      else if (labels.some(l => l.includes("p1"))) priority = "p1";
+      const agentLabel = labels.find(l => l.startsWith("agent:"));
+      const agent = agentLabel?.replace("agent:", "");
+      tasks.push({ number: issue.number, title: issue.title, status, priority, agent, updatedAt: issue.updated_at, url: issue.html_url, repo });
+    }
   }
 
   return tasks.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 20);
