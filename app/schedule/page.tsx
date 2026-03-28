@@ -15,8 +15,8 @@ export default function SchedulePage() {
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Schedule</div>
-            <div className="text-sm text-[#666]">Cron jobs and autonomous loop history</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Schedule</div>
+            <div className="text-sm text-[#888]">Cron jobs and autonomous loop history</div>
           </div>
 
           <SchedulePanel />

@@ -121,16 +121,16 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
         {/* Status dot — always visible, bottom-right corner */}
         <span
           className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
-          style={{ background: live ? color : "#3a3a3a", borderColor: "#111111" }}
+          style={{ background: live ? color : "#4a4a4a", borderColor: "#111111" }}
         />
       </div>
 
       {/* Name + role */}
       <div className="text-center">
-        <div className={`text-xs font-medium transition-colors ${live ? "text-[#e8e8e8]" : "text-[#666]"} group-hover:text-[#e8e8e8]`}>
+        <div className={`text-xs font-medium transition-colors ${live ? "text-[#e8e8e8]" : "text-[#888]"} group-hover:text-[#e8e8e8]`}>
           {node.name}
         </div>
-        <div className="text-[10px] text-[#444] leading-tight mt-0.5 max-w-[90px]">{node.role}</div>
+        <div className="text-[10px] text-[#888] leading-tight mt-0.5 max-w-[90px]">{node.role}</div>
         {live && label && (
           <div className="text-[9px] mt-1 max-w-[90px] truncate px-1.5 py-0.5 rounded" style={{ background: color + "18", color: color + "cc" }}>
             {label}
@@ -310,13 +310,13 @@ export function OrgChart() {
         <div className="flex items-center gap-5 mt-12 justify-center flex-wrap">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8b5cf6" }} />
-            <span className="text-[10px] text-[#555]">Live — running now</span>
+            <span className="text-[10px] text-[#777]">Live — running now</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
-            <span className="text-[10px] text-[#555]">Idle</span>
+            <span className="text-[10px] text-[#777]">Idle</span>
           </div>
-          <div className="text-[10px] text-[#3a3a3a]">· Click any node to view details</div>
+          <div className="text-[10px] text-[#777]">· Click any node to view details</div>
         </div>
       </div>
     </>

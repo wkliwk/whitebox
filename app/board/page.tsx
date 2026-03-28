@@ -46,15 +46,15 @@ function ItemCard({ item }: { item: BoardItem }) {
       className="block p-3 rounded-lg border border-[#222] hover:border-[#333] transition-colors group"
       style={{ background: "#1a1a1a" }}>
       <div className="flex items-start justify-between gap-2 mb-1.5">
-        <span className="text-[10px] text-[#444] shrink-0">#{item.number}</span>
-        <ExternalLink size={10} className="text-[#2a2a2a] group-hover:text-[#555] shrink-0 mt-0.5 transition-colors" />
+        <span className="text-[10px] text-[#888] shrink-0">#{item.number}</span>
+        <ExternalLink size={10} className="text-[#2a2a2a] group-hover:text-[#777] shrink-0 mt-0.5 transition-colors" />
       </div>
       <p className="text-xs text-[#ccc] leading-relaxed mb-2 group-hover:text-[#e8e8e8] transition-colors">
         {item.title}
       </p>
       <div className="flex items-center gap-1.5 flex-wrap">
         {item.repo && (
-          <span className="text-[9px] text-[#444] bg-[#222] px-1.5 py-0.5 rounded truncate max-w-[90px]">
+          <span className="text-[9px] text-[#888] bg-[#222] px-1.5 py-0.5 rounded truncate max-w-[90px]">
             {item.repo}
           </span>
         )}
@@ -71,7 +71,7 @@ function ItemCard({ item }: { item: BoardItem }) {
           </span>
         )}
         {item.size && (
-          <span className="text-[9px] text-[#333] bg-[#1e1e1e] px-1.5 py-0.5 rounded ml-auto">
+          <span className="text-[9px] text-[#777] bg-[#1e1e1e] px-1.5 py-0.5 rounded ml-auto">
             {item.size.toUpperCase()}
           </span>
         )}
@@ -131,14 +131,14 @@ export default async function BoardPage({ searchParams }: PageProps) {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Board</div>
+              <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Board</div>
               <div className="flex items-center gap-2">
                 <h1 className="text-sm font-semibold text-[#e8e8e8]">
                   {boardData?.title ?? activeDef?.label ?? `Project ${activeBoardNumber}`}
                 </h1>
                 {boardData && (
                   <a href={boardData.url} target="_blank" rel="noreferrer"
-                    className="text-[10px] text-[#444] hover:text-[#888] flex items-center gap-1">
+                    className="text-[10px] text-[#888] hover:text-[#888] flex items-center gap-1">
                     <GitHubIcon className="w-3 h-3" />
                   </a>
                 )}
@@ -147,7 +147,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
 
             {/* Item count badge */}
             {boardData && (
-              <div className="text-[10px] text-[#555]">
+              <div className="text-[10px] text-[#777]">
                 {boardData.items.length} items
               </div>
             )}
@@ -169,13 +169,13 @@ export default async function BoardPage({ searchParams }: PageProps) {
 
           {!process.env.GITHUB_TOKEN ? (
             <div className="py-12 text-center">
-              <div className="text-xs text-[#555] mb-1">Board data unavailable</div>
-              <div className="text-[10px] text-[#333]">Configure GITHUB_TOKEN in .env.local to enable this page</div>
+              <div className="text-xs text-[#777] mb-1">Board data unavailable</div>
+              <div className="text-[10px] text-[#777]">Configure GITHUB_TOKEN in .env.local to enable this page</div>
             </div>
           ) : !boardData ? (
             <div className="py-12 text-center">
-              <div className="text-xs text-[#555] mb-1">Could not load board</div>
-              <div className="text-[10px] text-[#333]">Board {activeBoardNumber} may not exist or is inaccessible</div>
+              <div className="text-xs text-[#777] mb-1">Could not load board</div>
+              <div className="text-[10px] text-[#777]">Board {activeBoardNumber} may not exist or is inaccessible</div>
             </div>
           ) : (
             /* Kanban columns — dynamic based on actual status values */
@@ -199,7 +199,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
                     {/* Cards */}
                     <div className="space-y-2">
                       {items.length === 0 ? (
-                        <div className="text-[10px] text-[#555] py-4 text-center border border-dashed border-[#2a2a2a] rounded-lg">
+                        <div className="text-[10px] text-[#777] py-4 text-center border border-dashed border-[#2a2a2a] rounded-lg">
                           Empty
                         </div>
                       ) : (

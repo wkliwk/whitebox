@@ -13,22 +13,22 @@ const projectColors: Record<string, string> = {
 export function DecisionLog({ decisions }: { decisions: Decision[] }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Decision Log</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Decision Log</div>
       {decisions.length === 0 ? (
-        <div className="text-xs text-[#444] py-8 text-center">No decisions logged yet</div>
+        <div className="text-xs text-[#888] py-8 text-center">No decisions logged yet</div>
       ) : (
         <div className="space-y-0">
           {decisions.map((d, i) => {
             const color = projectColors[d.project] || "#555";
             return (
-              <div key={i} className="py-2.5 border-b border-[#1e1e1e]">
+              <div key={i} className="py-2.5 border-b border-[#222]">
                 <div className="flex items-center gap-2 mb-1">
                   <a href={`https://github.com/wkliwk/${d.project}`} target="_blank" rel="noreferrer"
                     className="text-[10px] font-medium px-1.5 py-0.5 rounded hover:opacity-80"
                     style={{ background: color + "22", color }}>
                     {d.project}
                   </a>
-                  <span className="text-[10px] text-[#444]">{d.date}</span>
+                  <span className="text-[10px] text-[#888]">{d.date}</span>
                 </div>
                 <p className="text-xs text-[#999] leading-relaxed">
                   {d.summary.length > 120 ? d.summary.slice(0, 120) + "…" : d.summary}

@@ -56,9 +56,9 @@ export default function AboutPage() {
 
           {/* Header */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">About</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">About</div>
             <h1 className="text-xl font-bold text-[#e8e8e8] mt-1">wkliwk AI Company</h1>
-            <p className="text-sm text-[#666] mt-1 leading-relaxed max-w-xl">
+            <p className="text-sm text-[#888] mt-1 leading-relaxed max-w-xl">
               A solo-founder AI company where Claude agents handle 24/7 product development.
               Ricky acts as director — sets direction via Telegram, approves key decisions.
               Agents handle everything else.
@@ -67,18 +67,18 @@ export default function AboutPage() {
 
           {/* Vision */}
           <div className="rounded-lg border border-[#222] p-6" style={{ background: "#161616" }}>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-3">Vision</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-3">Vision</div>
             <blockquote className="text-sm text-[#ccc] leading-relaxed border-l-2 border-[#333] pl-4 italic">
               "Build and ship real products autonomously with minimal human intervention.
               The goal is a self-sustaining company where agents write code, review it, deploy it,
               and improve it — while I set direction from my phone."
             </blockquote>
-            <div className="mt-3 text-xs text-[#555]">— Ricky, founder</div>
+            <div className="mt-3 text-xs text-[#777]">— Ricky, founder</div>
           </div>
 
           {/* Agent Pipeline */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-4">Agent Pipeline</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-4">Agent Pipeline</div>
             <div className="flex items-center gap-2 flex-wrap mb-6">
               {(["ceo", "pm", "dev", "qa", "ops"] as const).map((id, i, arr) => {
                 const agent = AGENTS.find(a => a.id === id);
@@ -93,7 +93,7 @@ export default function AboutPage() {
                       </div>
                       <span className="text-xs font-medium" style={{ color }}>{agent?.name}</span>
                     </div>
-                    {i < arr.length - 1 && <ArrowRight size={12} className="text-[#333]" />}
+                    {i < arr.length - 1 && <ArrowRight size={12} className="text-[#777]" />}
                   </div>
                 );
               })}
@@ -104,7 +104,7 @@ export default function AboutPage() {
               {AGENTS.map(agent => {
                 const color = agentColors[agent.id] || "#555";
                 return (
-                  <div key={agent.id} className="rounded-lg p-4 border border-[#1e1e1e]"
+                  <div key={agent.id} className="rounded-lg p-4 border border-[#2a2a2a]"
                     style={{ background: "#161616" }}>
                     <div className="flex items-center gap-2.5 mb-2">
                       <div className="w-7 h-7 rounded flex items-center justify-center text-xs font-bold"
@@ -113,7 +113,7 @@ export default function AboutPage() {
                       </div>
                       <div>
                         <div className="text-xs font-semibold text-[#e8e8e8]">{agent.name}</div>
-                        <div className="text-[10px] text-[#555]">{agent.role}</div>
+                        <div className="text-[10px] text-[#777]">{agent.role}</div>
                       </div>
                     </div>
                     <p className="text-[11px] text-[#777] leading-relaxed">
@@ -127,7 +127,7 @@ export default function AboutPage() {
 
           {/* Phase Plan */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-4">Phase Plan</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-4">Phase Plan</div>
             <div className="space-y-3">
               {phases.map(p => (
                 <div key={p.label} className="flex items-start gap-4 p-4 rounded-lg border"
@@ -141,7 +141,7 @@ export default function AboutPage() {
                       {p.title}
                       {p.active && <span className="text-[9px] bg-[#22c55e22] text-[#22c55e] px-1.5 py-0.5 rounded-full">Current</span>}
                     </div>
-                    <div className="text-[11px] text-[#666] mt-0.5 leading-relaxed">{p.desc}</div>
+                    <div className="text-[11px] text-[#888] mt-0.5 leading-relaxed">{p.desc}</div>
                   </div>
                 </div>
               ))}
@@ -150,12 +150,12 @@ export default function AboutPage() {
 
           {/* Infrastructure */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-4">Infrastructure</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-4">Infrastructure</div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {infra.map(item => (
-                <div key={item.name} className="p-3 rounded-lg border border-[#1e1e1e]" style={{ background: "#161616" }}>
+                <div key={item.name} className="p-3 rounded-lg border border-[#2a2a2a]" style={{ background: "#161616" }}>
                   <div className="text-xs font-semibold mb-0.5" style={{ color: item.color }}>{item.name}</div>
-                  <div className="text-[11px] text-[#555]">{item.desc}</div>
+                  <div className="text-[11px] text-[#777]">{item.desc}</div>
                 </div>
               ))}
             </div>
@@ -163,7 +163,7 @@ export default function AboutPage() {
 
           {/* Slash Commands */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-4">Slash Commands</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-4">Slash Commands</div>
             <div className="space-y-6">
               {commandsByCategory.map(cat => (
                 <div key={cat.id}>
@@ -172,16 +172,16 @@ export default function AboutPage() {
                       style={{ background: cat.color + "22", color: cat.color }}>
                       {cat.label}
                     </span>
-                    <span className="text-[10px] text-[#333]">{cat.commands.length} commands</span>
+                    <span className="text-[10px] text-[#777]">{cat.commands.length} commands</span>
                   </div>
-                  <div className="rounded-lg border border-[#1e1e1e] overflow-hidden">
+                  <div className="rounded-lg border border-[#2a2a2a] overflow-hidden">
                     {cat.commands.map((cmd, i) => (
                       <div key={cmd.name}
-                        className={`flex items-start gap-4 px-4 py-2.5 ${i < cat.commands.length - 1 ? "border-b border-[#1a1a1a]" : ""}`}
+                        className={`flex items-start gap-4 px-4 py-2.5 ${i < cat.commands.length - 1 ? "border-b border-[#222]" : ""}`}
                         style={{ background: "#161616" }}>
                         <code className="text-[11px] font-mono shrink-0 mt-0.5 w-40"
                           style={{ color: cat.color }}>{cmd.name}</code>
-                        <span className="text-[11px] text-[#666] leading-relaxed">{cmd.description}</span>
+                        <span className="text-[11px] text-[#888] leading-relaxed">{cmd.description}</span>
                       </div>
                     ))}
                   </div>

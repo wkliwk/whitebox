@@ -110,7 +110,7 @@ export function SidebarAgentList() {
           return (
             <div key={agent.id}
               onClick={() => setOpenAgent({ id: agent.id, name: agent.name })}
-              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer group/agent">
+              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#242424] transition-colors cursor-pointer group/agent">
 
               {/* Avatar */}
               <div className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -120,7 +120,7 @@ export function SidebarAgentList() {
 
               {/* Name + subtitle */}
               <div className="flex-1 min-w-0">
-                <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#555]"}`}>
+                <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#777]"}`}>
                   {agent.name}
                 </span>
                 {subtitle && (
@@ -137,7 +137,7 @@ export function SidebarAgentList() {
                     style={{ background: color }} />
                 )}
                 <span className="relative inline-flex w-2 h-2 rounded-full"
-                  style={{ background: running ? color : "#333" }} />
+                  style={{ background: running ? color : "#4a4a4a" }} />
               </span>
             </div>
           );

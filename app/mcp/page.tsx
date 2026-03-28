@@ -14,7 +14,7 @@ export default function McpPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-6">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Integrations</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Integrations</div>
             <h1 className="text-sm font-semibold text-[#e8e8e8]">MCP Servers</h1>
           </div>
           <McpPanel />

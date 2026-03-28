@@ -34,7 +34,7 @@ export function Sidebar({ projects = [] }: SidebarProps) {
           <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-xs font-bold text-white">W</div>
           <span className="font-semibold text-[#e8e8e8] text-sm">Whitebox</span>
         </div>
-        <Search size={14} className="text-[#666]" />
+        <Search size={14} className="text-[#888]" />
       </div>
 
       {/* Nav links (client — reads language context) */}

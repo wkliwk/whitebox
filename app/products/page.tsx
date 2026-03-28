@@ -53,11 +53,11 @@ export default async function ProductsPage() {
         <div className="px-8 py-6 space-y-8">
           {/* Header */}
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Products</div>
-            <div className="text-sm text-[#666]">
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Products</div>
+            <div className="text-sm text-[#888]">
               {PRODUCTS.length} launched
               {ideasBoard && ideasBoard.items.length > 0 && (
-                <span className="text-[#3a3a3a] ml-2">· {ideasBoard.items.length} ideas in pipeline</span>
+                <span className="text-[#777] ml-2">· {ideasBoard.items.length} ideas in pipeline</span>
               )}
             </div>
           </div>
@@ -92,16 +92,16 @@ export default async function ProductsPage() {
                           {statusLabel[product.status]}
                         </span>
                       </div>
-                      <div className="text-xs text-[#666] mt-0.5">{product.tagline}</div>
+                      <div className="text-xs text-[#888] mt-0.5">{product.tagline}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] text-[#444]">
+                    <span className="text-[10px] text-[#888]">
                       {platformLabel[product.platform]}
                     </span>
                     <a href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
                       target="_blank" rel="noreferrer"
-                      className="text-[#333] hover:text-[#666] transition-colors"
+                      className="text-[#777] hover:text-[#888] transition-colors"
                       title={`Board #${product.boardNumber}`}>
                       <GitHubIcon className="w-3 h-3" />
                     </a>
@@ -113,8 +113,8 @@ export default async function ProductsPage() {
 
                 {/* Goal */}
                 <div className="flex items-start gap-2">
-                  <Target size={11} className="text-[#444] shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-[#666] leading-relaxed">{product.goal}</p>
+                  <Target size={11} className="text-[#888] shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-[#888] leading-relaxed">{product.goal}</p>
                 </div>
 
                 {/* Anti-goals */}
@@ -122,8 +122,8 @@ export default async function ProductsPage() {
                   <div className="space-y-1">
                     {product.antiGoals.map((ag, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <XCircle size={10} className="text-[#333] shrink-0" />
-                        <span className="text-[10px] text-[#444]">{ag}</span>
+                        <XCircle size={10} className="text-[#777] shrink-0" />
+                        <span className="text-[10px] text-[#888]">{ag}</span>
                       </div>
                     ))}
                   </div>
@@ -134,28 +134,28 @@ export default async function ProductsPage() {
                   {product.productionUrl && (
                     <a href={product.productionUrl}
                       target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] text-[#555] hover:text-[#999] transition-colors">
+                      className="flex items-center gap-1.5 text-[10px] text-[#777] hover:text-[#999] transition-colors">
                       <Globe size={10} />
                       <span>Live</span>
-                      <ExternalLink size={8} className="text-[#333]" />
+                      <ExternalLink size={8} className="text-[#777]" />
                     </a>
                   )}
                   {product.repos.map(repo => (
                     <a key={repo.name}
                       href={`https://github.com/${repo.owner}/${repo.name}`}
                       target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] text-[#555] hover:text-[#999] transition-colors">
+                      className="flex items-center gap-1.5 text-[10px] text-[#777] hover:text-[#999] transition-colors">
                       <GitBranch size={10} />
                       <span>{repo.label}</span>
-                      <ExternalLink size={8} className="text-[#333]" />
+                      <ExternalLink size={8} className="text-[#777]" />
                     </a>
                   ))}
                   <a href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
                     target="_blank" rel="noreferrer"
-                    className="flex items-center gap-1.5 text-[10px] text-[#555] hover:text-[#999] transition-colors ml-auto">
+                    className="flex items-center gap-1.5 text-[10px] text-[#777] hover:text-[#999] transition-colors ml-auto">
                     <LayoutGrid size={10} />
                     <span>Board #{product.boardNumber}</span>
-                    <ExternalLink size={8} className="text-[#333]" />
+                    <ExternalLink size={8} className="text-[#777]" />
                   </a>
                 </div>
               </div>
@@ -166,9 +166,9 @@ export default async function ProductsPage() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb size={13} className="text-[#f97316]" />
-                <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium">Ideas Pipeline</div>
+                <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium">Ideas Pipeline</div>
                 <a href={ideasBoard.url} target="_blank" rel="noreferrer"
-                  className="ml-auto text-[10px] text-[#333] hover:text-[#666] flex items-center gap-1 transition-colors">
+                  className="ml-auto text-[10px] text-[#777] hover:text-[#888] flex items-center gap-1 transition-colors">
                   <GitHubIcon className="w-3 h-3" />
                   <span>View board</span>
                 </a>
@@ -191,7 +191,7 @@ export default async function ProductsPage() {
                           style={{ background: sc.bg, color: sc.text }}>
                           {status}
                         </span>
-                        <span className="text-[10px] text-[#333]">{group.length}</span>
+                        <span className="text-[10px] text-[#777]">{group.length}</span>
                       </div>
                       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
                         {group.map(idea => {
@@ -200,21 +200,21 @@ export default async function ProductsPage() {
                               {idea.number && (
                                 <span className="text-[10px] text-[#2a2a2a] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
                               )}
-                              <span className="text-xs text-[#666] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
+                              <span className="text-xs text-[#888] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
                                 {idea.title}
                               </span>
-                              {idea.url && <ExternalLink size={9} className="text-[#2a2a2a] group-hover:text-[#555] shrink-0 mt-0.5 transition-colors" />}
+                              {idea.url && <ExternalLink size={9} className="text-[#2a2a2a] group-hover:text-[#777] shrink-0 mt-0.5 transition-colors" />}
                             </>
                           );
                           return idea.url ? (
                             <a key={idea.id} href={idea.url} target="_blank" rel="noreferrer"
-                              className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] hover:border-[#2a2a2a] transition-colors group"
+                              className="flex items-start gap-3 p-3 rounded-lg border border-[#2a2a2a] hover:border-[#2a2a2a] transition-colors group"
                               style={{ background: "#161616" }}>
                               {inner}
                             </a>
                           ) : (
                             <div key={idea.id}
-                              className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] group"
+                              className="flex items-start gap-3 p-3 rounded-lg border border-[#2a2a2a] group"
                               style={{ background: "#161616" }}>
                               {inner}
                             </div>
@@ -232,7 +232,7 @@ export default async function ProductsPage() {
           {!process.env.GITHUB_TOKEN && (
             <div className="border border-dashed border-[#1e1e1e] rounded-lg p-6 text-center">
               <Lightbulb size={16} className="text-[#2a2a2a] mx-auto mb-2" />
-              <div className="text-xs text-[#444]">Ideas pipeline unavailable</div>
+              <div className="text-xs text-[#888]">Ideas pipeline unavailable</div>
               <div className="text-[10px] text-[#2a2a2a] mt-1">Set GITHUB_TOKEN in .env.local</div>
             </div>
           )}

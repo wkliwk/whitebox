@@ -29,7 +29,7 @@ export function LiveSessions() {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium">
+        <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium">
           Live Sessions
           {sessions.length > 0 && (
             <span className="ml-2 inline-flex items-center gap-1 text-[10px] bg-[#3b82f622] text-[#3b82f6] px-1.5 py-0.5 rounded-full font-medium">
@@ -38,17 +38,17 @@ export function LiveSessions() {
             </span>
           )}
         </div>
-        {updatedAt && <span className="text-[10px] text-[#333]">live</span>}
+        {updatedAt && <span className="text-[10px] text-[#777]">live</span>}
       </div>
 
       {loading ? (
-        <div className="text-xs text-[#444] py-4">Detecting sessions…</div>
+        <div className="text-xs text-[#888] py-4">Detecting sessions…</div>
       ) : sessions.length === 0 ? (
-        <div className="text-xs text-[#444] py-4 text-center">No active Claude sessions</div>
+        <div className="text-xs text-[#888] py-4 text-center">No active Claude sessions</div>
       ) : (
         <div className="space-y-0">
           {sessions.map(s => (
-            <div key={s.pid} className="flex items-center gap-3 py-2.5 border-b border-[#1e1e1e]">
+            <div key={s.pid} className="flex items-center gap-3 py-2.5 border-b border-[#222]">
               {/* Status dot — pulsing if titled (agent actively labeled it), static if inferred */}
               <span className="relative flex shrink-0">
                 {s.titled && (
@@ -60,15 +60,15 @@ export function LiveSessions() {
 
               {/* Title + meta */}
               <div className="flex-1 min-w-0">
-                <div className={`text-xs font-medium truncate ${s.titled ? "text-[#e8e8e8]" : "text-[#666]"}`}>
+                <div className={`text-xs font-medium truncate ${s.titled ? "text-[#e8e8e8]" : "text-[#888]"}`}>
                   {s.title}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                   {s.project && (
-                    <span className="text-[10px] text-[#555]">{s.project}</span>
+                    <span className="text-[10px] text-[#777]">{s.project}</span>
                   )}
                   {s.flags.map(f => (
-                    <span key={f} className="text-[10px] text-[#3a3a3a] bg-[#1a1a1a] px-1 py-0.5 rounded">{f}</span>
+                    <span key={f} className="text-[10px] text-[#777] bg-[#1a1a1a] px-1 py-0.5 rounded">{f}</span>
                   ))}
                   <span className="text-[10px] text-[#2e2e2e]">PID {s.pid}</span>
                 </div>
@@ -76,8 +76,8 @@ export function LiveSessions() {
 
               {/* Stats */}
               <div className="text-right shrink-0">
-                <div className="text-[10px] text-[#555]">{s.cpu}% CPU</div>
-                <div className="text-[10px] text-[#3a3a3a]">{s.elapsed}</div>
+                <div className="text-[10px] text-[#777]">{s.cpu}% CPU</div>
+                <div className="text-[10px] text-[#777]">{s.elapsed}</div>
               </div>
             </div>
           ))}

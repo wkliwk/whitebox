@@ -31,8 +31,8 @@ export default function LogsPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-10">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Logs</div>
-            <div className="text-sm text-[#666]">Activity history across all agents and projects</div>
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Logs</div>
+            <div className="text-sm text-[#888]">Activity history across all agents and projects</div>
           </div>
 
           {/* Recent Activity */}

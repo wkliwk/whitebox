@@ -15,7 +15,7 @@ export default function TeamsPage() {
       <Sidebar projects={sidebarProjects} />
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6">
-          <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Organisation</div>
+          <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Organisation</div>
           <h1 className="text-sm font-semibold text-[#e8e8e8] mb-8">Teams</h1>
           <OrgChart />
         </div>
