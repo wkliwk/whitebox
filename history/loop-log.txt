@@ -5,3 +5,4 @@
 2026-03-28 00:22 | whitebox | Added task descriptions to live sessions panel (#14)
 2026-03-28 00:31 | whitebox | Removed hardcoded ai-company from Sidebar (#15)
 2026-03-28 00:35 | whitebox | Auto-discover repos from ~/Dev/ (#16)
+2026-03-28 00:36 | whitebox | Projects + decisions now link to GitHub repos (#17)

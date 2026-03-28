@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { TaskList } from "@/components/TaskList";
-import { AgentStatusPanel } from "@/components/AgentStatusPanel";
+import { AgentSection } from "@/components/AgentSection";
 import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
 import { LiveSessions } from "@/components/LiveSessions";
@@ -109,7 +109,7 @@ export default async function Page() {
           <LoopLog entries={loopLog} />
 
           {/* Agent Status */}
-          <AgentStatusPanel agents={agentRows} />
+          <AgentSection agents={agentRows} />
 
           {/* Decisions */}
           <DecisionLog decisions={decisions} />
