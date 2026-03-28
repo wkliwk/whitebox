@@ -11,7 +11,6 @@ const agentColors: Record<string, string> = {
   ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
 };
 
-/** Aliases for keyword fallback (when no agentType line in task file) */
 const agentAliases: Record<string, string[]> = {
   ceo: ["ceo", "chief", "strategy", "idea"],
   pm: ["pm", "product", "planning", "prd", "issue"],
@@ -22,7 +21,6 @@ const agentAliases: Record<string, string[]> = {
   finance: ["finance", "cost", "billing"],
 };
 
-/** Normalize agent type from task file — handles "frontend-dev", "backend-dev" → "dev" */
 function normalizeAgentType(raw: string): string {
   if (raw === "frontend-dev" || raw === "backend-dev") return "dev";
   return raw;
@@ -35,23 +33,19 @@ interface AgentStatus {
 }
 
 function resolveAgentStatus(agentId: string, sessions: Session[]): AgentStatus {
-  // 1. Exact agentType match (new format)
   for (const s of sessions) {
     if (s.agentType && normalizeAgentType(s.agentType) === agentId) {
       return { running: true, label: s.label, project: s.project };
     }
   }
-
-  // 2. Keyword fallback (old format — no agentType in file)
   const aliases = agentAliases[agentId] ?? [agentId];
   for (const s of sessions) {
-    if (s.agentType) continue; // already handled above
+    if (s.agentType) continue;
     const haystack = `${s.label ?? ""} ${s.title ?? ""} ${s.project ?? ""}`.toLowerCase();
     if (aliases.some(a => haystack.includes(a))) {
       return { running: true, label: s.label, project: s.project };
     }
   }
-
   return { running: false, label: null, project: null };
 }
 
@@ -82,59 +76,50 @@ export function SidebarAgentList() {
         />
       )}
 
-      <div className="space-y-0">
+      <div className="space-y-0.5">
         {AGENTS.map(agent => {
           const color = agentColors[agent.id] || "#555";
           const { running, label, project } = resolveAgentStatus(agent.id, sessions);
+          const subtitle = running ? (label ?? project ?? null) : null;
 
           return (
             <div key={agent.id}
               onClick={() => setOpenAgent({ id: agent.id, name: agent.name })}
-              className="flex items-center gap-2 px-1 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer group/agent">
-              {/* Status dot */}
-              <span className="relative flex w-1.5 h-1.5 shrink-0">
-                {running && (
-                  <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping"
-                    style={{ background: color }} />
-                )}
-                <span className="relative inline-flex w-1.5 h-1.5 rounded-full"
-                  style={{ background: running ? color : "#2a2a2a" }} />
-              </span>
+              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer group/agent">
 
               {/* Avatar */}
-              <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0"
-                style={{ background: color + "33", color }}>
+              <div className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                style={{ background: color + (running ? "33" : "18"), color: running ? color : color + "66" }}>
                 {agent.name[0]}
               </div>
 
-              {/* Name + status */}
+              {/* Name + subtitle */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#555]"}`}>
-                    {agent.name}
-                  </span>
-                  {running && (
-                    <span className="text-[9px] px-1 py-0.5 rounded-full font-medium shrink-0"
-                      style={{ background: color + "22", color }}>
-                      live
-                    </span>
-                  )}
-                </div>
-
-                {/* Current task or idle state */}
-                {running && label ? (
-                  <div className="text-[10px] truncate" style={{ color: color + "aa" }}>
-                    {label}
+                <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#555]"}`}>
+                  {agent.name}
+                </span>
+                {subtitle && (
+                  <div className="text-[10px] truncate leading-tight" style={{ color: color + "88" }}>
+                    {subtitle}
                   </div>
-                ) : running && project ? (
-                  <div className="text-[10px] text-[#444] truncate">{project}</div>
-                ) : (
-                  <div className="text-[10px] text-[#444]">Idle</div>
                 )}
               </div>
 
-              {/* Drawer affordance */}
-              <ChevronRight size={10} className="text-[#333] group-hover/agent:text-[#666] shrink-0 transition-colors" />
+              {/* Right side: live badge or chevron */}
+              {running ? (
+                <span className="flex items-center gap-1 shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                  style={{ background: color + "18", color }}>
+                  <span className="relative flex w-1.5 h-1.5">
+                    <span className="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping"
+                      style={{ background: color }} />
+                    <span className="relative inline-flex w-1.5 h-1.5 rounded-full"
+                      style={{ background: color }} />
+                  </span>
+                  live
+                </span>
+              ) : (
+                <ChevronRight size={10} className="text-[#2a2a2a] group-hover/agent:text-[#555] shrink-0 transition-colors" />
+              )}
             </div>
           );
         })}
