@@ -123,15 +123,16 @@ export function QuotaCard() {
   return (
     <div className="rounded-lg p-4 flex flex-col gap-3" style={{ background: "#1c1c1c", border: "1px solid #2a2a2a" }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <a href="https://claude.ai/settings/usage" target="_blank" rel="noopener noreferrer"
+        className="flex items-center justify-between group">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: "#2a2a2a" }}>
-            <Zap size={13} className="text-[#888]" />
+            <Zap size={13} className="text-[#888] group-hover:text-[#e8e8e8] transition-colors" />
           </div>
-          <span className="text-[10px] uppercase tracking-widest text-[#777] font-medium">Quota</span>
+          <span className="text-[10px] uppercase tracking-widest text-[#777] font-medium group-hover:text-[#e8e8e8] transition-colors">Quota</span>
         </div>
         <span className="text-[10px] font-medium" style={{ color: stale.color }}>{stale.label}</span>
-      </div>
+      </a>
 
       {/* 5h */}
       <QuotaRow

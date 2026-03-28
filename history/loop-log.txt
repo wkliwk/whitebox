@@ -6,3 +6,30 @@
 2026-03-28 00:31 | whitebox | Removed hardcoded ai-company from Sidebar (#15)
 2026-03-28 00:35 | whitebox | Auto-discover repos from ~/Dev/ (#16)
 2026-03-28 00:36 | whitebox | Projects + decisions now link to GitHub repos (#17)
+2026-03-28 00:39 | whitebox | Agent click → drawer with role description (#18)
+2026-03-28 04:05 | loop | completed #73 budget detail screen, merged PR #80
+2026-03-28 04:14 | loop | completed #71 onboarding flow, opened PR #82
+2026-03-28 04:32 | loop | completed #78 reports screen, opened PR #84
+2026-03-28 04:32 | loop | merged #72 custom categories (background agent), PR #83
+2026-03-28 04:46 | loop | completed QA audit + critical fixes, opened PR #89
+2026-03-28 04:52 | loop | FormPilot QA audit: closed #76-82 (6 security/reliability fixes), fixed Prisma 7 config for deploy, deployed to prod
+2026-03-28 05:06 | loop | completed #70 photo receipts (conflict resolution), opened PR #91
+2026-03-28 05:34 | loop | PixSync MVP complete — all 5 initial issues done (#1-#5), 28 tests passing, CI green
+2026-03-28 06:23 | loop | PixSync phase 2+3: #12 run, #13 wifi-adb, #15 config, #16 storage, #20 ios-intake, #22 formats — all done. Remaining: #14 watcher, #21 live-photo
+2026-03-28 06:27 | loop | PixSync iOS pipeline complete: #20 ios-intake, #21 motion-photo, #22 formats. Only #14 (watcher) remains with bg agent.
+2026-03-28 06:35 | loop | Completed: #34 (savings goals), #218 (icons), #224 (recurring sync), #226 (goals sync), #223 (CI fix). Board cleanup: moved #165, #24, #190 to Done. Created #224, #225, #226. Background: #225 in progress.
+2026-03-28 06:49 | loop | Session complete: 7 tasks done (#34, #218, #223, #224, #225, #226, #229). Board: 220 Done, 2 P3 remaining. All localStorage features now backend-synced.
+2026-03-28 07:08 | loop | Completed: #118 (BE CI fix), #234 (closed, already exists), #235 (budget alerts). Created #234, #235, #236. Background: #236 in progress. API rate limited.
+2026-03-28 07:09 | loop | BLOCKED: GitHub API rate limit exhausted (0 remaining). Resets at 11:42 UTC. Skipping this loop.
+2026-03-28 07:14 | loop | Fixed sidebar agent clicks (createPortal) + added status dots + OrgChart dot fix (#57, #35, #22)
+2026-03-28 07:16 | loop | SKIPPED: GitHub API rate limit still 0. Resets 11:42 UTC.
+2026-03-28 07:44 | loop | Merged PR #238 (spending deltas). All FE/BE tasks done. Board: only P3 remaining.
+2026-03-28 08:52 | loop | feat: HEIC auto-conversion to JPEG before push (#49)
+2026-03-28 09:07 | loop | test: add test_db.py — unit tests for pixsync/db.py (#54)
+2026-03-28 09:15 | loop | feat: write ~/.pixsync/last-run.json after every push/run (#55)
+2026-03-28 11:33 | loop | Board check: MF FE/BE clear (P3 only). MF Mobile has P1 #14. Company Ops has 15 items. Session context heavy — recommending fresh session.
+2026-03-28 11:37 | loop | Color contrast upgrade — 29 files, text #444→#888, borders, hover states (#59)
+2026-03-28 14:52 | loop | #31 UI/UX audit — posted structured audit + applied 5 quick wins (nav dot, ideas numbers, PID label, search icon removed, board colors)
+2026-03-28 14:55 | loop | #8 Mobile nav hamburger menu — MobileNav.tsx + SidebarNav onNavItemClick prop, PR #62 merged
+2026-03-28 15:00 | loop | AgentScore: completed #24 benchmark grader, #26 #28 DB-driven pages, #27 bundle persistence
+2026-03-28 15:10 | loop | #9 PRODUCT_REPOS updated on Vercel, CLAUDE.md documented, Turbopack fix (ToolsPanel import path)
