@@ -1,4 +1,3 @@
-{"date":"2026-03-28","project":"money-flow-mobile","prompt":"idle QA: fill remaining coverage — category service, onboarding lib","summary":"Added 9 tests covering category API calls and onboarding MMKV read/write"}
 {"date":"2026-03-28","project":"pixsync","summary":"Project scaffolding complete — Python package with Click CLI, ruff, mypy, pytest, GitHub Actions CI"}
 {"date":"2026-03-28","project":"pixsync","summary":"CLI commands (scan/push/status) + db/queue/adb modules — full MVP pipeline"}
 {"date":"2026-03-28","project":"pixsync","summary":"Google Photos sync verification and cleanup — full pipeline complete: scan → push → verify"}
@@ -48,3 +47,4 @@
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"CSV transaction import from bank export","summary":"Added lib/csv-import.ts (Format A+B parser, dedup, 21 tests), Settings Import Transactions row with document picker + preview + batch import"}
 {"date":"2026-03-28","project":"pixsync","prompt":"issue #39 push completion notification","summary":"Added notify.py with macOS osascript and Telegram bot notification support; integrated send_notification into push and run CLI commands with elapsed time tracking; 20 tests added"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"issue #153 transaction tags","summary":"Added per-transaction MMKV tags with chip UI in add screen, recent tag suggestions, tag filter in FilterSheet, OR-logic filter in transactions list"}
+{"date":"2026-03-28","project":"pixsync","prompt":"issue #38 perceptual duplicate detection","summary":"Added pHash near-duplicate detection via imagehash; Hamming distance check against synced/verified records; dedup_threshold config; duplicates_skipped lifetime counter; 16 new tests"}
