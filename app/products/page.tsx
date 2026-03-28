@@ -72,13 +72,21 @@ export default async function ProductsPage() {
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded flex items-center justify-center text-sm font-bold flex-shrink-0"
+                    <a
+                      href={product.repos[0] ? `https://github.com/${product.repos[0].owner}/${product.repos[0].name}` : `https://github.com/users/wkliwk/projects/${product.boardNumber}`}
+                      target="_blank" rel="noreferrer"
+                      className="w-9 h-9 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 hover:opacity-80 transition-opacity"
                       style={{ background: product.color + "22", color: product.color }}>
                       {product.name[0]}
-                    </div>
+                    </a>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#e8e8e8]">{product.name}</span>
+                        <a
+                          href={product.repos[0] ? `https://github.com/${product.repos[0].owner}/${product.repos[0].name}` : `https://github.com/users/wkliwk/projects/${product.boardNumber}`}
+                          target="_blank" rel="noreferrer"
+                          className="text-sm font-semibold text-[#e8e8e8] hover:text-white transition-colors">
+                          {product.name}
+                        </a>
                         <span className="text-[10px] px-1.5 py-0.5 rounded font-medium"
                           style={{ background: statusColor[product.status] + "22", color: statusColor[product.status] }}>
                           {statusLabel[product.status]}
@@ -87,9 +95,17 @@ export default async function ProductsPage() {
                       <div className="text-xs text-[#666] mt-0.5">{product.tagline}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] text-[#444] shrink-0 mt-1">
-                    {platformLabel[product.platform]}
-                  </span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-[#444]">
+                      {platformLabel[product.platform]}
+                    </span>
+                    <a href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
+                      target="_blank" rel="noreferrer"
+                      className="text-[#333] hover:text-[#666] transition-colors"
+                      title={`Board #${product.boardNumber}`}>
+                      <LayoutGrid size={12} />
+                    </a>
+                  </div>
                 </div>
 
                 {/* Description */}
