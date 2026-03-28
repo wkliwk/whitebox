@@ -1,4 +1,4 @@
-import { LayoutDashboard, Inbox, Tag, Target, Search } from "lucide-react";
+import { LayoutDashboard, Package, Inbox, Tag, Target, Search } from "lucide-react";
 import type { Agent } from "@/lib/agents";
 
 interface Project {
@@ -39,7 +39,7 @@ export function Sidebar({ agents, projects = [] }: SidebarProps) {
 
       {/* Nav */}
       <div className="px-2 py-3 space-y-0.5">
-        <button className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#e8e8e8] bg-[#2a2a2a] text-xs">
+        <a href="/" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#999] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
           <LayoutDashboard size={13} />
           <span className="flex-1 text-left">Dashboard</span>
           {liveAgents.length > 0 && (
@@ -48,11 +48,11 @@ export function Sidebar({ agents, projects = [] }: SidebarProps) {
               {liveAgents.length} live
             </span>
           )}
-        </button>
-        <button className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] text-xs">
-          <Inbox size={13} />
-          <span>Inbox</span>
-        </button>
+        </a>
+        <a href="/products" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <Package size={13} />
+          <span>Products</span>
+        </a>
       </div>
 
       {/* Projects */}
