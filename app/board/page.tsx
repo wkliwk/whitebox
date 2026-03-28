@@ -28,7 +28,7 @@ function getStatusColor(status: string) {
 }
 
 const priorityColors: Record<string, string> = {
-  p0: "#ef4444", p1: "#f97316", p2: "#555",
+  p0: "#ef4444", p1: "#f97316", p2: "#777",
 };
 
 const agentColors: Record<string, string> = {
@@ -199,7 +199,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
                     {/* Cards */}
                     <div className="space-y-2">
                       {items.length === 0 ? (
-                        <div className="text-[10px] text-[#777] py-4 text-center border border-dashed border-[#2a2a2a] rounded-lg">
+                        <div className="text-[10px] text-[#777] py-4 text-center border border-dashed border-[#333] rounded-lg">
                           Empty
                         </div>
                       ) : (

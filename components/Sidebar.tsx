@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 import { SidebarNav, SidebarFooter, SidebarSectionLabel } from "./SidebarNav";
 import { SidebarAgentList } from "./SidebarAgentList";
 import { SidebarProjects } from "./SidebarProjects";
@@ -29,12 +28,9 @@ export function Sidebar({ projects = [] }: SidebarProps) {
       className="hidden md:flex flex-col h-screen sticky top-0 overflow-y-auto">
 
       {/* Logo */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-[#2a2a2a]">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-xs font-bold text-white">W</div>
-          <span className="font-semibold text-[#e8e8e8] text-sm">Whitebox</span>
-        </div>
-        <Search size={14} className="text-[#888]" />
+      <div className="flex items-center px-4 py-4 border-b border-[#2a2a2a] gap-2">
+        <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-xs font-bold text-white">W</div>
+        <span className="font-semibold text-[#e8e8e8] text-sm">Whitebox</span>
       </div>
 
       {/* Nav links (client — reads language context) */}

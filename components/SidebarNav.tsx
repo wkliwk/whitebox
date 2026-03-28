@@ -4,7 +4,11 @@ import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, K
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function SidebarNav() {
+interface SidebarNavProps {
+  onNavItemClick?: () => void;
+}
+
+export function SidebarNav({ onNavItemClick }: SidebarNavProps = {}) {
   const { t } = useLanguage();
   const pathname = usePathname();
 
@@ -30,7 +34,7 @@ export function SidebarNav() {
       {navItems.map(({ href, icon: Icon, key }) => {
         const active = isActive(href);
         return (
-          <a key={href} href={href}
+          <a key={href} href={href} onClick={onNavItemClick}
             className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-xs transition-colors ${
               active
                 ? "bg-[#242424] text-[#e8e8e8]"
@@ -38,7 +42,7 @@ export function SidebarNav() {
             }`}>
             <Icon size={13} className={active ? "text-[#888]" : ""} />
             <span className="flex-1">{t(key)}</span>
-            {active && <span className="w-1 h-1 rounded-full bg-[#555] shrink-0" />}
+            {active && <span className="w-1.5 h-1.5 rounded-full bg-[#e8e8e8] shrink-0" />}
           </a>
         );
       })}

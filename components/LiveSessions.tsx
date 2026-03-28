@@ -70,7 +70,7 @@ export function LiveSessions() {
                   {s.flags.map(f => (
                     <span key={f} className="text-[10px] text-[#777] bg-[#1a1a1a] px-1 py-0.5 rounded">{f}</span>
                   ))}
-                  <span className="text-[10px] text-[#2e2e2e]">PID {s.pid}</span>
+                  <span className="text-[10px] text-[#3a3a3a]">PID {s.pid}</span>
                 </div>
               </div>
 

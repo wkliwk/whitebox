@@ -198,7 +198,7 @@ export default async function ProductsPage() {
                           const inner = (
                             <>
                               {idea.number && (
-                                <span className="text-[10px] text-[#2a2a2a] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
+                                <span className="text-[10px] text-[#555] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
                               )}
                               <span className="text-xs text-[#888] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
                                 {idea.title}
