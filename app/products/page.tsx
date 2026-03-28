@@ -142,7 +142,7 @@ export default async function ProductsPage() {
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb size={13} className="text-[#f97316]" />
                 <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium">Ideas Pipeline</div>
-                <a href="/board?board=3"
+                <a href={ideasBoard.url} target="_blank" rel="noreferrer"
                   className="ml-auto text-[10px] text-[#333] hover:text-[#666] flex items-center gap-1 transition-colors">
                   <GitHubIcon className="w-3 h-3" />
                   <span>View board</span>
