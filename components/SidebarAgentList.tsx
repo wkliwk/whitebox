@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
 import { AGENTS } from "@/lib/agents";
 import { AgentDrawer } from "./AgentDrawer";
@@ -72,8 +72,10 @@ export function SidebarAgentList() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     async function refresh() {
       try {
         const res = await fetch("/api/sessions", { cache: "no-store" });
@@ -89,12 +91,14 @@ export function SidebarAgentList() {
 
   return (
     <>
-      {openAgent && (
+      {/* Portal: render drawer at document.body to avoid stacking context issues */}
+      {mounted && openAgent && createPortal(
         <AgentDrawer
           agentId={openAgent.id}
           agentName={openAgent.name}
           onClose={() => setOpenAgent(null)}
-        />
+        />,
+        document.body
       )}
 
       <div className="space-y-0.5">
@@ -126,21 +130,15 @@ export function SidebarAgentList() {
                 )}
               </div>
 
-              {/* Right side: live badge or chevron */}
-              {running ? (
-                <span className="flex items-center gap-1 shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded-full"
-                  style={{ background: color + "18", color }}>
-                  <span className="relative flex w-1.5 h-1.5">
-                    <span className="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping"
-                      style={{ background: color }} />
-                    <span className="relative inline-flex w-1.5 h-1.5 rounded-full"
-                      style={{ background: color }} />
-                  </span>
-                  live
-                </span>
-              ) : (
-                <ChevronRight size={10} className="text-[#2a2a2a] group-hover/agent:text-[#555] shrink-0 transition-colors" />
-              )}
+              {/* Status dot: pulsing when live, dim grey when idle */}
+              <span className="shrink-0 relative flex w-2 h-2">
+                {running && (
+                  <span className="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping"
+                    style={{ background: color }} />
+                )}
+                <span className="relative inline-flex w-2 h-2 rounded-full"
+                  style={{ background: running ? color : "#333" }} />
+              </span>
             </div>
           );
         })}

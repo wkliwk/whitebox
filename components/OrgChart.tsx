@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AgentDrawer } from "./AgentDrawer";
 import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
 
@@ -119,14 +120,9 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
 
         {/* Status dot — always visible, bottom-right corner */}
         <span
-          className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center"
-          style={{ background: "#111111", padding: 2 }}
-        >
-          <span
-            className="w-full h-full rounded-full"
-            style={{ background: live ? color : "#333" }}
-          />
-        </span>
+          className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
+          style={{ background: live ? color : "#3a3a3a", borderColor: "#111111" }}
+        />
       </div>
 
       {/* Name + role */}
@@ -224,6 +220,7 @@ export function OrgChart() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     async function refresh() {
@@ -236,17 +233,19 @@ export function OrgChart() {
     }
     refresh();
     const id = setInterval(refresh, 5000);
+    setMounted(true);
     return () => clearInterval(id);
   }, []);
 
   return (
     <>
-      {openAgent && (
+      {mounted && openAgent && createPortal(
         <AgentDrawer
           agentId={openAgent.id}
           agentName={openAgent.name}
           onClose={() => setOpenAgent(null)}
-        />
+        />,
+        document.body
       )}
 
       <div className="overflow-x-auto pb-8">
