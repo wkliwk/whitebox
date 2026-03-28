@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@/app/api/sessions/route";
 import { AGENTS } from "@/lib/agents";
+import { AgentDrawer } from "./AgentDrawer";
 
 const agentColors: Record<string, string> = {
   ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
@@ -55,6 +56,7 @@ function resolveAgentStatus(agentId: string, sessions: Session[]): AgentStatus {
 
 export function SidebarAgentList() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
 
   useEffect(() => {
     async function refresh() {
@@ -70,58 +72,69 @@ export function SidebarAgentList() {
   }, []);
 
   return (
-    <div className="space-y-0">
-      {AGENTS.map(agent => {
-        const color = agentColors[agent.id] || "#555";
-        const { running, label, project } = resolveAgentStatus(agent.id, sessions);
+    <>
+      {openAgent && (
+        <AgentDrawer
+          agentId={openAgent.id}
+          agentName={openAgent.name}
+          onClose={() => setOpenAgent(null)}
+        />
+      )}
 
-        return (
-          <div key={agent.id}
-            className="flex items-start gap-2 px-1 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors">
-            {/* Status dot */}
-            <span className="relative flex w-1.5 h-1.5 shrink-0 mt-1">
-              {running && (
-                <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping"
-                  style={{ background: color }} />
-              )}
-              <span className="relative inline-flex w-1.5 h-1.5 rounded-full"
-                style={{ background: running ? color : "#2a2a2a" }} />
-            </span>
+      <div className="space-y-0">
+        {AGENTS.map(agent => {
+          const color = agentColors[agent.id] || "#555";
+          const { running, label, project } = resolveAgentStatus(agent.id, sessions);
 
-            {/* Avatar */}
-            <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0 mt-0.5"
-              style={{ background: color + "33", color }}>
-              {agent.name[0]}
-            </div>
-
-            {/* Name + status */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#555]"}`}>
-                  {agent.name}
-                </span>
+          return (
+            <div key={agent.id}
+              onClick={() => setOpenAgent({ id: agent.id, name: agent.name })}
+              className="flex items-start gap-2 px-1 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer">
+              {/* Status dot */}
+              <span className="relative flex w-1.5 h-1.5 shrink-0 mt-1">
                 {running && (
-                  <span className="text-[9px] px-1 py-0.5 rounded-full font-medium shrink-0"
-                    style={{ background: color + "22", color }}>
-                    live
-                  </span>
+                  <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping"
+                    style={{ background: color }} />
                 )}
+                <span className="relative inline-flex w-1.5 h-1.5 rounded-full"
+                  style={{ background: running ? color : "#2a2a2a" }} />
+              </span>
+
+              {/* Avatar */}
+              <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0 mt-0.5"
+                style={{ background: color + "33", color }}>
+                {agent.name[0]}
               </div>
 
-              {/* Current task or idle state */}
-              {running && label ? (
-                <div className="text-[10px] truncate mt-0.5" style={{ color: color + "aa" }}>
-                  {label}
+              {/* Name + status */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-xs ${running ? "text-[#ccc]" : "text-[#555]"}`}>
+                    {agent.name}
+                  </span>
+                  {running && (
+                    <span className="text-[9px] px-1 py-0.5 rounded-full font-medium shrink-0"
+                      style={{ background: color + "22", color }}>
+                      live
+                    </span>
+                  )}
                 </div>
-              ) : running && project ? (
-                <div className="text-[10px] text-[#444] truncate mt-0.5">{project}</div>
-              ) : (
-                <div className="text-[10px] text-[#2e2e2e] mt-0.5">Idle</div>
-              )}
+
+                {/* Current task or idle state */}
+                {running && label ? (
+                  <div className="text-[10px] truncate mt-0.5" style={{ color: color + "aa" }}>
+                    {label}
+                  </div>
+                ) : running && project ? (
+                  <div className="text-[10px] text-[#444] truncate mt-0.5">{project}</div>
+                ) : (
+                  <div className="text-[10px] text-[#2e2e2e] mt-0.5">Idle</div>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

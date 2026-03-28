@@ -1,5 +1,6 @@
-import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, Search } from "lucide-react";
+import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, Search, KanbanSquare } from "lucide-react";
 import { SidebarAgentList } from "./SidebarAgentList";
+import { SidebarProjects } from "./SidebarProjects";
 
 interface Project {
   name: string;
@@ -42,6 +43,10 @@ export function Sidebar({ projects = [] }: SidebarProps) {
           <ScrollText size={13} />
           <span>Logs</span>
         </a>
+        <a href="/board" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <KanbanSquare size={13} />
+          <span>Board</span>
+        </a>
         <a href="/schedule" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
           <CalendarClock size={13} />
           <span>Schedule</span>
@@ -52,22 +57,8 @@ export function Sidebar({ projects = [] }: SidebarProps) {
         </a>
       </div>
 
-      {/* Projects */}
-      <div className="px-4 py-2">
-        <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 font-medium">Projects</div>
-        <div className="space-y-0.5">
-          {projects.map((p, i) => {
-            const colors = ["#ec4899", "#3b82f6", "#22c55e", "#8b5cf6", "#eab308", "#06b6d4", "#f97316"];
-            return (
-              <a key={p.name} href={p.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 px-1 py-1 rounded hover:bg-[#2a2a2a]">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: colors[i % colors.length] }} />
-                <span className="text-xs text-[#999] truncate hover:text-[#ccc]">{p.name}</span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
+      {/* Products (expandable) */}
+      <SidebarProjects projects={projects} />
 
       {/* Agents */}
       <div className="px-4 py-2">
