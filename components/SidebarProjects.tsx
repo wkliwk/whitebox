@@ -37,8 +37,6 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
   }
 
   return (
-    <div className="px-2 py-2">
-      <div className="text-[10px] uppercase tracking-widest text-[#888] mb-2 px-2 font-medium">{t("section_products")}</div>
       <div className="space-y-0.5">
         {productGroups.map(product => {
           const isOpen = !!expanded[product.name];
@@ -129,6 +127,5 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
           );
         })}
       </div>
-    </div>
   );
 }

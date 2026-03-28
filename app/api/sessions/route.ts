@@ -299,24 +299,25 @@ export async function GET() {
         // ps aux failed (expected on Vercel)
       }
 
-      // Redis heartbeat fallback: if no local sessions/tasks found, check heartbeats
-      if (sessions.length === 0 && activeTasks.length === 0) {
-        const heartbeats = await getAllHeartbeats();
-        for (const hb of heartbeats) {
-          const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
-          activeTasks.push({
-            label: hb.task || `${hb.agentType} agent active`,
-            agentType: hb.agentType,
-            project: hb.project,
-            updatedAt: hb.lastPing,
-            ageMinutes,
-          });
-        }
+      // Always merge Redis heartbeats — they carry agent type info that ps aux lacks
+      const heartbeats = await getAllHeartbeats();
+      const seenAgentTypes = new Set(activeTasks.map(t => t.agentType).filter(Boolean));
+      for (const hb of heartbeats) {
+        // Skip if we already have a local task file for this agent type
+        if (seenAgentTypes.has(hb.agentType)) continue;
+        const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
+        activeTasks.push({
+          label: hb.task || `${hb.agentType} agent active`,
+          agentType: hb.agentType,
+          project: hb.project,
+          updatedAt: hb.lastPing,
+          ageMinutes,
+        });
+      }
 
-        // GitHub fallback: if Redis also empty and we're on Vercel, try GitHub events
-        if (activeTasks.length === 0 && process.env.VERCEL) {
-          activeTasks = await fetchGitHubActiveTasks();
-        }
+      // GitHub fallback: if still no agent-typed tasks and we're on Vercel
+      if (activeTasks.length === 0 && sessions.length === 0 && process.env.VERCEL) {
+        activeTasks = await fetchGitHubActiveTasks();
       }
 
       return { sessions, activeTasks, updatedAt: new Date().toISOString() };

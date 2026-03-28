@@ -1,6 +1,7 @@
-import { SidebarNav, SidebarFooter, SidebarSectionLabel } from "./SidebarNav";
+import { SidebarNav, SidebarFooter } from "./SidebarNav";
 import { SidebarAgentList } from "./SidebarAgentList";
 import { SidebarProjects } from "./SidebarProjects";
+import { SidebarCollapsible } from "./SidebarCollapsible";
 import { PRODUCTS } from "@/lib/products";
 
 interface Project {
@@ -36,14 +37,15 @@ export function Sidebar({ projects = [] }: SidebarProps) {
       {/* Nav links (client — reads language context) */}
       <SidebarNav />
 
-      {/* Products (expandable) */}
-      <SidebarProjects projects={projects} productGroups={productGroups} />
-
-      {/* Agents */}
-      <div className="px-4 py-2">
-        <SidebarSectionLabel labelKey="section_agents" />
+      {/* Agents (collapsible) */}
+      <SidebarCollapsible labelKey="section_agents" defaultOpen>
         <SidebarAgentList />
-      </div>
+      </SidebarCollapsible>
+
+      {/* Products (collapsible) */}
+      <SidebarCollapsible labelKey="section_products" defaultOpen={false}>
+        <SidebarProjects projects={projects} productGroups={productGroups} />
+      </SidebarCollapsible>
 
       {/* Company + language toggle */}
       <SidebarFooter />
