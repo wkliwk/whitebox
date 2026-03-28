@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { McpServer, InstalledPlugin } from "@/app/api/mcp/route";
+import type { McpServer, InstalledPlugin } from "@/lib/mcp-types";
 
 // ── descriptions ──────────────────────────────────────────────────────────────
 
