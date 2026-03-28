@@ -18,6 +18,8 @@ export interface Session {
   project: string | null;
   /** Explicit label written by agent via cc-task file */
   label: string | null;
+  /** Agent type from line 3 of cc-task file (e.g. "dev", "qa", "pm") */
+  agentType: string | null;
   /** Display title — label if set, otherwise auto-derived from flags */
   title: string;
   /** true if title was explicitly set by agent, false if auto-derived */
@@ -38,6 +40,7 @@ const HOME = os.homedir();
 
 interface TaskEntry {
   label: string;
+  agentType: string | null;
   project: string;
   projectPath: string;
   updatedAt: string;
@@ -83,7 +86,9 @@ function buildTaskMaps(): {
       const projectPath = hashToPath.get(fileHash) ?? "";
       const project = projectPath ? path.basename(projectPath) : "";
 
-      const entry: TaskEntry = { label, project, projectPath, updatedAt };
+      // line 3 = agent type (new format), may be absent
+      const agentType = lines[2] ?? null;
+      const entry: TaskEntry = { label, agentType, project, projectPath, updatedAt };
 
       // New format: line 2 is PID
       const pid = parseInt(lines[1] ?? "");
@@ -148,6 +153,7 @@ export async function GET() {
 
       const project = task?.project ?? null;
       const label = task?.label ?? null;
+      const agentType = task?.agentType ?? null;
 
       // Derive display title
       let title: string;
@@ -172,7 +178,7 @@ export async function GET() {
         } catch { return null; }
       })();
 
-      sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, title, titled, flags });
+      sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
     }
 
     sessions.sort((a, b) => b.cpu - a.cpu);
