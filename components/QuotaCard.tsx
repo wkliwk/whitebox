@@ -26,14 +26,19 @@ function staleness(updatedAt: string | null, source: QuotaData["source"]): { lab
   return { label: `${Math.floor(ageH / 24)}d ago`, color: "#ef4444" };
 }
 
-function resetsIn(iso: string | null): string | null {
+function resetsIn(iso: string | null): { countdown: string; datetime: string } | null {
   if (!iso) return null;
-  const ms = new Date(iso).getTime() - Date.now();
-  if (ms <= 0) return "resetting…";
+  const date = new Date(iso);
+  const ms = date.getTime() - Date.now();
+  if (ms <= 0) return { countdown: "resetting…", datetime: "" };
   const h = Math.floor(ms / 3600000);
   const m = Math.floor((ms % 3600000) / 60000);
-  if (h > 0) return `resets in ${h}h ${m}m`;
-  return `resets in ${m}m`;
+  const countdown = h > 0 ? `resets in ${h}h ${m}m` : `resets in ${m}m`;
+  const datetime = date.toLocaleString(undefined, {
+    month: "short", day: "numeric",
+    hour: "numeric", minute: "2-digit", hour12: false,
+  });
+  return { countdown, datetime };
 }
 
 function PctBar({ pct, color }: { pct: number; color: string }) {
@@ -100,7 +105,12 @@ export function QuotaCard() {
           </span>
         </div>
         {fh !== null && <PctBar pct={fh} color={barColor(fh)} />}
-        {fhResets && <div className="text-[10px] text-[#444]">{fhResets}</div>}
+        {fhResets && (
+          <div className="flex items-center gap-1.5 text-[10px] text-[#444]">
+            <span>{fhResets.countdown}</span>
+            {fhResets.datetime && <span className="text-[#2a2a2a]">· {fhResets.datetime}</span>}
+          </div>
+        )}
       </div>
 
       <div className="h-px bg-[#222]" />
@@ -114,7 +124,12 @@ export function QuotaCard() {
           </span>
         </div>
         {sd !== null && <PctBar pct={sd} color={barColor(sd)} />}
-        {sdResets && <div className="text-[10px] text-[#444]">{sdResets}</div>}
+        {sdResets && (
+          <div className="flex items-center gap-1.5 text-[10px] text-[#444]">
+            <span>{sdResets.countdown}</span>
+            {sdResets.datetime && <span className="text-[#2a2a2a]">· {sdResets.datetime}</span>}
+          </div>
+        )}
       </div>
 
       {/* 7d Sonnet (when available) */}
