@@ -121,6 +121,51 @@ export async function getDecisions() {
   }
 }
 
+export interface RecentTask {
+  number: number;
+  title: string;
+  status: "done" | "in-progress" | "todo";
+  priority: "p0" | "p1" | "p2";
+  agent?: string;
+  updatedAt: string;
+  url: string;
+  repo: string;
+}
+
+export async function getRecentTasks(): Promise<RecentTask[]> {
+  const repos = (process.env.PRODUCT_REPOS || REPO).split(",").map(r => r.trim());
+  const tasks: RecentTask[] = [];
+
+  for (const repo of repos.slice(0, 3)) {
+    try {
+      const { data } = await octokit.rest.issues.listForRepo({
+        owner: OWNER, repo, state: "all", sort: "updated",
+        per_page: 20, direction: "desc",
+      });
+
+      for (const issue of data) {
+        if (issue.pull_request) continue;
+        const labels = issue.labels.map(l => typeof l === "object" ? l.name || "" : l);
+
+        let status: RecentTask["status"] = "todo";
+        if (issue.state === "closed") status = "done";
+        else if (labels.some(l => l.includes("in-progress"))) status = "in-progress";
+
+        let priority: RecentTask["priority"] = "p2";
+        if (labels.some(l => l.includes("p0"))) priority = "p0";
+        else if (labels.some(l => l.includes("p1"))) priority = "p1";
+
+        const agentLabel = labels.find(l => l.startsWith("agent:"));
+        const agent = agentLabel?.replace("agent:", "");
+
+        tasks.push({ number: issue.number, title: issue.title, status, priority, agent, updatedAt: issue.updated_at, url: issue.html_url, repo });
+      }
+    } catch { /* skip repo */ }
+  }
+
+  return tasks.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 20);
+}
+
 export async function getAgentActivity() {
   const { AGENTS } = await import("./agents");
   const results = [];
