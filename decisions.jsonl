@@ -1,4 +1,3 @@
-{"date":"2026-03-27","project":"health-credit","summary":"Design Phase 2: ShareCard flip/QR code, onboarding modal, wallet SharedView, redesigned Shares page (PR #18)"}
 {"date":"2026-03-27","project":"FormPilot","prompt":"Error handling + retry logic (#65, #66)","summary":"Structured logger, API error classifier, retry with exponential backoff (1s/2s/4s), wrapped all Claude-calling routes. 231 tests pass. PR #71."}
 {"date":"2026-03-27","project":"health-credit-backend","summary":"53 backend tests: auth, documents, shares, middleware. mongodb-memory-server, supertest. uuid ESM shim for Jest. PR #18."}
 {"date":"2026-03-27","project":"FormPilot","prompt":"Expand validation engine (#68)","summary":"Added currency, EIN, ITIN, field length, and date range validators. 16 new tests, 44 total pass. PR #72."}
@@ -48,3 +47,4 @@
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"idle QA: add tests for SwipeableTransactionRow","summary":"Created SwipeableTransactionRow.test.tsx with 5 tests covering render, delete button accessibility, Alert invocation, confirm delete mutation call, and cancel skipping mutation"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"idle QA: add tests for EmptyState and MonthSelector","summary":"Created EmptyState.test.tsx (2 tests) and MonthSelector.test.tsx (5 tests) covering display, navigation, and year wrap-around at Jan/Dec boundaries"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"QA #68: add tests for CategoryPicker and Toast","summary":"Created CategoryPicker.test.tsx (5 tests: render all cats, selection state, onSelect callback) and Toast.test.tsx (3 tests: empty/visible/fade-out states)"}
+{"date":"2026-03-28","project":"money-flow-mobile","prompt":"feat #74: dark mode with system-preference sync","summary":"Added useAppColorScheme hook, lib/theme.ts tokens, appearance_preference in useSettings, AppearanceSelector in Settings screen (System/Light/Dark), StatusBar style fix"}
