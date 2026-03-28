@@ -26,11 +26,15 @@ const statusColor: Record<string, string> = {
   paused: "#555",
 };
 
-const stageColors: Record<string, { text: string; bg: string }> = {
-  "Draft":    { text: "#6b7280", bg: "#6b728018" },
-  "Approved": { text: "#f97316", bg: "#f9731618" },
-  "Launched": { text: "#22c55e", bg: "#22c55e18" },
+const ideaStatusColors: Record<string, { text: string; bg: string }> = {
+  "Todo":        { text: "#6b7280", bg: "#6b728018" },
+  "In Progress": { text: "#f97316", bg: "#f9731618" },
+  "Done":        { text: "#22c55e", bg: "#22c55e18" },
 };
+
+function getIdeaStatusColor(status: string) {
+  return ideaStatusColors[status] ?? { text: "#555", bg: "#55555518" };
+}
 
 export default async function ProductsPage() {
   const [sidebarProjects, ideasBoard] = await Promise.all([
@@ -145,38 +149,57 @@ export default async function ProductsPage() {
                 </a>
               </div>
 
-              {/* Stage groups: Draft → Approved → Launched */}
-              {(["Draft", "Approved", "Launched"] as const).map(stage => {
-                const stageItems = ideasBoard.items.filter(i =>
-                  i.status.toLowerCase() === stage.toLowerCase()
-                );
-                if (stageItems.length === 0) return null;
-                const sc = stageColors[stage];
-                return (
-                  <div key={stage} className="mb-5">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                        style={{ background: sc.bg, color: sc.text }}>
-                        {stage}
-                      </span>
-                      <span className="text-[10px] text-[#333]">{stageItems.length}</span>
+              {/* Group by actual board status */}
+              {(() => {
+                const statusOrder = ["In Progress", "Todo", "Done"];
+                // Collect any statuses not in the known order
+                const extra = [...new Set(ideasBoard.items.map(i => i.status))]
+                  .filter(s => !statusOrder.includes(s));
+                return [...statusOrder, ...extra].map(status => {
+                  const group = ideasBoard.items.filter(i => i.status === status);
+                  if (group.length === 0) return null;
+                  const sc = getIdeaStatusColor(status);
+                  return (
+                    <div key={status} className="mb-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                          style={{ background: sc.bg, color: sc.text }}>
+                          {status}
+                        </span>
+                        <span className="text-[10px] text-[#333]">{group.length}</span>
+                      </div>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                        {group.map(idea => {
+                          const inner = (
+                            <>
+                              {idea.number && (
+                                <span className="text-[10px] text-[#2a2a2a] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
+                              )}
+                              <span className="text-xs text-[#666] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
+                                {idea.title}
+                              </span>
+                              {idea.url && <ExternalLink size={9} className="text-[#2a2a2a] group-hover:text-[#555] shrink-0 mt-0.5 transition-colors" />}
+                            </>
+                          );
+                          return idea.url ? (
+                            <a key={idea.id} href={idea.url} target="_blank" rel="noreferrer"
+                              className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] hover:border-[#2a2a2a] transition-colors group"
+                              style={{ background: "#161616" }}>
+                              {inner}
+                            </a>
+                          ) : (
+                            <div key={idea.id}
+                              className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] group"
+                              style={{ background: "#161616" }}>
+                              {inner}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                      {stageItems.map(idea => (
-                        <a key={idea.id} href={idea.url} target="_blank" rel="noreferrer"
-                          className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] hover:border-[#2a2a2a] transition-colors group"
-                          style={{ background: "#161616" }}>
-                          <span className="text-[10px] text-[#2a2a2a] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
-                          <span className="text-xs text-[#666] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
-                            {idea.title}
-                          </span>
-                          <ExternalLink size={9} className="text-[#2a2a2a] group-hover:text-[#555] shrink-0 mt-0.5 transition-colors" />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
           )}
 
