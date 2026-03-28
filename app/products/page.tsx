@@ -103,7 +103,7 @@ export default async function ProductsPage() {
                       target="_blank" rel="noreferrer"
                       className="text-[#333] hover:text-[#666] transition-colors"
                       title={`Board #${product.boardNumber}`}>
-                      <LayoutGrid size={12} />
+                      <GitHubIcon className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
