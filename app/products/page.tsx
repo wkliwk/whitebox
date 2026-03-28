@@ -1,6 +1,5 @@
 import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
-import { AGENTS } from "@/lib/agents";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
 
@@ -26,14 +25,6 @@ const statusColor: Record<string, string> = {
 };
 
 export default function ProductsPage() {
-  const agentRows = AGENTS.map(agent => ({
-    ...agent,
-    status: "idle" as string,
-    currentTask: null as null,
-    lastActive: "",
-    completedCount: 0,
-  }));
-
   const sidebarProjects = getProductRepos().map(r => ({
     name: r.name,
     url: `https://github.com/${r.owner}/${r.name}`,
@@ -41,7 +32,7 @@ export default function ProductsPage() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#111111" }}>
-      <Sidebar agents={agentRows} projects={sidebarProjects} />
+      <Sidebar projects={sidebarProjects} />
 
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">

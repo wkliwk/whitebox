@@ -11,7 +11,6 @@ import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { getDecisions, getLoopLog, getAgentActivity, getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
-import { AGENTS } from "@/lib/agents";
 
 export const revalidate = 5;
 
@@ -30,18 +29,9 @@ export default async function Page() {
   }).length;
   const decisionsToday = decisions.filter(d => d.date === today).length;
 
-  // Map AGENTS → sidebar shape (status derived from recent activity)
-  const agentRows = AGENTS.map(agent => ({
-    ...agent,
-    status: "idle" as string,
-    currentTask: null as null,
-    lastActive: "",
-    completedCount: 0,
-  }));
-
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#111111" }}>
-      <Sidebar agents={agentRows} projects={getProductRepos().map(r => ({
+      <Sidebar projects={getProductRepos().map(r => ({
         name: r.name,
         url: `https://github.com/${r.owner}/${r.name}`,
       }))} />
@@ -101,7 +91,7 @@ export default async function Page() {
           <LoopLog entries={loopLog} />
 
           {/* Agent Status */}
-          <AgentSection agents={agentRows} />
+          <AgentSection />
 
           {/* Decisions */}
           <DecisionLog decisions={decisions} />

@@ -1,5 +1,5 @@
-import { LayoutDashboard, Package, Inbox, Tag, Target, Search } from "lucide-react";
-import type { Agent } from "@/lib/agents";
+import { LayoutDashboard, Package, Tag, Target, Search } from "lucide-react";
+import { SidebarAgentList } from "./SidebarAgentList";
 
 interface Project {
   name: string;
@@ -7,23 +7,10 @@ interface Project {
 }
 
 interface SidebarProps {
-  agents: (Agent & { status: string; currentTask: unknown | null })[];
   projects?: Project[];
 }
 
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6",
-  pm: "#3b82f6",
-  dev: "#06b6d4",
-  qa: "#22c55e",
-  ops: "#eab308",
-  designer: "#ec4899",
-  finance: "#6366f1",
-};
-
-export function Sidebar({ agents, projects = [] }: SidebarProps) {
-  const liveAgents = agents.filter(a => a.status === "running");
-
+export function Sidebar({ projects = [] }: SidebarProps) {
   return (
     <aside style={{ width: 240, minWidth: 240, background: "#161616", borderRight: "1px solid #2a2a2a" }}
       className="hidden md:flex flex-col h-screen sticky top-0 overflow-y-auto">
@@ -42,12 +29,6 @@ export function Sidebar({ agents, projects = [] }: SidebarProps) {
         <a href="/" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#999] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
           <LayoutDashboard size={13} />
           <span className="flex-1 text-left">Dashboard</span>
-          {liveAgents.length > 0 && (
-            <span className="flex items-center gap-1 text-[10px] bg-[#3b82f6] text-white px-1.5 py-0.5 rounded-full font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
-              {liveAgents.length} live
-            </span>
-          )}
         </a>
         <a href="/products" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
           <Package size={13} />
@@ -88,23 +69,7 @@ export function Sidebar({ agents, projects = [] }: SidebarProps) {
       {/* Agents */}
       <div className="px-4 py-2">
         <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 font-medium">Agents</div>
-        <div className="space-y-0.5">
-          {agents.map(agent => (
-            <div key={agent.id} className="flex items-center gap-2 px-1 py-1 rounded hover:bg-[#2a2a2a]">
-              <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0"
-                style={{ background: agentColors[agent.id] + "33", color: agentColors[agent.id] }}>
-                {agent.name[0]}
-              </div>
-              <span className="text-xs text-[#999] flex-1">{agent.name}</span>
-              {agent.status === "running" && (
-                <span className="flex items-center gap-1 text-[10px] bg-[#1d3557] text-[#3b82f6] px-1.5 py-0.5 rounded-full">
-                  <span className="w-1 h-1 rounded-full bg-[#3b82f6] inline-block animate-pulse" />
-                  1 live
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+        <SidebarAgentList />
       </div>
 
       {/* Company */}

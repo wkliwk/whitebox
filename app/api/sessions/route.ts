@@ -36,15 +36,26 @@ export interface ActiveTask {
 
 const HOME = os.homedir();
 
-/**
- * Build a map of PID → { label, project, projectPath, updatedAt } from /tmp/claude/cc-task-*.txt
- * Each file has two lines: line 1 = label, line 2 = PID (written by status-line command).
- * Falls back to md5-hash matching for files that only have one line (old format).
- */
-function buildPidTaskMap(): Map<number, { label: string; project: string; projectPath: string; updatedAt: string }> {
-  const pidMap = new Map<number, { label: string; project: string; projectPath: string; updatedAt: string }>();
+interface TaskEntry {
+  label: string;
+  project: string;
+  projectPath: string;
+  updatedAt: string;
+}
 
-  // Pre-build hash → projectPath for old-format files
+/**
+ * Returns two maps:
+ * - pidMap: PID → TaskEntry (new format: line 1 = label, line 2 = PID)
+ * - hashMap: md5(path) → TaskEntry (old/fallback format: line 1 = label only)
+ */
+function buildTaskMaps(): {
+  pidMap: Map<number, TaskEntry>;
+  hashMap: Map<string, TaskEntry>;
+} {
+  const pidMap = new Map<number, TaskEntry>();
+  const hashMap = new Map<string, TaskEntry>();
+
+  // Pre-build hash → projectPath
   const hashToPath = new Map<string, string>();
   try {
     const devDir = path.join(HOME, "Dev");
@@ -63,28 +74,34 @@ function buildPidTaskMap(): Map<number, { label: string; project: string; projec
       const content = fs.readFileSync(filePath, "utf-8");
       const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
       const label = lines[0] ?? "";
-      const pidStr = lines[1] ?? "";
+      if (!label) continue;
+
       const stat = fs.statSync(filePath);
       const updatedAt = stat.mtime.toISOString();
 
-      // Resolve project name via hash in filename
-      const hash = file.replace("cc-task-", "").replace(".txt", "");
-      const projectPath = hashToPath.get(hash) ?? "";
-      const project = projectPath ? path.basename(projectPath) : hash.slice(0, 8);
+      const fileHash = file.replace("cc-task-", "").replace(".txt", "");
+      const projectPath = hashToPath.get(fileHash) ?? "";
+      const project = projectPath ? path.basename(projectPath) : "";
 
-      const pid = parseInt(pidStr);
+      const entry: TaskEntry = { label, project, projectPath, updatedAt };
+
+      // New format: line 2 is PID
+      const pid = parseInt(lines[1] ?? "");
       if (!isNaN(pid) && pid > 0) {
-        pidMap.set(pid, { label, project, projectPath, updatedAt });
+        pidMap.set(pid, entry);
+      } else {
+        // Old format: store by path hash for cwd-based fallback
+        hashMap.set(fileHash, entry);
       }
     }
   } catch { /* /tmp/claude may not exist */ }
 
-  return pidMap;
+  return { pidMap, hashMap };
 }
 
 export async function GET() {
   try {
-    const pidTaskMap = buildPidTaskMap();
+    const { pidMap, hashMap } = buildTaskMaps();
 
     const out = execSync("ps aux", { timeout: 3000 }).toString();
     const lines = out.trim().split("\n").slice(1);
@@ -112,8 +129,23 @@ export async function GET() {
       if (cmdStart.includes("--channels")) flags.push("telegram");
       if (sessionId) flags.push("resumed");
 
-      // Direct PID-based join
-      const task = pidTaskMap.get(pid) ?? null;
+      // 1. Try PID-based join (new format)
+      let task = pidMap.get(pid) ?? null;
+
+      // 2. Fall back to cwd hash (old format, single-line task files)
+      if (!task) {
+        let cwd2: string | null = null;
+        try {
+          const cwdOut2 = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1500 }).toString();
+          const m = cwdOut2.match(/^n(.+)$/m);
+          cwd2 = m?.[1] ?? null;
+        } catch { /* skip */ }
+        if (cwd2 && cwd2 !== HOME && cwd2 !== `${HOME}/`) {
+          const cwdHash = createHash("md5").update(cwd2).digest("hex");
+          task = hashMap.get(cwdHash) ?? null;
+        }
+      }
+
       const project = task?.project ?? null;
       const label = task?.label ?? null;
 
@@ -132,13 +164,13 @@ export async function GET() {
         titled = false;
       }
 
-      // Try to get cwd for display only (not for matching)
-      let cwd: string | null = null;
-      try {
-        const cwdOut = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1500 }).toString();
-        const match = cwdOut.match(/^n(.+)$/m);
-        cwd = match?.[1] ?? null;
-      } catch { /* skip */ }
+      // cwd already fetched above during fallback; re-use if available
+      const cwd: string | null = (() => {
+        try {
+          const cwdOut = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1000 }).toString();
+          return cwdOut.match(/^n(.+)$/m)?.[1] ?? null;
+        } catch { return null; }
+      })();
 
       sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, title, titled, flags });
     }
