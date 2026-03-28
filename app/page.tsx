@@ -2,22 +2,17 @@ import { Bot, CheckSquare, Activity } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { QuotaCard } from "@/components/QuotaCard";
-import { ActivityFeed } from "@/components/ActivityFeed";
-import { TaskList } from "@/components/TaskList";
 import { AgentSection } from "@/components/AgentSection";
-import { DecisionLog } from "@/components/DecisionLog";
-import { LoopLog } from "@/components/LoopLog";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
-import { getDecisions, getLoopLog, getAgentActivity, getProductRepos } from "@/lib/local";
+import { getDecisions, getAgentActivity, getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 
 export const revalidate = 5;
 
 export default async function Page() {
-  const [decisions, loopLog, activity, tasks] = await Promise.all([
+  const [decisions, activity, tasks] = await Promise.all([
     Promise.resolve(getDecisions()),
-    Promise.resolve(getLoopLog()),
     Promise.resolve(getAgentActivity()),
     getRecentTasks(),
   ]);
@@ -47,7 +42,7 @@ export default async function Page() {
             <RefreshIndicator />
           </div>
 
-          {/* Live Sessions — client polled, always fresh */}
+          {/* Live Sessions */}
           <LiveSessions />
 
           {/* Metric Cards */}
@@ -64,7 +59,7 @@ export default async function Page() {
               icon={Activity}
               label="Decisions Today"
               value={decisionsToday}
-              subtitle={`${decisions.length} shown total`}
+              subtitle={`${decisions.length} total`}
             />
             <MetricCard
               icon={CheckSquare}
@@ -74,27 +69,8 @@ export default async function Page() {
             />
           </div>
 
-          {/* Activity Feed + Tasks */}
-          <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8">
-            <ActivityFeed events={decisions.slice(0, 15).map(d => ({
-              agent: d.project,
-              verb: "worked on",
-              entityType: "task",
-              entityRef: d.date,
-              entityTitle: d.summary,
-              timestamp: d.date + "T00:00:00Z",
-            }))} />
-            <TaskList tasks={tasks} />
-          </div>
-
-          {/* Loop Log */}
-          <LoopLog entries={loopLog} />
-
           {/* Agent Status */}
           <AgentSection />
-
-          {/* Decisions */}
-          <DecisionLog decisions={decisions} />
         </div>
       </main>
     </div>

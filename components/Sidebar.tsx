@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Tag, Target, Search } from "lucide-react";
+import { LayoutDashboard, Package, ScrollText, CircleDot, Search } from "lucide-react";
 import { SidebarAgentList } from "./SidebarAgentList";
 
 interface Project {
@@ -34,6 +34,14 @@ export function Sidebar({ projects = [] }: SidebarProps) {
           <Package size={13} />
           <span>Products</span>
         </a>
+        <a href="/issues" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <CircleDot size={13} />
+          <span>Issues</span>
+        </a>
+        <a href="/logs" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <ScrollText size={13} />
+          <span>Logs</span>
+        </a>
       </div>
 
       {/* Projects */}
@@ -50,19 +58,6 @@ export function Sidebar({ projects = [] }: SidebarProps) {
               </a>
             );
           })}
-        </div>
-      </div>
-
-      {/* Work */}
-      <div className="px-4 py-2">
-        <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 font-medium">Work</div>
-        <div className="space-y-0.5">
-          {[{ icon: Tag, label: "Issues" }, { icon: Target, label: "Goals" }].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 px-1 py-1 rounded hover:bg-[#2a2a2a] cursor-pointer">
-              <Icon size={12} className="text-[#555]" />
-              <span className="text-xs text-[#999]">{label}</span>
-            </div>
-          ))}
         </div>
       </div>
 
