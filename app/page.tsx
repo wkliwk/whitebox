@@ -1,6 +1,7 @@
-import { Bot, Zap, CheckSquare, Activity } from "lucide-react";
+import { Bot, CheckSquare, Activity } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
+import { QuotaCard } from "@/components/QuotaCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { TaskList } from "@/components/TaskList";
 import { AgentSection } from "@/components/AgentSection";
@@ -8,15 +9,14 @@ import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
-import { getTokenUsage, getDecisions, getLoopLog, getAgentActivity, getProductRepos } from "@/lib/local";
+import { getDecisions, getLoopLog, getAgentActivity, getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { AGENTS } from "@/lib/agents";
 
 export const revalidate = 5;
 
 export default async function Page() {
-  const [usage, decisions, loopLog, activity, tasks] = await Promise.all([
-    Promise.resolve(getTokenUsage()),
+  const [decisions, loopLog, activity, tasks] = await Promise.all([
     Promise.resolve(getDecisions()),
     Promise.resolve(getLoopLog()),
     Promise.resolve(getAgentActivity()),
@@ -28,8 +28,6 @@ export default async function Page() {
     const daysSince = (Date.now() - new Date(a.lastDate).getTime()) / 86400000;
     return daysSince < 1;
   }).length;
-  const fiveHourPct = usage?.fiveHourPct ?? 0;
-  const sevenDayPct = usage?.sevenDayPct ?? 0;
   const decisionsToday = decisions.filter(d => d.date === today).length;
 
   // Map AGENTS → sidebar shape (status derived from recent activity)
@@ -64,13 +62,7 @@ export default async function Page() {
 
           {/* Metric Cards */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-            <MetricCard
-              icon={Zap}
-              label="5h Quota"
-              value={`${fiveHourPct}%`}
-              subtitle={usage ? `7-day: ${sevenDayPct}% used` : "No usage data"}
-              isActive={fiveHourPct > 0 && fiveHourPct < 90}
-            />
+            <QuotaCard />
             <MetricCard
               icon={Bot}
               label="Active Projects"
