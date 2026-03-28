@@ -13,7 +13,19 @@ const statusColors: Record<string, { dot: string; text: string; bg: string }> = 
   "Todo":        { dot: "#3b82f6", text: "#3b82f6", bg: "#3b82f611" },
   "In Progress": { dot: "#eab308", text: "#eab308", bg: "#eab30811" },
   "Done":        { dot: "#22c55e", text: "#22c55e", bg: "#22c55e11" },
+  // Ideas board stages
+  "Draft":       { dot: "#6b7280", text: "#6b7280", bg: "#6b728011" },
+  "Approved":    { dot: "#f97316", text: "#f97316", bg: "#f9731611" },
+  "Launched":    { dot: "#22c55e", text: "#22c55e", bg: "#22c55e11" },
 };
+
+const FALLBACK_COLORS = ["#8b5cf6", "#06b6d4", "#ec4899", "#eab308", "#3b82f6"];
+function getStatusColor(status: string) {
+  return statusColors[status] ?? (() => {
+    const c = FALLBACK_COLORS[Math.abs(status.charCodeAt(0)) % FALLBACK_COLORS.length];
+    return { dot: c, text: c, bg: c + "11" };
+  })();
+}
 
 const priorityColors: Record<string, string> = {
   p0: "#ef4444", p1: "#f97316", p2: "#555",
@@ -84,13 +96,25 @@ export default async function BoardPage({ searchParams }: PageProps) {
     }))),
   ]);
 
-  // Group items by status
+  // Build column order: prefer STATUS_ORDER for known values, append any unknown ones
+  const columnOrder = [...STATUS_ORDER];
+  if (boardData) {
+    for (const item of boardData.items) {
+      if (item.status && !columnOrder.some(s => item.status.toLowerCase() === s.toLowerCase())) {
+        columnOrder.push(item.status);
+      }
+    }
+  }
+
+  // Group items by status — case-insensitive match
   const grouped = new Map<string, BoardItem[]>();
-  for (const status of STATUS_ORDER) grouped.set(status, []);
+  for (const col of columnOrder) grouped.set(col, []);
 
   if (boardData) {
     for (const item of boardData.items) {
-      const key = STATUS_ORDER.find(s => item.status.toLowerCase().includes(s.toLowerCase())) ?? "Todo";
+      const key = columnOrder.find(s => s.toLowerCase() === item.status.toLowerCase())
+        ?? columnOrder.find(s => item.status.toLowerCase().includes(s.toLowerCase()))
+        ?? columnOrder[0];
       grouped.get(key)?.push(item);
     }
   }
@@ -154,11 +178,12 @@ export default async function BoardPage({ searchParams }: PageProps) {
               <div className="text-[10px] text-[#333]">Board {activeBoardNumber} may not exist or is inaccessible</div>
             </div>
           ) : (
-            /* Kanban columns */
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {STATUS_ORDER.map(status => {
+            /* Kanban columns — dynamic based on actual status values */
+            <div className="grid grid-cols-1 gap-4"
+              style={{ gridTemplateColumns: `repeat(${Math.min(columnOrder.length, 3)}, minmax(0, 1fr))` }}>
+              {columnOrder.map(status => {
                 const items = grouped.get(status) ?? [];
-                const sc = statusColors[status] ?? { dot: "#555", text: "#555", bg: "#55511" };
+                const sc = getStatusColor(status);
                 return (
                   <div key={status}>
                     {/* Column header */}

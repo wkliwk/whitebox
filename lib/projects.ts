@@ -101,7 +101,8 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
       const fvNodes = node.fieldValues.nodes;
       const labelNames = node.content.labels?.nodes.map(l => l.name) ?? [];
 
-      const status = extractField(fvNodes, "status") || "Todo";
+      // Try "Status" first (standard boards), fall back to "Stage" (Ideas board)
+      const status = extractField(fvNodes, "status") || extractField(fvNodes, "stage") || "Todo";
       const priorityRaw = labelNames.find(l => l.startsWith("priority:"))?.replace("priority:", "") ?? "";
       const agent = labelNames.find(l => l.startsWith("agent:"))?.replace("agent:", "") ?? "";
       const size = labelNames.find(l => l.startsWith("size:"))?.replace("size:", "") ?? "";
