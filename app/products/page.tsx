@@ -1,7 +1,9 @@
-import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle } from "lucide-react";
+import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle, Lightbulb } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
+import { getProjectBoard } from "@/lib/projects";
+import { GitHubIcon } from "@/components/GitHubIcon";
 
 export const revalidate = 60;
 
@@ -24,11 +26,20 @@ const statusColor: Record<string, string> = {
   paused: "#555",
 };
 
-export default function ProductsPage() {
-  const sidebarProjects = getProductRepos().map(r => ({
-    name: r.name,
-    url: `https://github.com/${r.owner}/${r.name}`,
-  }));
+const stageColors: Record<string, { text: string; bg: string }> = {
+  "Draft":    { text: "#6b7280", bg: "#6b728018" },
+  "Approved": { text: "#f97316", bg: "#f9731618" },
+  "Launched": { text: "#22c55e", bg: "#22c55e18" },
+};
+
+export default async function ProductsPage() {
+  const [sidebarProjects, ideasBoard] = await Promise.all([
+    Promise.resolve(getProductRepos().map(r => ({
+      name: r.name,
+      url: `https://github.com/${r.owner}/${r.name}`,
+    }))),
+    getProjectBoard(3),
+  ]);
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#111111" }}>
@@ -39,7 +50,12 @@ export default function ProductsPage() {
           {/* Header */}
           <div>
             <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Products</div>
-            <div className="text-sm text-[#666]">{PRODUCTS.length} launched products</div>
+            <div className="text-sm text-[#666]">
+              {PRODUCTS.length} launched
+              {ideasBoard && ideasBoard.items.length > 0 && (
+                <span className="text-[#3a3a3a] ml-2">· {ideasBoard.items.length} ideas in pipeline</span>
+              )}
+            </div>
           </div>
 
           {/* Product Grid */}
@@ -116,6 +132,62 @@ export default function ProductsPage() {
               </div>
             ))}
           </div>
+          {/* Ideas Pipeline */}
+          {ideasBoard && ideasBoard.items.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Lightbulb size={13} className="text-[#f97316]" />
+                <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium">Ideas Pipeline</div>
+                <a href="/board?board=3"
+                  className="ml-auto text-[10px] text-[#333] hover:text-[#666] flex items-center gap-1 transition-colors">
+                  <GitHubIcon className="w-3 h-3" />
+                  <span>View board</span>
+                </a>
+              </div>
+
+              {/* Stage groups: Draft → Approved → Launched */}
+              {(["Draft", "Approved", "Launched"] as const).map(stage => {
+                const stageItems = ideasBoard.items.filter(i =>
+                  i.status.toLowerCase() === stage.toLowerCase()
+                );
+                if (stageItems.length === 0) return null;
+                const sc = stageColors[stage];
+                return (
+                  <div key={stage} className="mb-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                        style={{ background: sc.bg, color: sc.text }}>
+                        {stage}
+                      </span>
+                      <span className="text-[10px] text-[#333]">{stageItems.length}</span>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                      {stageItems.map(idea => (
+                        <a key={idea.id} href={idea.url} target="_blank" rel="noreferrer"
+                          className="flex items-start gap-3 p-3 rounded-lg border border-[#1e1e1e] hover:border-[#2a2a2a] transition-colors group"
+                          style={{ background: "#161616" }}>
+                          <span className="text-[10px] text-[#2a2a2a] shrink-0 mt-0.5 font-mono">#{idea.number}</span>
+                          <span className="text-xs text-[#666] group-hover:text-[#999] transition-colors leading-relaxed flex-1">
+                            {idea.title}
+                          </span>
+                          <ExternalLink size={9} className="text-[#2a2a2a] group-hover:text-[#555] shrink-0 mt-0.5 transition-colors" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* No token fallback for ideas */}
+          {!process.env.GITHUB_TOKEN && (
+            <div className="border border-dashed border-[#1e1e1e] rounded-lg p-6 text-center">
+              <Lightbulb size={16} className="text-[#2a2a2a] mx-auto mb-2" />
+              <div className="text-xs text-[#444]">Ideas pipeline unavailable</div>
+              <div className="text-[10px] text-[#2a2a2a] mt-1">Set GITHUB_TOKEN in .env.local</div>
+            </div>
+          )}
         </div>
       </main>
     </div>
