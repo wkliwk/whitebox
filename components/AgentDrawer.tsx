@@ -68,7 +68,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
       }
       nodes.push(
         <pre key={`code-${i}`} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded p-3 my-2 overflow-x-auto">
-          {lang && <div className="text-[9px] text-[#444] uppercase tracking-widest mb-1.5">{lang}</div>}
+          {lang && <div className="text-[9px] text-[#888] uppercase tracking-widest mb-1.5">{lang}</div>}
           <code className="text-[10px] text-[#888] font-mono leading-relaxed">{codeLines.join("\n")}</code>
         </pre>
       );
@@ -115,7 +115,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
           {listItems.map((item, j) => (
             <li key={j} className="flex items-start gap-1.5 text-xs leading-relaxed"
               style={{ color: inRulesSection ? "#b8960a" : "#999" }}>
-              <span className="mt-0.5 shrink-0" style={{ color: inRulesSection ? "#eab30844" : "#444" }}>·</span>
+              <span className="mt-0.5 shrink-0" style={{ color: inRulesSection ? "#eab30844" : "#666" }}>·</span>
               <span>{inlineFormat(item)}</span>
             </li>
           ))}
@@ -195,22 +195,22 @@ export function AgentDrawer({ agentId, agentName, onClose }: AgentDrawerProps) {
                 )}
               </div>
               {info?.description ? (
-                <div className="text-xs text-[#666] mt-0.5 leading-relaxed max-w-[360px]">{info.description}</div>
+                <div className="text-xs text-[#888] mt-0.5 leading-relaxed max-w-[360px]">{info.description}</div>
               ) : (
-                <div className="text-xs text-[#333] mt-0.5">Loading…</div>
+                <div className="text-xs text-[#777] mt-0.5">Loading…</div>
               )}
             </div>
           </div>
-          <button onClick={onClose} className="text-[#555] hover:text-[#999] p-1 mt-0.5 shrink-0">
+          <button onClick={onClose} className="text-[#777] hover:text-[#999] p-1 mt-0.5 shrink-0">
             <X size={14} />
           </button>
         </div>
 
         {/* Skills strip */}
         {info?.skills && info.skills.length > 0 && (
-          <div className="px-5 py-3 border-b border-[#1e1e1e]">
+          <div className="px-5 py-3 border-b border-[#222]">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-1 text-[10px] text-[#444] mr-1">
+              <div className="flex items-center gap-1 text-[10px] text-[#888] mr-1">
                 <Terminal size={10} />
                 <span className="uppercase tracking-widest">Skills</span>
               </div>
@@ -228,11 +228,11 @@ export function AgentDrawer({ agentId, agentName, onClose }: AgentDrawerProps) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
-            <div className="text-xs text-[#444]">Loading…</div>
+            <div className="text-xs text-[#888]">Loading…</div>
           ) : info?.body ? (
             <div className="space-y-0">{renderMarkdown(info.body)}</div>
           ) : (
-            <div className="text-xs text-[#444]">No description found.</div>
+            <div className="text-xs text-[#888]">No description found.</div>
           )}
         </div>
       </div>

@@ -50,14 +50,14 @@ export function AgentSection() {
   return (
     <>
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Agent Status</div>
+        <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Agent Status</div>
         <div className="space-y-0">
           {AGENTS.map(agent => {
             const color = agentColors[agent.id] || "#555";
             const status = getAgentStatus(agent.id, sessions);
             return (
               <button key={agent.id} onClick={() => setSelected({ id: agent.id, name: agent.name })}
-                className="w-full flex items-center gap-3 py-2.5 border-b border-[#1e1e1e] hover:bg-[#1a1a1a] -mx-2 px-2 rounded text-left">
+                className="w-full flex items-center gap-3 py-2.5 border-b border-[#222] hover:bg-[#242424] -mx-2 px-2 rounded text-left">
                 <StatusDot status={status as "running" | "idle" | "error"} size="sm" />
                 <div className="w-5 h-5 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0"
                   style={{ background: color + "33", color }}>
@@ -65,11 +65,11 @@ export function AgentSection() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-xs text-[#ccc] font-medium">{agent.name}</span>
-                  <span className="block text-[10px] text-[#444]">
+                  <span className="block text-[10px] text-[#888]">
                     {status === "running" ? "Active" : "Idle — click to view role"}
                   </span>
                 </div>
-                <span className="text-[10px] text-[#3a3a3a] shrink-0">›</span>
+                <span className="text-[10px] text-[#777] shrink-0">›</span>
               </button>
             );
           })}

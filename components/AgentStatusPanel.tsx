@@ -21,12 +21,12 @@ export function AgentStatusPanel({ agents }: { agents: AgentRow[] }) {
 
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Agent Status</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Agent Status</div>
       <div className="space-y-0">
         {sorted.map(agent => {
           const color = agentColors[agent.id] || "#555";
           return (
-            <div key={agent.id} className="flex items-center gap-3 py-2.5 border-b border-[#1e1e1e]">
+            <div key={agent.id} className="flex items-center gap-3 py-2.5 border-b border-[#222]">
               <StatusDot status={agent.status as "running" | "idle" | "error"} size="sm" />
               <div className="w-5 h-5 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0"
                 style={{ background: color + "33", color }}>
@@ -40,11 +40,11 @@ export function AgentStatusPanel({ agents }: { agents: AgentRow[] }) {
                     #{agent.currentTask.number} {agent.currentTask.title.slice(0, 45)}{agent.currentTask.title.length > 45 ? "…" : ""}
                   </a>
                 ) : (
-                  <span className="block text-[10px] text-[#444]">Idle</span>
+                  <span className="block text-[10px] text-[#888]">Idle</span>
                 )}
               </div>
               {agent.lastActive && (
-                <span className="text-[10px] text-[#444] shrink-0">{relativeTime(agent.lastActive)}</span>
+                <span className="text-[10px] text-[#888] shrink-0">{relativeTime(agent.lastActive)}</span>
               )}
             </div>
           );

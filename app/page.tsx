@@ -38,8 +38,8 @@ export default async function Page() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Dashboard</div>
-              <div className="text-sm text-[#666]">
+              <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Dashboard</div>
+              <div className="text-sm text-[#888]">
                 {activeProjects > 0
                   ? <>{activeProjects} active project{activeProjects !== 1 ? "s" : ""} · {openTasks} open · {inProgressTasks} in progress</>
                   : <>Whitebox — {tasks.length} tasks tracked</>

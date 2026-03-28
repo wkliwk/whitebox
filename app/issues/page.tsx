@@ -34,8 +34,8 @@ export default async function IssuesPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Issues</div>
-            <div className="text-sm text-[#666]">
+            <div className="text-[10px] uppercase tracking-widest text-[#888] mb-0.5">Issues</div>
+            <div className="text-sm text-[#888]">
               {todo.length} open · {inProgress.length} in progress · {done.length} done
             </div>
           </div>
@@ -49,7 +49,7 @@ export default async function IssuesPage() {
             ].map(s => (
               <div key={s.label} className="rounded-lg p-4 border border-[#222]" style={{ background: "#1c1c1c" }}>
                 <div className="text-2xl font-bold tabular-nums" style={{ color: s.color }}>{s.count}</div>
-                <div className="text-[10px] uppercase tracking-widest text-[#555] mt-1">{s.label}</div>
+                <div className="text-[10px] uppercase tracking-widest text-[#777] mt-1">{s.label}</div>
               </div>
             ))}
           </div>

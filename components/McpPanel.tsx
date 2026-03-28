@@ -34,7 +34,7 @@ function CommandChip({ cmd, args }: { cmd: string; args: string[] }) {
   const short = [cmd, ...args].join(" ");
   const display = short.length > 60 ? short.slice(0, 57) + "…" : short;
   return (
-    <code className="text-[10px] text-[#555] bg-[#1a1a1a] px-2 py-0.5 rounded font-mono break-all">
+    <code className="text-[10px] text-[#777] bg-[#1a1a1a] px-2 py-0.5 rounded font-mono break-all">
       {display}
     </code>
   );
@@ -57,12 +57,12 @@ export function McpPanel() {
   }, []);
 
   if (loading) {
-    return <div className="text-xs text-[#444]">Loading…</div>;
+    return <div className="text-xs text-[#888]">Loading…</div>;
   }
 
   if (servers.length === 0) {
     return (
-      <div className="text-xs text-[#555] py-8 text-center">
+      <div className="text-xs text-[#777] py-8 text-center">
         No MCP servers configured in ~/.claude.json or ~/.claude/mcp.json
       </div>
     );
@@ -76,7 +76,7 @@ export function McpPanel() {
     <div className="space-y-6">
       {/* Summary bar */}
       <div className="flex items-center gap-4 text-[11px]">
-        <span className="text-[#555]">{servers.length} servers configured</span>
+        <span className="text-[#777]">{servers.length} servers configured</span>
         {runningCount > 0 && (
           <span className="flex items-center gap-1.5 text-[#22c55e]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse inline-block" />
@@ -119,7 +119,7 @@ function Section({
           style={{ background: color.bg, color: color.text }}>
           {title}
         </span>
-        <span className="text-[10px] text-[#333]">{servers.length}</span>
+        <span className="text-[10px] text-[#777]">{servers.length}</span>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {servers.map(s => <ServerCard key={`${s.source}-${s.name}`} server={s} />)}
@@ -152,7 +152,7 @@ function ServerCard({ server }: { server: McpServer }) {
         <span className="text-xs font-medium text-[#ccc] flex-1">{server.name}</span>
 
         {/* Type badge */}
-        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#222] text-[#444] font-mono">
+        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#222] text-[#888] font-mono">
           {server.type}
         </span>
 
@@ -165,14 +165,14 @@ function ServerCard({ server }: { server: McpServer }) {
       </div>
 
       {/* Description */}
-      <div className="text-[11px] text-[#555]">{getDescription(server.name)}</div>
+      <div className="text-[11px] text-[#777]">{getDescription(server.name)}</div>
 
       {/* Command */}
       <CommandChip cmd={server.command} args={server.args} />
 
       {/* Env secrets indicator */}
       {hasEnvSecrets && (
-        <div className="text-[10px] text-[#333]">
+        <div className="text-[10px] text-[#777]">
           {Object.keys(server.env).length} env var{Object.keys(server.env).length !== 1 ? "s" : ""} configured
         </div>
       )}

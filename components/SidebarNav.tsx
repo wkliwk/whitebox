@@ -33,8 +33,8 @@ export function SidebarNav() {
           <a key={href} href={href}
             className={`w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-xs transition-colors ${
               active
-                ? "bg-[#1e1e1e] text-[#e8e8e8]"
-                : "text-[#666] hover:text-[#e8e8e8] hover:bg-[#1a1a1a]"
+                ? "bg-[#242424] text-[#e8e8e8]"
+                : "text-[#888] hover:text-[#e8e8e8] hover:bg-[#242424]"
             }`}>
             <Icon size={13} className={active ? "text-[#888]" : ""} />
             <span className="flex-1">{t(key)}</span>
@@ -52,23 +52,23 @@ export function SidebarFooter() {
 
   return (
     <div className="mt-auto px-4 py-3 border-t border-[#2a2a2a]">
-      <div className="text-[10px] uppercase tracking-widest text-[#444] mb-1 font-medium">
+      <div className="text-[10px] uppercase tracking-widest text-[#888] mb-1 font-medium">
         {t("section_company")}
       </div>
-      <div className="text-xs text-[#555] mb-3">wkliwk</div>
+      <div className="text-xs text-[#777] mb-3">wkliwk</div>
 
       {/* Language toggle — styled as a visible control */}
       <button
         onClick={() => setLocale(isEn ? "zh-HK" : "en")}
-        className="flex items-center gap-2 px-2 py-1.5 rounded border border-[#2a2a2a] hover:border-[#3a3a3a] hover:bg-[#1e1e1e] transition-colors w-full group"
+        className="flex items-center gap-2 px-2 py-1.5 rounded border border-[#2a2a2a] hover:border-[#3a3a3a] hover:bg-[#242424] transition-colors w-full group"
         title={isEn ? "切換至廣東話" : "Switch to English"}
       >
-        <Globe size={11} className="text-[#666] group-hover:text-[#999] shrink-0" />
-        <span className="flex-1 text-left text-[10px] text-[#666] group-hover:text-[#999]">
+        <Globe size={11} className="text-[#888] group-hover:text-[#999] shrink-0" />
+        <span className="flex-1 text-left text-[10px] text-[#888] group-hover:text-[#999]">
           {isEn ? "廣東話" : "English"}
         </span>
         {/* Active locale pill */}
-        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#2a2a2a] text-[#555] font-mono shrink-0">
+        <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#2a2a2a] text-[#777] font-mono shrink-0">
           {isEn ? "EN" : "廣"}
         </span>
       </button>
@@ -79,7 +79,7 @@ export function SidebarFooter() {
 export function SidebarSectionLabel({ labelKey }: { labelKey: "section_agents" | "section_products" | "section_projects" | "section_company" }) {
   const { t } = useLanguage();
   return (
-    <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 font-medium">
+    <div className="text-[10px] uppercase tracking-widest text-[#888] mb-2 font-medium">
       {t(labelKey)}
     </div>
   );

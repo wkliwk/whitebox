@@ -22,11 +22,11 @@ export function MetricCard({ icon: Icon, label, value, subtitle, isActive }: Met
       )}
       <div className="flex items-start justify-between">
         <span className="text-3xl font-semibold text-[#e8e8e8] leading-none">{value}</span>
-        {!isActive && <Icon size={14} className="text-[#444] mt-1" />}
+        {!isActive && <Icon size={14} className="text-[#888] mt-1" />}
       </div>
       <div>
         <div className="text-sm text-[#999] font-medium">{label}</div>
-        {subtitle && <div className="text-xs text-[#555] mt-0.5">{subtitle}</div>}
+        {subtitle && <div className="text-xs text-[#777] mt-0.5">{subtitle}</div>}
       </div>
     </div>
   );

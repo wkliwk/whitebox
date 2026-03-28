@@ -25,21 +25,21 @@ const statusDot = (status: string) => {
 };
 
 const priorityIcon = (p: string) =>
-  p === "p0" ? <ArrowUp size={11} className="text-[#ef4444] flex-shrink-0" /> : <Minus size={11} className="text-[#444] flex-shrink-0" />;
+  p === "p0" ? <ArrowUp size={11} className="text-[#ef4444] flex-shrink-0" /> : <Minus size={11} className="text-[#888] flex-shrink-0" />;
 
 export function TaskList({ tasks }: { tasks: RecentTask[] }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Recent Tasks</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Recent Tasks</div>
       {tasks.length === 0 ? (
-        <div className="text-xs text-[#444] py-8 text-center">No recent tasks</div>
+        <div className="text-xs text-[#888] py-8 text-center">No recent tasks</div>
       ) : (
         <div className="space-y-0">
           {tasks.map((t, i) => {
             const color = repoColor(t.repo);
             return (
               <a key={i} href={t.url} target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 py-2.5 border-b border-[#1e1e1e] hover:bg-[#1a1a1a] -mx-2 px-2 rounded group">
+                className="flex items-center gap-2 py-2.5 border-b border-[#222] hover:bg-[#242424] -mx-2 px-2 rounded group">
                 {priorityIcon(t.priority)}
                 {statusDot(t.status)}
                 <span className="flex-1 text-xs text-[#ccc] truncate group-hover:text-[#e8e8e8]">
@@ -51,11 +51,11 @@ export function TaskList({ tasks }: { tasks: RecentTask[] }) {
                   {t.repo}
                 </span>
                 {t.agent && (
-                  <span className="text-[10px] text-[#444] bg-[#1e1e1e] px-1.5 py-0.5 rounded flex-shrink-0">
+                  <span className="text-[10px] text-[#888] bg-[#1e1e1e] px-1.5 py-0.5 rounded flex-shrink-0">
                     {t.agent.toUpperCase().slice(0, 2)}
                   </span>
                 )}
-                <span className="text-[10px] text-[#444] flex-shrink-0 w-12 text-right">{relativeTime(t.updatedAt)}</span>
+                <span className="text-[10px] text-[#888] flex-shrink-0 w-12 text-right">{relativeTime(t.updatedAt)}</span>
               </a>
             );
           })}

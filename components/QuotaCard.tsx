@@ -14,7 +14,7 @@ interface QuotaData {
 }
 
 function staleness(updatedAt: string | null, source: QuotaData["source"]): { label: string; color: string } {
-  if (!updatedAt) return { label: "no data", color: "#444" };
+  if (!updatedAt) return { label: "no data", color: "#666" };
   const ageMs = Date.now() - new Date(updatedAt).getTime();
   const ageMin = ageMs / 60000;
   if (source === "live") return { label: "live", color: "#22c55e" };
@@ -71,7 +71,7 @@ function QuotaRow({
     <div className="space-y-1.5">
       {/* Label left, value right — both vertically centered */}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-[#555]">{label}</span>
+        <span className="text-[11px] text-[#777]">{label}</span>
         <span
           className={`font-bold tabular-nums ${compact ? "text-base" : "text-xl"}`}
           style={{ color: pctColor(pct) }}
@@ -86,9 +86,9 @@ function QuotaRow({
       {/* Reset info: countdown · datetime on same line */}
       {resets && (
         <div className="flex items-center gap-1 text-[10px]">
-          <span className="text-[#555]">{resets.countdown}</span>
+          <span className="text-[#777]">{resets.countdown}</span>
           {resets.datetime && (
-            <span className="text-[#444]">· {resets.datetime}</span>
+            <span className="text-[#888]">· {resets.datetime}</span>
           )}
         </div>
       )}
@@ -126,9 +126,9 @@ export function QuotaCard() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: "#2a2a2a" }}>
-            <Zap size={13} className="text-[#666]" />
+            <Zap size={13} className="text-[#888]" />
           </div>
-          <span className="text-[10px] uppercase tracking-widest text-[#555] font-medium">Quota</span>
+          <span className="text-[10px] uppercase tracking-widest text-[#777] font-medium">Quota</span>
         </div>
         <span className="text-[10px] font-medium" style={{ color: stale.color }}>{stale.label}</span>
       </div>

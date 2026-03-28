@@ -53,7 +53,7 @@ function CmdChip({ cmd, args }: { cmd: string; args: string[] }) {
   const full = [cmd, ...args].join(" ");
   const display = full.length > 64 ? full.slice(0, 61) + "…" : full;
   return (
-    <code className="text-[10px] text-[#555] bg-[#1a1a1a] px-2 py-0.5 rounded font-mono break-all">
+    <code className="text-[10px] text-[#777] bg-[#1a1a1a] px-2 py-0.5 rounded font-mono break-all">
       {display}
     </code>
   );
@@ -61,7 +61,7 @@ function CmdChip({ cmd, args }: { cmd: string; args: string[] }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">
+    <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">
       {children}
     </div>
   );
@@ -82,7 +82,7 @@ function Badge({ children, color }: { children: React.ReactNode; color?: string 
   return (
     <span
       className="text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0"
-      style={{ background: color ? color + "18" : "#222", color: color ?? "#444" }}
+      style={{ background: color ? color + "18" : "#222", color: color ?? "#777" }}
     >
       {children}
     </span>
@@ -102,10 +102,10 @@ function McpServerCard({ server }: { server: McpServer }) {
         <Badge>{server.type}</Badge>
         {server.running && <Badge color="#22c55e">running</Badge>}
       </div>
-      {desc && <div className="text-[11px] text-[#555]">{desc}</div>}
+      {desc && <div className="text-[11px] text-[#777]">{desc}</div>}
       <CmdChip cmd={server.command} args={server.args} />
       {envCount > 0 && (
-        <div className="text-[10px] text-[#333]">
+        <div className="text-[10px] text-[#777]">
           {envCount} env var{envCount !== 1 ? "s" : ""} configured
         </div>
       )}
@@ -128,9 +128,9 @@ function PluginCard({ plugin }: { plugin: InstalledPlugin }) {
         <Badge color="#3b82f6">v{plugin.version}</Badge>
         <Badge>{plugin.scope}</Badge>
       </div>
-      {desc && <div className="text-[11px] text-[#555]">{desc}</div>}
-      <div className="text-[10px] text-[#333] font-mono">{plugin.marketplace}</div>
-      {updated && <div className="text-[10px] text-[#333]">Updated {updated}</div>}
+      {desc && <div className="text-[11px] text-[#777]">{desc}</div>}
+      <div className="text-[10px] text-[#777] font-mono">{plugin.marketplace}</div>
+      {updated && <div className="text-[10px] text-[#777]">Updated {updated}</div>}
     </Card>
   );
 }
@@ -155,7 +155,7 @@ export function ToolsPanel() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-xs text-[#444]">Loading…</div>;
+  if (loading) return <div className="text-xs text-[#888]">Loading…</div>;
 
   const globalServers = servers.filter(s => s.source === "global");
   const projectServers = servers.filter(s => s.source === "project");
@@ -165,7 +165,7 @@ export function ToolsPanel() {
     <div className="space-y-8">
       {/* Summary bar */}
       <div className="flex items-center gap-5 text-[11px]">
-        <span className="text-[#555]">
+        <span className="text-[#777]">
           {servers.length} MCP server{servers.length !== 1 ? "s" : ""}
           {plugins.length > 0 && ` · ${plugins.length} plugin${plugins.length !== 1 ? "s" : ""}`}
         </span>
@@ -213,7 +213,7 @@ export function ToolsPanel() {
       )}
 
       {servers.length === 0 && plugins.length === 0 && (
-        <div className="text-xs text-[#555] py-8 text-center">
+        <div className="text-xs text-[#777] py-8 text-center">
           No MCP servers or plugins found. Check ~/.claude.json and ~/.claude/mcp.json
         </div>
       )}

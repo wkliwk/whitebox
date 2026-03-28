@@ -38,7 +38,7 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
 
   return (
     <div className="px-2 py-2">
-      <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 px-2 font-medium">{t("section_products")}</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#888] mb-2 px-2 font-medium">{t("section_products")}</div>
       <div className="space-y-0.5">
         {productGroups.map(product => {
           const isOpen = !!expanded[product.name];
@@ -50,7 +50,7 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
               {/* Product row */}
               <button
                 onClick={() => toggle(product.name)}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors group"
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#242424] transition-colors group"
               >
                 {/* Expand chevron */}
                 <ChevronRight
@@ -58,13 +58,13 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
                   className="shrink-0 transition-transform"
                   style={{
                     transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
-                    color: isOpen ? product.color : "#444",
+                    color: isOpen ? product.color : "#666",
                   }}
                 />
                 {/* Color dot */}
                 <span
                   className="w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{ background: hasLocal ? product.color : "#333" }}
+                  style={{ background: hasLocal ? product.color : "#555" }}
                 />
                 <span
                   className="flex-1 text-left text-xs truncate"
@@ -93,7 +93,7 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
                     href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#1e1e1e] transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#242424] transition-colors"
                   >
                     <GitHubIcon className="w-2.5 h-2.5" style={{ color: product.color }} />
                     <span className="text-[11px]" style={{ color: product.color + "cc" }}>
@@ -110,16 +110,16 @@ export function SidebarProjects({ projects = [], productGroups = [] }: SidebarPr
                         href={repo.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#1e1e1e] transition-colors group/repo"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#242424] transition-colors group/repo"
                       >
                         <span
                           className="w-1 h-1 rounded-full shrink-0"
                           style={{ background: isLocal ? product.color + "88" : "#2a2a2a" }}
                         />
-                        <span className={`text-[11px] flex-1 truncate ${isLocal ? "text-[#666]" : "text-[#3a3a3a]"} group-hover/repo:text-[#888]`}>
+                        <span className={`text-[11px] flex-1 truncate ${isLocal ? "text-[#888]" : "text-[#777]"} group-hover/repo:text-[#888]`}>
                           {repo.name}
                         </span>
-                        <ExternalLink size={9} className="shrink-0 opacity-0 group-hover/repo:opacity-100 text-[#444] transition-opacity" />
+                        <ExternalLink size={9} className="shrink-0 opacity-0 group-hover/repo:opacity-100 text-[#888] transition-opacity" />
                       </a>
                     );
                   })}

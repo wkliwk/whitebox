@@ -29,25 +29,25 @@ function AgentAvatar({ name }: { name: string }) {
 export function ActivityFeed({ events }: { events: ActivityEvent[] }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Recent Activity</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Recent Activity</div>
       {events.length === 0 ? (
-        <div className="text-xs text-[#444] py-8 text-center">No recent activity</div>
+        <div className="text-xs text-[#888] py-8 text-center">No recent activity</div>
       ) : (
         <div className="space-y-0">
           {events.map((e, i) => (
-            <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[#1e1e1e]">
+            <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[#222]">
               <AgentAvatar name={e.agent} />
               <div className="flex-1 min-w-0 leading-relaxed">
                 <span className="text-[#e8e8e8] font-medium">{e.agent}</span>
-                <span className="text-[#666]"> {e.verb} </span>
+                <span className="text-[#888]"> {e.verb} </span>
                 {e.entityRef && (
                   <span className="text-[#e8e8e8] font-medium">{e.entityRef}</span>
                 )}
                 {e.entityTitle && (
-                  <span className="text-[#555]"> — {e.entityTitle.slice(0, 40)}{e.entityTitle.length > 40 ? "…" : ""}</span>
+                  <span className="text-[#777]"> — {e.entityTitle.slice(0, 40)}{e.entityTitle.length > 40 ? "…" : ""}</span>
                 )}
               </div>
-              <span className="text-[10px] text-[#444] shrink-0 mt-0.5">
+              <span className="text-[10px] text-[#888] shrink-0 mt-0.5">
                 {e.timestamp ? relativeTime(e.timestamp) : ""}
               </span>
             </div>
