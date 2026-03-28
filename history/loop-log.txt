@@ -3,3 +3,4 @@
 2026-03-27 23:57 | whitebox | Removed all ai-company references from commands + memory (#12)
 2026-03-28 00:06 | whitebox | Added live sessions panel with ps aux detection (#13)
 2026-03-28 00:22 | whitebox | Added task descriptions to live sessions panel (#14)
+2026-03-28 00:31 | whitebox | Removed hardcoded ai-company from Sidebar (#15)

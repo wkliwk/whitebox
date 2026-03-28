@@ -1,8 +1,7 @@
 import { Octokit } from "octokit";
+import { getProductRepos } from "./local";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-const OWNER = process.env.GITHUB_OWNER || "wkliwk";
-const REPOS = (process.env.PRODUCT_REPOS || "whitebox").split(",").map(r => r.trim());
 
 export interface RecentTask {
   number: number;
@@ -17,12 +16,14 @@ export interface RecentTask {
 
 export async function getRecentTasks(): Promise<RecentTask[]> {
   if (!process.env.GITHUB_TOKEN) return [];
+
+  const repos = getProductRepos();
   const tasks: RecentTask[] = [];
 
-  for (const repo of REPOS.slice(0, 5)) {
+  for (const { owner, name: repo } of repos) {
     try {
       const { data } = await octokit.rest.issues.listForRepo({
-        owner: OWNER, repo, state: "open", sort: "updated",
+        owner, repo, state: "open", sort: "updated",
         per_page: 20, direction: "desc",
       });
 

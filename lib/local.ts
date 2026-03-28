@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { execSync } from "child_process";
 
 const HOME = os.homedir();
 
@@ -114,4 +115,34 @@ export function getAgentActivity(): AgentActivity[] {
   return Array.from(byProject.entries())
     .map(([project, v]) => ({ project, lastDate: v.lastDate, lastSummary: v.lastSummary, totalEntries: v.count }))
     .sort((a, b) => b.lastDate.localeCompare(a.lastDate));
+}
+
+// ─── Product Repos (auto-discovered from ~/Dev/) ─────────────────────────────
+
+export interface ProductRepo {
+  name: string;   // e.g. "money-flow-frontend"
+  owner: string;  // e.g. "wkliwk"
+  localPath: string;
+}
+
+export function getProductRepos(): ProductRepo[] {
+  const devDir = path.join(HOME, "Dev");
+  const repos: ProductRepo[] = [];
+  try {
+    const entries = fs.readdirSync(devDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const localPath = path.join(devDir, entry.name);
+      try {
+        const remote = execSync(`git -C "${localPath}" remote get-url origin 2>/dev/null`, { timeout: 1000 })
+          .toString().trim();
+        // Match git@github.com:owner/repo.git or https://github.com/owner/repo.git
+        const match = remote.match(/github\.com[:/]([^/]+)\/(.+?)(?:\.git)?$/);
+        if (match) {
+          repos.push({ name: match[2], owner: match[1], localPath });
+        }
+      } catch { /* not a git repo or no remote */ }
+    }
+  } catch { /* ~/Dev doesn't exist */ }
+  return repos;
 }
