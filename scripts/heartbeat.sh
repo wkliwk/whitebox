@@ -18,14 +18,12 @@ if [[ -z "$STATUS" || -z "$AGENT_TYPE" ]]; then
   exit 1
 fi
 
-URL="${WHITEBOX_HEARTBEAT_URL:-}"
-if [[ -z "$URL" ]]; then
-  exit 0  # silently skip if not configured
-fi
+URL="${WHITEBOX_HEARTBEAT_URL:-http://localhost:3000/api/heartbeat}"
+SECRET="${WHITEBOX_HEARTBEAT_SECRET:-wbx-hb-2026-local}"
 
 AUTH_HEADER=""
-if [[ -n "${WHITEBOX_HEARTBEAT_SECRET:-}" ]]; then
-  AUTH_HEADER="Authorization: Bearer $WHITEBOX_HEARTBEAT_SECRET"
+if [[ -n "$SECRET" ]]; then
+  AUTH_HEADER="Authorization: Bearer $SECRET"
 fi
 
 curl -s -X POST "$URL" \
