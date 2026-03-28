@@ -108,7 +108,7 @@ export function QuotaCard() {
         {fhResets && (
           <div className="flex items-center gap-1.5 text-[10px] text-[#444]">
             <span>{fhResets.countdown}</span>
-            {fhResets.datetime && <span className="text-[#2a2a2a]">· {fhResets.datetime}</span>}
+            {fhResets.datetime && <span className="text-[#555]">· {fhResets.datetime}</span>}
           </div>
         )}
       </div>
