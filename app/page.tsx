@@ -16,6 +16,9 @@ export default async function Page() {
     getRecentTasks(),
   ]);
 
+  const openTasks = tasks.filter(t => t.status === "todo").length;
+  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
+
   const today = new Date().toISOString().slice(0, 10);
   const activeProjects = activity.filter(a => {
     const daysSince = (Date.now() - new Date(a.lastDate).getTime()) / 86400000;
@@ -36,7 +39,12 @@ export default async function Page() {
           <div className="flex items-center justify-between">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-[#444] mb-0.5">Dashboard</div>
-              <div className="text-sm text-[#666]">Whitebox — Local</div>
+              <div className="text-sm text-[#666]">
+                {activeProjects > 0
+                  ? <>{activeProjects} active project{activeProjects !== 1 ? "s" : ""} · {openTasks} open · {inProgressTasks} in progress</>
+                  : <>Whitebox — {tasks.length} tasks tracked</>
+                }
+              </div>
             </div>
             <RefreshIndicator />
           </div>

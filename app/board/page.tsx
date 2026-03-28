@@ -144,12 +144,14 @@ export default async function BoardPage({ searchParams }: PageProps) {
           </div>
 
           {!process.env.GITHUB_TOKEN ? (
-            <div className="text-xs text-[#555] py-8 text-center">
-              No GITHUB_TOKEN — set it in .env.local to fetch project boards
+            <div className="py-12 text-center">
+              <div className="text-xs text-[#555] mb-1">Board data unavailable</div>
+              <div className="text-[10px] text-[#333]">Configure GITHUB_TOKEN in .env.local to enable this page</div>
             </div>
           ) : !boardData ? (
-            <div className="text-xs text-[#555] py-8 text-center">
-              Could not load board {activeBoardNumber}
+            <div className="py-12 text-center">
+              <div className="text-xs text-[#555] mb-1">Could not load board</div>
+              <div className="text-[10px] text-[#333]">Board {activeBoardNumber} may not exist or is inaccessible</div>
             </div>
           ) : (
             /* Kanban columns */
@@ -172,7 +174,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
                     {/* Cards */}
                     <div className="space-y-2">
                       {items.length === 0 ? (
-                        <div className="text-[10px] text-[#2a2a2a] py-4 text-center border border-dashed border-[#1e1e1e] rounded-lg">
+                        <div className="text-[10px] text-[#555] py-4 text-center border border-dashed border-[#2a2a2a] rounded-lg">
                           Empty
                         </div>
                       ) : (

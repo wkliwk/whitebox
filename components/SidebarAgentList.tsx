@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import type { Session } from "@/app/api/sessions/route";
 import { AGENTS } from "@/lib/agents";
 import { AgentDrawer } from "./AgentDrawer";
@@ -89,9 +90,9 @@ export function SidebarAgentList() {
           return (
             <div key={agent.id}
               onClick={() => setOpenAgent({ id: agent.id, name: agent.name })}
-              className="flex items-start gap-2 px-1 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer">
+              className="flex items-center gap-2 px-1 py-1.5 rounded hover:bg-[#1e1e1e] transition-colors cursor-pointer group/agent">
               {/* Status dot */}
-              <span className="relative flex w-1.5 h-1.5 shrink-0 mt-1">
+              <span className="relative flex w-1.5 h-1.5 shrink-0">
                 {running && (
                   <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping"
                     style={{ background: color }} />
@@ -101,7 +102,7 @@ export function SidebarAgentList() {
               </span>
 
               {/* Avatar */}
-              <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0 mt-0.5"
+              <div className="w-4 h-4 rounded-sm flex items-center justify-center text-[9px] font-bold flex-shrink-0"
                 style={{ background: color + "33", color }}>
                 {agent.name[0]}
               </div>
@@ -122,15 +123,18 @@ export function SidebarAgentList() {
 
                 {/* Current task or idle state */}
                 {running && label ? (
-                  <div className="text-[10px] truncate mt-0.5" style={{ color: color + "aa" }}>
+                  <div className="text-[10px] truncate" style={{ color: color + "aa" }}>
                     {label}
                   </div>
                 ) : running && project ? (
-                  <div className="text-[10px] text-[#444] truncate mt-0.5">{project}</div>
+                  <div className="text-[10px] text-[#444] truncate">{project}</div>
                 ) : (
-                  <div className="text-[10px] text-[#2e2e2e] mt-0.5">Idle</div>
+                  <div className="text-[10px] text-[#444]">Idle</div>
                 )}
               </div>
+
+              {/* Drawer affordance */}
+              <ChevronRight size={10} className="text-[#333] group-hover/agent:text-[#666] shrink-0 transition-colors" />
             </div>
           );
         })}
