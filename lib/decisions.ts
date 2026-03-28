@@ -1,7 +1,6 @@
 export interface Decision {
   date: string;
-  agent: string;
-  decision: string;
-  type?: string;
-  adr?: string;
+  project: string;
+  summary: string;
+  prompt?: string;
 }

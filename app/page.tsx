@@ -3,28 +3,32 @@ import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
 import { TaskList } from "@/components/TaskList";
+import { AgentStatusPanel } from "@/components/AgentStatusPanel";
+import { CostBreakdown } from "@/components/CostBreakdown";
+import { DecisionLog } from "@/components/DecisionLog";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import {
   getRecentEvents, getIssueStats, getCostReport,
-  getAgentActivity, getRecentTasks,
+  getAgentActivity, getRecentTasks, getDecisions,
 } from "@/lib/github";
 import { formatCents } from "@/lib/utils";
 
 export const revalidate = 300;
 
 export default async function Page() {
-  const [events, stats, costReport, agents, tasks] = await Promise.all([
+  const [events, stats, costReport, agents, tasks, decisions] = await Promise.all([
     getRecentEvents(),
     getIssueStats(),
     getCostReport(),
     getAgentActivity(),
     getRecentTasks(),
+    getDecisions(),
   ]);
 
   const activeAgents = agents.filter(a => a.status === "running").length;
   const idleAgents = agents.filter(a => a.status === "idle").length;
   const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
-  const blockedTasks = 0; // extend later
+  const blockedTasks = 0;
   const mtdStr = costReport ? formatCents(costReport.mtdSpend) : "—";
   const budgetStr = costReport ? `${formatCents(costReport.budget)} budget` : "No budget set";
 
@@ -34,7 +38,7 @@ export default async function Page() {
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-6 space-y-6">
+        <div className="px-8 py-6 space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -77,6 +81,15 @@ export default async function Page() {
           <div className="grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-8">
             <ActivityFeed events={events} />
             <TaskList tasks={tasks} />
+          </div>
+
+          {/* Agent Status */}
+          <AgentStatusPanel agents={agents} />
+
+          {/* Cost + Decisions */}
+          <div className="grid grid-cols-1 lg:grid-cols-[40fr_60fr] gap-8">
+            <CostBreakdown report={costReport} />
+            <DecisionLog decisions={decisions} />
           </div>
         </div>
       </main>

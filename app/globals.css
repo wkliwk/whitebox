@@ -14,6 +14,15 @@
   --color-status-error: #ef4444;
 }
 
+:root {
+  --status-running: #3b82f6;
+  --status-active: #22c55e;
+  --status-idle: #eab308;
+  --status-error: #ef4444;
+  --status-paused: #6366f1;
+  --status-neutral: #555555;
+}
+
 * { box-sizing: border-box; }
 
 body {
