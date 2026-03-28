@@ -4,7 +4,7 @@ export const translations = {
   en: {
     // Nav
     nav_dashboard:  "Dashboard",
-    nav_agents:     "Agents",
+    nav_teams:      "Teams",
     nav_products:   "Products",
     nav_issues:     "Issues",
     nav_logs:       "Logs",
@@ -104,7 +104,7 @@ export const translations = {
   "zh-HK": {
     // Nav
     nav_dashboard:  "主頁",
-    nav_agents:     "代理人",
+    nav_teams:      "團隊",
     nav_products:   "產品",
     nav_issues:     "任務",
     nav_logs:       "日誌",

@@ -10,7 +10,7 @@ export function SidebarNav() {
 
   const navItems = [
     { href: "/",         icon: LayoutDashboard, key: "nav_dashboard" as const },
-    { href: "/agents",   icon: Users,            key: "nav_agents"    as const },
+    { href: "/teams",    icon: Users,            key: "nav_teams"     as const },
     { href: "/products", icon: Package,          key: "nav_products"  as const },
     { href: "/issues",   icon: CircleDot,        key: "nav_issues"    as const },
     { href: "/logs",     icon: ScrollText,        key: "nav_logs"      as const },
