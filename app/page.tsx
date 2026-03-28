@@ -6,6 +6,7 @@ import { TaskList } from "@/components/TaskList";
 import { AgentStatusPanel } from "@/components/AgentStatusPanel";
 import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
+import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { getTokenUsage, getDecisions, getLoopLog, getAgentActivity } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
@@ -54,6 +55,9 @@ export default async function Page() {
             </div>
             <RefreshIndicator />
           </div>
+
+          {/* Live Sessions — client polled, always fresh */}
+          <LiveSessions />
 
           {/* Metric Cards */}
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
