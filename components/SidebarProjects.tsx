@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, ExternalLink, KanbanSquare } from "lucide-react";
+import { ChevronRight, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { GitHubIcon } from "./GitHubIcon";
 
 interface Repo {
   name: string;
@@ -109,14 +110,16 @@ export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
                 >
                   {product.name}
                 </span>
-                {/* Board link */}
+                {/* GitHub shortcut on hover */}
                 <a
-                  href={`/board?board=${product.boardNumber}`}
+                  href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
                   onClick={e => e.stopPropagation()}
                   className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="View board"
+                  title="Open GitHub project"
                 >
-                  <KanbanSquare size={10} style={{ color: product.color + "88" }} />
+                  <GitHubIcon className="w-2.5 h-2.5" style={{ color: product.color + "88" }} />
                 </a>
               </button>
 
@@ -125,10 +128,12 @@ export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
                 <div className="ml-5 mt-0.5 space-y-0.5 mb-1">
                   {/* Board link as first item */}
                   <a
-                    href={`/board?board=${product.boardNumber}`}
+                    href={`https://github.com/users/wkliwk/projects/${product.boardNumber}`}
+                    target="_blank"
+                    rel="noreferrer"
                     className="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#1e1e1e] transition-colors"
                   >
-                    <KanbanSquare size={10} style={{ color: product.color }} />
+                    <GitHubIcon className="w-2.5 h-2.5" style={{ color: product.color }} />
                     <span className="text-[11px]" style={{ color: product.color + "cc" }}>
                       {t("products_board")}
                     </span>

@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import { GitHubIcon } from "@/components/GitHubIcon";
 import { Sidebar } from "@/components/Sidebar";
 import { getProductRepos } from "@/lib/local";
 import { getProjectBoard, BOARD_DEFS } from "@/lib/projects";
@@ -114,8 +115,7 @@ export default async function BoardPage({ searchParams }: PageProps) {
                 {boardData && (
                   <a href={boardData.url} target="_blank" rel="noreferrer"
                     className="text-[10px] text-[#444] hover:text-[#888] flex items-center gap-1">
-                    <ExternalLink size={10} />
-                    GitHub
+                    <GitHubIcon className="w-3 h-3" />
                   </a>
                 )}
               </div>
