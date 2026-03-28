@@ -1,9 +1,14 @@
 import { LayoutDashboard, Inbox, Tag, Target, Search } from "lucide-react";
 import type { Agent } from "@/lib/agents";
 
+interface Project {
+  name: string;
+  url: string;
+}
+
 interface SidebarProps {
   agents: (Agent & { status: string; currentTask: unknown | null })[];
-  projects?: string[];
+  projects?: Project[];
 }
 
 const agentColors: Record<string, string> = {
@@ -55,12 +60,13 @@ export function Sidebar({ agents, projects = [] }: SidebarProps) {
         <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 font-medium">Projects</div>
         <div className="space-y-0.5">
           {projects.map((p, i) => {
-            const colors = ["#ec4899", "#3b82f6", "#22c55e", "#8b5cf6"];
+            const colors = ["#ec4899", "#3b82f6", "#22c55e", "#8b5cf6", "#eab308", "#06b6d4", "#f97316"];
             return (
-              <div key={p} className="flex items-center gap-2 px-1 py-1 rounded hover:bg-[#2a2a2a] cursor-pointer">
+              <a key={p.name} href={p.url} target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 px-1 py-1 rounded hover:bg-[#2a2a2a]">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: colors[i % colors.length] }} />
-                <span className="text-xs text-[#999] truncate">{p}</span>
-              </div>
+                <span className="text-xs text-[#999] truncate hover:text-[#ccc]">{p.name}</span>
+              </a>
             );
           })}
         </div>

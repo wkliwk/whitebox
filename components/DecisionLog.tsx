@@ -23,10 +23,11 @@ export function DecisionLog({ decisions }: { decisions: Decision[] }) {
             return (
               <div key={i} className="py-2.5 border-b border-[#1e1e1e]">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded"
+                  <a href={`https://github.com/wkliwk/${d.project}`} target="_blank" rel="noreferrer"
+                    className="text-[10px] font-medium px-1.5 py-0.5 rounded hover:opacity-80"
                     style={{ background: color + "22", color }}>
                     {d.project}
-                  </span>
+                  </a>
                   <span className="text-[10px] text-[#444]">{d.date}</span>
                 </div>
                 <p className="text-xs text-[#999] leading-relaxed">

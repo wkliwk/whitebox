@@ -8,7 +8,7 @@ import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
-import { getTokenUsage, getDecisions, getLoopLog, getAgentActivity } from "@/lib/local";
+import { getTokenUsage, getDecisions, getLoopLog, getAgentActivity, getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { AGENTS } from "@/lib/agents";
 
@@ -43,7 +43,10 @@ export default async function Page() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#111111" }}>
-      <Sidebar agents={agentRows} projects={activity.map(a => a.project)} />
+      <Sidebar agents={agentRows} projects={getProductRepos().map(r => ({
+        name: r.name,
+        url: `https://github.com/${r.owner}/${r.name}`,
+      }))} />
 
       <main className="flex-1 overflow-y-auto">
         <div className="px-8 py-6 space-y-8">
