@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronRight, ExternalLink, KanbanSquare } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Repo {
   name: string;
@@ -66,6 +67,7 @@ interface SidebarProjectsProps {
 export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
   // Start with all products collapsed
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const { t } = useLanguage();
 
   function toggle(name: string) {
     setExpanded(prev => ({ ...prev, [name]: !prev[name] }));
@@ -73,7 +75,7 @@ export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
 
   return (
     <div className="px-2 py-2">
-      <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 px-2 font-medium">Products</div>
+      <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 px-2 font-medium">{t("section_products")}</div>
       <div className="space-y-0.5">
         {PRODUCTS.map(product => {
           const isOpen = !!expanded[product.name];
@@ -128,7 +130,7 @@ export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
                   >
                     <KanbanSquare size={10} style={{ color: product.color }} />
                     <span className="text-[11px]" style={{ color: product.color + "cc" }}>
-                      Project Board
+                      {t("products_board")}
                     </span>
                   </a>
 
