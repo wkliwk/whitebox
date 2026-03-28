@@ -11,10 +11,12 @@ export const revalidate = 5;
 
 export default async function Page() {
   const [decisions, activity, tasks] = await Promise.all([
-    Promise.resolve(getDecisions()),
-    Promise.resolve(getAgentActivity()),
+    getDecisions(),
+    getAgentActivity(),
     getRecentTasks(),
   ]);
+
+  const repos = getProductRepos();
 
   const openTasks = tasks.filter(t => t.status === "todo").length;
   const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
@@ -28,7 +30,7 @@ export default async function Page() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#111111" }}>
-      <Sidebar projects={getProductRepos().map(r => ({
+      <Sidebar projects={repos.map(r => ({
         name: r.name,
         url: `https://github.com/${r.owner}/${r.name}`,
       }))} />

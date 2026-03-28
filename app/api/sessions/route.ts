@@ -4,6 +4,8 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { NextResponse } from "next/server";
+import { Octokit } from "octokit";
+import { getProductRepos } from "@/lib/local";
 
 export const dynamic = "force-dynamic";
 
@@ -135,76 +137,169 @@ function buildTaskMaps(): {
   return { pidMap, hashMap, allEntries };
 }
 
+/** Fetch recent GitHub activity to infer agent sessions (Vercel fallback) */
+async function fetchGitHubActiveTasks(): Promise<ActiveTaskFile[]> {
+  if (!process.env.GITHUB_TOKEN) return [];
+  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  const repos = getProductRepos();
+  if (repos.length === 0) return [];
+
+  const activeTasks: ActiveTaskFile[] = [];
+  const fifteenMinAgo = Date.now() - 15 * 60 * 1000;
+
+  // Strategy 1: Check for issues with in-progress + agent:* labels
+  const inProgressResults = await Promise.allSettled(
+    repos.map(({ owner, name: repo }) =>
+      octokit.rest.issues.listForRepo({
+        owner, repo, state: "open", labels: "in-progress", sort: "updated", per_page: 10, direction: "desc",
+      }).then(({ data }) => ({ repo, data }))
+    )
+  );
+
+  const seenAgents = new Set<string>();
+  for (const result of inProgressResults) {
+    if (result.status !== "fulfilled") continue;
+    const { repo, data } = result.value;
+    for (const issue of data) {
+      const labels = issue.labels.map(l => typeof l === "object" ? l.name || "" : l);
+      const agentLabel = labels.find(l => l.startsWith("agent:"));
+      if (!agentLabel) continue;
+      const agentId = agentLabel.replace("agent:", "");
+      // Deduplicate: one entry per agent
+      if (seenAgents.has(agentId)) continue;
+      seenAgents.add(agentId);
+
+      const updatedAt = issue.updated_at;
+      const ageMinutes = Math.round((Date.now() - new Date(updatedAt).getTime()) / 60000);
+
+      activeTasks.push({
+        label: `Working on: ${issue.title}`,
+        agentType: agentId,
+        project: repo,
+        updatedAt,
+        ageMinutes,
+      });
+    }
+  }
+
+  // Strategy 2: Check recent events across repos for activity in last 15 min
+  const eventResults = await Promise.allSettled(
+    repos.map(({ owner, name: repo }) =>
+      octokit.rest.activity.listRepoEvents({ owner, repo, per_page: 10 })
+        .then(({ data }) => ({ repo, data }))
+    )
+  );
+
+  for (const result of eventResults) {
+    if (result.status !== "fulfilled") continue;
+    const { repo, data } = result.value;
+    for (const event of data) {
+      if (!event.created_at) continue;
+      const eventTime = new Date(event.created_at).getTime();
+      if (eventTime < fifteenMinAgo) continue;
+
+      // Try to infer agent from the event (push events, issue comments, etc.)
+      // Only add if we haven't already captured this agent from in-progress issues
+      const actorLogin = event.actor?.login ?? "";
+      if (actorLogin.includes("bot") || actorLogin.includes("[bot]")) {
+        const agentId = "ops";
+        if (seenAgents.has(agentId)) continue;
+        seenAgents.add(agentId);
+        activeTasks.push({
+          label: `Recent ${event.type ?? "activity"} in ${repo}`,
+          agentType: agentId,
+          project: repo,
+          updatedAt: event.created_at,
+          ageMinutes: Math.round((Date.now() - eventTime) / 60000),
+        });
+      }
+    }
+  }
+
+  return activeTasks;
+}
+
 export async function GET() {
   try {
-    const { pidMap, hashMap, allEntries } = buildTaskMaps();
+    const { pidMap, allEntries } = buildTaskMaps();
 
-    const out = execSync("ps aux", { timeout: 3000 }).toString();
-    const lines = out.trim().split("\n").slice(1);
-    const sessions: Session[] = [];
+    let sessions: Session[] = [];
+    let activeTasks: ActiveTaskFile[] = [];
 
-    for (const line of lines) {
-      if (!line.includes(" claude") && !line.startsWith("claude")) continue;
-      const cols = line.trim().split(/\s+/);
-      if (cols.length < 11) continue;
-      const cmdStart = cols.slice(10).join(" ");
-      if (!cmdStart.match(/^\/?.*claude(\s|$)/)) continue;
-      if (cmdStart.includes("python") || cmdStart.includes("bun") || cmdStart.includes("grep")) continue;
+    // Try local process detection first
+    try {
+      const out = execSync("ps aux", { timeout: 3000 }).toString();
+      const lines = out.trim().split("\n").slice(1);
 
-      const pid = parseInt(cols[1]);
-      const cpu = parseFloat(cols[2]);
-      const mem = parseFloat(cols[3]);
-      const started = cols[8];
-      const elapsed = cols[9];
+      for (const line of lines) {
+        if (!line.includes(" claude") && !line.startsWith("claude")) continue;
+        const cols = line.trim().split(/\s+/);
+        if (cols.length < 11) continue;
+        const cmdStart = cols.slice(10).join(" ");
+        if (!cmdStart.match(/^\/?.*claude(\s|$)/)) continue;
+        if (cmdStart.includes("python") || cmdStart.includes("bun") || cmdStart.includes("grep")) continue;
 
-      const resumeMatch = cmdStart.match(/--resume\s+([a-f0-9-]{36})/);
-      const sessionId = resumeMatch?.[1] ?? null;
+        const pid = parseInt(cols[1]);
+        const cpu = parseFloat(cols[2]);
+        const mem = parseFloat(cols[3]);
+        const started = cols[8];
+        const elapsed = cols[9];
 
-      const flags: string[] = [];
-      if (cmdStart.includes("--dangerously-skip-permissions")) flags.push("skip-permissions");
-      if (cmdStart.includes("--channels")) flags.push("telegram");
-      if (sessionId) flags.push("resumed");
+        const resumeMatch = cmdStart.match(/--resume\s+([a-f0-9-]{36})/);
+        const sessionId = resumeMatch?.[1] ?? null;
 
-      // 1. Try PID-based join (new format)
-      let task = pidMap.get(pid) ?? null;
+        const flags: string[] = [];
+        if (cmdStart.includes("--dangerously-skip-permissions")) flags.push("skip-permissions");
+        if (cmdStart.includes("--channels")) flags.push("telegram");
+        if (sessionId) flags.push("resumed");
 
-      // Note: lsof cwd lookup removed — all Claude processes report home dir,
-      // so hash matching never succeeds. activeTasks covers agent status instead.
-      const cwd: string | null = null;
+        // 1. Try PID-based join (new format)
+        const task = pidMap.get(pid) ?? null;
 
-      const project = task?.project ?? null;
-      const label = task?.label ?? null;
-      const agentType = task?.agentType ?? null;
+        // Note: lsof cwd lookup removed — all Claude processes report home dir,
+        // so hash matching never succeeds. activeTasks covers agent status instead.
+        const cwd: string | null = null;
 
-      let title: string;
-      let titled: boolean;
-      if (label) {
-        title = label;
-        titled = true;
-      } else {
-        if (flags.includes("telegram")) title = "Telegram Worker";
-        else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
-        else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
-        else title = "Claude Session";
-        titled = false;
+        const project = task?.project ?? null;
+        const label = task?.label ?? null;
+        const agentType = task?.agentType ?? null;
+
+        let title: string;
+        let titled: boolean;
+        if (label) {
+          title = label;
+          titled = true;
+        } else {
+          if (flags.includes("telegram")) title = "Telegram Worker";
+          else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
+          else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
+          else title = "Claude Session";
+          titled = false;
+        }
+
+        sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
       }
 
-      sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
+      sessions.sort((a, b) => b.cpu - a.cpu);
+
+      // Active task files — recent (< 4h) task files surfaced directly for agent status
+      activeTasks = allEntries
+        .filter(e => e.ageMinutes < 240) // 4 hours
+        .map(e => ({
+          label: e.label,
+          agentType: e.agentType,
+          project: e.project,
+          updatedAt: e.updatedAt,
+          ageMinutes: Math.round(e.ageMinutes),
+        }));
+    } catch {
+      // ps aux failed (expected on Vercel)
     }
 
-    sessions.sort((a, b) => b.cpu - a.cpu);
-
-    // Active task files — recent (< 4h) task files surfaced directly for agent status
-    // This covers the common case where lsof cwd = home and PID matching fails
-    const activeTasks: ActiveTaskFile[] = allEntries
-      .filter(e => e.ageMinutes < 240) // 4 hours
-      .map(e => ({
-        label: e.label,
-        agentType: e.agentType,
-        project: e.project,
-        updatedAt: e.updatedAt,
-        ageMinutes: Math.round(e.ageMinutes),
-      }));
+    // GitHub fallback: if no local sessions/tasks found and we're on Vercel
+    if (sessions.length === 0 && activeTasks.length === 0 && process.env.VERCEL) {
+      activeTasks = await fetchGitHubActiveTasks();
+    }
 
     return NextResponse.json({ sessions, activeTasks, updatedAt: new Date().toISOString() });
   } catch (err) {

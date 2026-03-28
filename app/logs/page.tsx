@@ -6,8 +6,8 @@ import { getDecisions, getLoopLog, getProductRepos } from "@/lib/local";
 
 export const revalidate = 10;
 
-export default function LogsPage() {
-  const decisions = getDecisions(50);
+export default async function LogsPage() {
+  const decisions = await getDecisions(50);
   const loopLog = getLoopLog(30);
 
   const activityEvents = decisions.slice(0, 20).map(d => ({

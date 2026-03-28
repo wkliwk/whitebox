@@ -94,6 +94,14 @@ function readLegacyCache(): QuotaResponse | null {
 }
 
 export async function GET() {
+  // On Vercel, local file reads and macOS keychain are unavailable
+  if (process.env.VERCEL) {
+    return NextResponse.json({
+      fiveHourPct: null, sevenDayPct: null, sevenDaySonnetPct: null,
+      fiveHourResetsAt: null, sevenDayResetsAt: null, updatedAt: null, source: "none",
+    } satisfies QuotaResponse);
+  }
+
   // 1. Statusline cache — use it if it exists at any age (freshness shown in UI)
   const statusline = readStatuslineCache();
   if (statusline) return NextResponse.json(statusline);

@@ -2,8 +2,39 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { execSync } from "child_process";
+import { Octokit } from "octokit";
 
 const HOME = os.homedir();
+
+// ─── GitHub Fallback Helper ─────────────────────────────────────────────────
+
+let _octokitInstance: Octokit | null = null;
+function getOctokit(): Octokit | null {
+  if (!process.env.GITHUB_TOKEN) return null;
+  if (!_octokitInstance) {
+    _octokitInstance = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  }
+  return _octokitInstance;
+}
+
+async function fetchDecisionsFromGitHub(): Promise<string | null> {
+  const octokit = getOctokit();
+  if (!octokit) return null;
+  const owner = process.env.GITHUB_OWNER;
+  const repo = process.env.GITHUB_REPO;
+  if (!owner || !repo) return null;
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner, repo, path: "decisions.jsonl",
+    });
+    if ("content" in data && typeof data.content === "string") {
+      return Buffer.from(data.content, "base64").toString("utf-8");
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function readFile(filePath: string): string | null {
   try {
@@ -49,9 +80,7 @@ export interface Decision {
   prompt?: string;
 }
 
-export function getDecisions(limit = 20): Decision[] {
-  const raw = readFile(path.join(HOME, "Dev/decisions.jsonl"));
-  if (!raw) return [];
+function parseDecisions(raw: string, limit: number): Decision[] {
   return raw
     .trim()
     .split("\n")
@@ -62,6 +91,15 @@ export function getDecisions(limit = 20): Decision[] {
     .filter((d): d is Decision => d !== null)
     .slice(-limit)
     .reverse();
+}
+
+export async function getDecisions(limit = 20): Promise<Decision[]> {
+  const raw = readFile(path.join(HOME, "Dev/decisions.jsonl"));
+  if (raw) return parseDecisions(raw, limit);
+  // Fallback: fetch from GitHub
+  const ghRaw = await fetchDecisionsFromGitHub();
+  if (ghRaw) return parseDecisions(ghRaw, limit);
+  return [];
 }
 
 // ─── Loop Log ────────────────────────────────────────────────────────────────
@@ -96,9 +134,7 @@ export interface AgentActivity {
   totalEntries: number;
 }
 
-export function getAgentActivity(): AgentActivity[] {
-  const raw = readFile(path.join(HOME, "Dev/decisions.jsonl"));
-  if (!raw) return [];
+function parseAgentActivity(raw: string): AgentActivity[] {
   const lines = raw.trim().split("\n").filter(Boolean);
   const byProject = new Map<string, { lastDate: string; lastSummary: string; count: number }>();
   for (const line of lines) {
@@ -115,6 +151,15 @@ export function getAgentActivity(): AgentActivity[] {
   return Array.from(byProject.entries())
     .map(([project, v]) => ({ project, lastDate: v.lastDate, lastSummary: v.lastSummary, totalEntries: v.count }))
     .sort((a, b) => b.lastDate.localeCompare(a.lastDate));
+}
+
+export async function getAgentActivity(): Promise<AgentActivity[]> {
+  const raw = readFile(path.join(HOME, "Dev/decisions.jsonl"));
+  if (raw) return parseAgentActivity(raw);
+  // Fallback: fetch from GitHub
+  const ghRaw = await fetchDecisionsFromGitHub();
+  if (ghRaw) return parseAgentActivity(ghRaw);
+  return [];
 }
 
 // ─── Product Registry (parsed from ~/.claude/commands/shared/product-registry.md) ─
@@ -194,5 +239,15 @@ export function getProductRepos(): ProductRepo[] {
       } catch { /* not a git repo or no remote */ }
     }
   } catch { /* ~/Dev doesn't exist */ }
+
+  // Fallback: if local scan found nothing, parse PRODUCT_REPOS env var
+  if (repos.length === 0 && process.env.PRODUCT_REPOS && process.env.GITHUB_OWNER) {
+    const owner = process.env.GITHUB_OWNER;
+    const repoNames = process.env.PRODUCT_REPOS.split(",").map(r => r.trim()).filter(Boolean);
+    for (const name of repoNames) {
+      repos.push({ name, owner, localPath: "" });
+    }
+  }
+
   return repos;
 }
