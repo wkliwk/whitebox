@@ -33,3 +33,9 @@
 2026-03-28 14:55 | loop | #8 Mobile nav hamburger menu — MobileNav.tsx + SidebarNav onNavItemClick prop, PR #62 merged
 2026-03-28 15:00 | loop | AgentScore: completed #24 benchmark grader, #26 #28 DB-driven pages, #27 bundle persistence
 2026-03-28 15:10 | loop | #9 PRODUCT_REPOS updated on Vercel, CLAUDE.md documented, Turbopack fix (ToolsPanel import path)
+2026-03-28 15:18 | loop | #69 removed /mcp duplicate route + McpPanel.tsx, pushed to main; created issues #66-70 from UX audit
+2026-03-28 15:20 | loop | #66 per-page metadata titles added to all 9 pages
+2026-03-28 15:20 | loop | AgentScore: completed #31 setup page, #27 bundle persistence, #26 #28 DB-driven pages, #24 benchmark
+2026-03-28 15:21 | loop | #67 max-width added to Issues, Board, Logs, Products pages
+2026-03-28 15:23 | loop | AgentScore: completed #32 web publish form. 6 issues done this session. Profile sharing core flow complete.
+2026-03-28 15:24 | loop | #70 OrgChart loading skeleton added; #68 already had empty states; #67 max-width added; #66 page titles added

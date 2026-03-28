@@ -11,7 +11,6 @@ export const translations = {
     nav_mcp:        "Tools",
     nav_board:      "Board",
     nav_schedule:   "Schedule",
-    nav_ecosystem:  "Ecosystem",
     nav_about:      "About",
 
     // Sidebar sections
@@ -113,7 +112,6 @@ export const translations = {
     nav_mcp:        "工具",
     nav_board:      "看板",
     nav_schedule:   "排程",
-    nav_ecosystem:  "生態系統",
     nav_about:      "關於",
 
     // Sidebar sections
