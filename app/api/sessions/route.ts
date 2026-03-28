@@ -6,6 +6,7 @@ import os from "os";
 import { NextResponse } from "next/server";
 import { Octokit } from "octokit";
 import { getProductRepos } from "@/lib/local";
+import { getAllHeartbeats } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -296,9 +297,24 @@ export async function GET() {
       // ps aux failed (expected on Vercel)
     }
 
-    // GitHub fallback: if no local sessions/tasks found and we're on Vercel
-    if (sessions.length === 0 && activeTasks.length === 0 && process.env.VERCEL) {
-      activeTasks = await fetchGitHubActiveTasks();
+    // Redis heartbeat fallback: if no local sessions/tasks found, check heartbeats
+    if (sessions.length === 0 && activeTasks.length === 0) {
+      const heartbeats = await getAllHeartbeats();
+      for (const hb of heartbeats) {
+        const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
+        activeTasks.push({
+          label: hb.task || `${hb.agentType} agent active`,
+          agentType: hb.agentType,
+          project: hb.project,
+          updatedAt: hb.lastPing,
+          ageMinutes,
+        });
+      }
+
+      // GitHub fallback: if Redis also empty and we're on Vercel, try GitHub events
+      if (activeTasks.length === 0 && process.env.VERCEL) {
+        activeTasks = await fetchGitHubActiveTasks();
+      }
     }
 
     return NextResponse.json({ sessions, activeTasks, updatedAt: new Date().toISOString() });

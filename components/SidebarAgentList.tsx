@@ -85,7 +85,7 @@ export function SidebarAgentList() {
       } catch { /* silent */ }
     }
     refresh();
-    const id = setInterval(refresh, 5000);
+    const id = setInterval(refresh, 30000);
     return () => clearInterval(id);
   }, []);
 

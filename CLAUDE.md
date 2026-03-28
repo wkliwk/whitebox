@@ -46,6 +46,9 @@ GITHUB_OWNER=      # e.g. wkliwk
 GITHUB_REPO=       # primary repo for costs.json + decisions.jsonl (e.g. ai-company)
 PRODUCT_REPOS=     # comma-separated repos to scan for activity
                    # active value: money-flow-frontend,money-flow-backend,money-flow-mobile,FormPilot,health-credit-frontend,health-credit-backend,whitebox
+UPSTASH_REDIS_REST_URL=    # Upstash Redis REST URL for agent heartbeats
+UPSTASH_REDIS_REST_TOKEN=  # Upstash Redis REST token
+HEARTBEAT_SECRET=          # shared secret for heartbeat POST auth (optional)
 ```
 
 ## Commands
