@@ -12,6 +12,8 @@ export interface ProductDef {
   goal: string;
   antiGoals: string[];
   status: "active" | "wip" | "paused";
+  /** Live production URL, if deployed */
+  productionUrl?: string;
 }
 
 const PALETTE = ["#ec4899", "#f97316", "#22c55e", "#eab308", "#8b5cf6", "#06b6d4", "#3b82f6", "#6366f1"];
@@ -31,6 +33,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Help users understand where their money goes with the least friction possible.",
     antiGoals: ["No bank integrations", "No AI spending advice", "No social features"],
     status: "active",
+    productionUrl: "https://money-flow-frontend-ten.vercel.app/",
   },
   "money-flow-mobile": {
     tagline: "Money Flow on the go",
@@ -110,6 +113,7 @@ function buildProducts(): ProductDef[] {
       goal: rich.goal ?? r.context,
       antiGoals: rich.antiGoals ?? [],
       status: rich.status ?? "wip",
+      productionUrl: rich.productionUrl,
     } satisfies ProductDef;
   });
 }
@@ -138,6 +142,7 @@ const HARDCODED_FALLBACK: ProductDef[] = [
     goal: "Help users understand where their money goes with the least friction possible.",
     antiGoals: ["No bank integrations", "No AI spending advice"],
     status: "active",
+    productionUrl: "https://money-flow-frontend-ten.vercel.app/",
   },
   {
     id: "whitebox",

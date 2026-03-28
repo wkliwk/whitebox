@@ -1,4 +1,4 @@
-import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle, Lightbulb } from "lucide-react";
+import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle, Lightbulb, Globe } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
@@ -129,8 +129,17 @@ export default async function ProductsPage() {
                   </div>
                 )}
 
-                {/* Footer: repos + board */}
+                {/* Footer: production link + repos + board */}
                 <div className="flex items-center gap-3 pt-1 flex-wrap">
+                  {product.productionUrl && (
+                    <a href={product.productionUrl}
+                      target="_blank" rel="noreferrer"
+                      className="flex items-center gap-1.5 text-[10px] text-[#555] hover:text-[#999] transition-colors">
+                      <Globe size={10} />
+                      <span>Live</span>
+                      <ExternalLink size={8} className="text-[#333]" />
+                    </a>
+                  )}
                   {product.repos.map(repo => (
                     <a key={repo.name}
                       href={`https://github.com/${repo.owner}/${repo.name}`}
