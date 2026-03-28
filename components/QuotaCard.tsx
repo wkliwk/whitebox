@@ -59,6 +59,43 @@ function pctColor(pct: number | null) {
   return pct >= 90 ? "#ef4444" : pct >= 70 ? "#eab308" : "#e8e8e8";
 }
 
+function QuotaRow({
+  label, pct, resets, compact,
+}: {
+  label: string;
+  pct: number | null;
+  resets: { countdown: string; datetime: string } | null;
+  compact?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      {/* Label left, value right — both vertically centered */}
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-[#555]">{label}</span>
+        <span
+          className={`font-bold tabular-nums ${compact ? "text-base" : "text-xl"}`}
+          style={{ color: pctColor(pct) }}
+        >
+          {pct !== null ? `${pct}%` : "—"}
+        </span>
+      </div>
+
+      {/* Bar */}
+      {pct !== null && <PctBar pct={pct} color={barColor(pct)} />}
+
+      {/* Reset info: countdown · datetime on same line */}
+      {resets && (
+        <div className="flex items-center gap-1 text-[10px]">
+          <span className="text-[#555]">{resets.countdown}</span>
+          {resets.datetime && (
+            <span className="text-[#444]">· {resets.datetime}</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function QuotaCard() {
   const [data, setData] = useState<QuotaData | null>(null);
 
@@ -97,54 +134,26 @@ export function QuotaCard() {
       </div>
 
       {/* 5h */}
-      <div className="space-y-1.5">
-        <div className="flex items-baseline justify-between">
-          <span className="text-[10px] text-[#444]">5h</span>
-          <span className="text-xl font-bold tabular-nums" style={{ color: pctColor(fh) }}>
-            {fh !== null ? `${fh}%` : "—"}
-          </span>
-        </div>
-        {fh !== null && <PctBar pct={fh} color={barColor(fh)} />}
-        {fhResets && (
-          <div className="flex items-center gap-1.5 text-[10px] text-[#444]">
-            <span>{fhResets.countdown}</span>
-            {fhResets.datetime && <span className="text-[#555]">· {fhResets.datetime}</span>}
-          </div>
-        )}
-      </div>
+      <QuotaRow
+        label="5h"
+        pct={fh}
+        resets={fhResets}
+      />
 
       <div className="h-px bg-[#222]" />
 
       {/* 7d */}
-      <div className="space-y-1.5">
-        <div className="flex items-baseline justify-between">
-          <span className="text-[10px] text-[#444]">7d</span>
-          <span className="text-xl font-bold tabular-nums" style={{ color: pctColor(sd) }}>
-            {sd !== null ? `${sd}%` : "—"}
-          </span>
-        </div>
-        {sd !== null && <PctBar pct={sd} color={barColor(sd)} />}
-        {sdResets && (
-          <div className="flex items-center gap-1.5 text-[10px] text-[#444]">
-            <span>{sdResets.countdown}</span>
-            {sdResets.datetime && <span className="text-[#2a2a2a]">· {sdResets.datetime}</span>}
-          </div>
-        )}
-      </div>
+      <QuotaRow
+        label="7d"
+        pct={sd}
+        resets={sdResets}
+      />
 
-      {/* 7d Sonnet (when available) */}
+      {/* 7d Sonnet */}
       {sdSonnet !== null && (
         <>
           <div className="h-px bg-[#222]" />
-          <div className="space-y-1.5">
-            <div className="flex items-baseline justify-between">
-              <span className="text-[10px] text-[#444]">7d Sonnet</span>
-              <span className="text-sm font-semibold tabular-nums" style={{ color: pctColor(sdSonnet) }}>
-                {sdSonnet}%
-              </span>
-            </div>
-            <PctBar pct={sdSonnet} color={barColor(sdSonnet)} />
-          </div>
+          <QuotaRow label="7d Sonnet" pct={sdSonnet} resets={null} compact />
         </>
       )}
     </div>
