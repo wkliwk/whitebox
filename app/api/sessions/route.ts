@@ -27,6 +27,17 @@ export interface Session {
   flags: string[];
 }
 
+/** A task file read directly — used when PID/cwd matching fails */
+export interface ActiveTaskFile {
+  label: string;
+  agentType: string | null;
+  project: string;
+  /** ISO string of last file modification */
+  updatedAt: string;
+  /** Age in minutes */
+  ageMinutes: number;
+}
+
 // Export kept for legacy import compatibility
 export interface ActiveTask {
   project: string;
@@ -38,6 +49,25 @@ export interface ActiveTask {
 
 const HOME = os.homedir();
 
+// Keyword → agent id inference for old single-line task files
+const AGENT_KEYWORDS: [string, string[]][] = [
+  ["ceo",      ["ceo", "strategy", "idea", "evaluate", "approve"]],
+  ["pm",       ["pm ", "prd", "product manager", "planning", "issue #", "roadmap"]],
+  ["qa",       ["qa", "test", "quality", "review", "analytics"]],
+  ["ops",      ["ops", "deploy", "infra", "ci/cd", "release", "pipeline"]],
+  ["designer", ["design", "ui", "ux", "figma", "redesign", "visual"]],
+  ["finance",  ["finance", "cost", "billing", "budget"]],
+  ["dev",      ["build", "implement", "fix", "refactor", "backend", "frontend", "feature"]],
+];
+
+function inferAgentType(label: string): string | null {
+  const lower = label.toLowerCase();
+  for (const [agentId, keywords] of AGENT_KEYWORDS) {
+    if (keywords.some(k => lower.includes(k))) return agentId;
+  }
+  return null;
+}
+
 interface TaskEntry {
   label: string;
   agentType: string | null;
@@ -46,17 +76,14 @@ interface TaskEntry {
   updatedAt: string;
 }
 
-/**
- * Returns two maps:
- * - pidMap: PID → TaskEntry (new format: line 1 = label, line 2 = PID)
- * - hashMap: md5(path) → TaskEntry (old/fallback format: line 1 = label only)
- */
 function buildTaskMaps(): {
   pidMap: Map<number, TaskEntry>;
   hashMap: Map<string, TaskEntry>;
+  allEntries: (TaskEntry & { ageMinutes: number })[];
 } {
   const pidMap = new Map<number, TaskEntry>();
   const hashMap = new Map<string, TaskEntry>();
+  const allEntries: (TaskEntry & { ageMinutes: number })[] = [];
 
   // Pre-build hash → projectPath
   const hashToPath = new Map<string, string>();
@@ -81,13 +108,16 @@ function buildTaskMaps(): {
 
       const stat = fs.statSync(filePath);
       const updatedAt = stat.mtime.toISOString();
+      const ageMinutes = (Date.now() - stat.mtime.getTime()) / 60000;
 
       const fileHash = file.replace("cc-task-", "").replace(".txt", "");
       const projectPath = hashToPath.get(fileHash) ?? "";
       const project = projectPath ? path.basename(projectPath) : "";
 
-      // line 3 = agent type (new format), may be absent
-      const agentType = lines[2] ?? null;
+      // line 3 = explicit agent type (new format); fallback to keyword inference
+      const explicitAgentType = lines[2] ?? null;
+      const agentType = explicitAgentType || inferAgentType(label);
+
       const entry: TaskEntry = { label, agentType, project, projectPath, updatedAt };
 
       // New format: line 2 is PID
@@ -95,18 +125,19 @@ function buildTaskMaps(): {
       if (!isNaN(pid) && pid > 0) {
         pidMap.set(pid, entry);
       } else {
-        // Old format: store by path hash for cwd-based fallback
         hashMap.set(fileHash, entry);
       }
+
+      allEntries.push({ ...entry, ageMinutes });
     }
   } catch { /* /tmp/claude may not exist */ }
 
-  return { pidMap, hashMap };
+  return { pidMap, hashMap, allEntries };
 }
 
 export async function GET() {
   try {
-    const { pidMap, hashMap } = buildTaskMaps();
+    const { pidMap, hashMap, allEntries } = buildTaskMaps();
 
     const out = execSync("ps aux", { timeout: 3000 }).toString();
     const lines = out.trim().split("\n").slice(1);
@@ -137,7 +168,7 @@ export async function GET() {
       // 1. Try PID-based join (new format)
       let task = pidMap.get(pid) ?? null;
 
-      // 2. Fall back to cwd hash (old format, single-line task files)
+      // 2. Fall back to cwd hash (old format)
       if (!task) {
         let cwd2: string | null = null;
         try {
@@ -155,14 +186,12 @@ export async function GET() {
       const label = task?.label ?? null;
       const agentType = task?.agentType ?? null;
 
-      // Derive display title
       let title: string;
       let titled: boolean;
       if (label) {
         title = label;
         titled = true;
       } else {
-        // Auto-derive from flags / sessionId
         if (flags.includes("telegram")) title = "Telegram Worker";
         else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
         else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
@@ -170,7 +199,6 @@ export async function GET() {
         titled = false;
       }
 
-      // cwd already fetched above during fallback; re-use if available
       const cwd: string | null = (() => {
         try {
           const cwdOut = execSync(`lsof -p ${pid} -a -d cwd -Fn 2>/dev/null`, { timeout: 1000 }).toString();
@@ -182,8 +210,21 @@ export async function GET() {
     }
 
     sessions.sort((a, b) => b.cpu - a.cpu);
-    return NextResponse.json({ sessions, updatedAt: new Date().toISOString() });
+
+    // Active task files — recent (< 4h) task files surfaced directly for agent status
+    // This covers the common case where lsof cwd = home and PID matching fails
+    const activeTasks: ActiveTaskFile[] = allEntries
+      .filter(e => e.ageMinutes < 240) // 4 hours
+      .map(e => ({
+        label: e.label,
+        agentType: e.agentType,
+        project: e.project,
+        updatedAt: e.updatedAt,
+        ageMinutes: Math.round(e.ageMinutes),
+      }));
+
+    return NextResponse.json({ sessions, activeTasks, updatedAt: new Date().toISOString() });
   } catch (err) {
-    return NextResponse.json({ sessions: [], error: String(err), updatedAt: new Date().toISOString() });
+    return NextResponse.json({ sessions: [], activeTasks: [], error: String(err), updatedAt: new Date().toISOString() });
   }
 }
