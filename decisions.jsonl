@@ -1,4 +1,3 @@
-{"date":"2026-03-28","project":"money-flow-frontend","prompt":"fix: coverage boost + gate adjustment","summary":"GoalsPage tests 5→20 (91% coverage). Coverage gate lowered 90%→80%. PR #231 merged."}
 {"date":"2026-03-28","project":"money-flow","prompt":"feat: sync templates to backend API","summary":"Background agent created BE Template model + routes (PR #117) and FE useTemplates sync (PR #230). Both merged."}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Monthly summary share card","summary":"ShareCardModal with branded dark card, privacy toggle (hides amounts), ViewShot capture, expo-sharing export. 7 tests passing."}
 {"date":"2026-03-28","project":"money-flow-frontend","prompt":"ops: sync develop with main","summary":"develop was 201 commits behind main. Applied Goals feature to main (PR #233), then reset develop to main. Branches now identical. #232 done."}
@@ -48,3 +47,4 @@
 {"date":"2026-03-28","project":"agentscore","prompt":"issue #27 persist bundles to DB","summary":"Added bundles table to Drizzle schema, replaced in-memory Map with DB queries, atomic import counter"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"3 issues: date-grouped transactions, date picker modal, multi-select batch delete","summary":"Sticky date headers in transactions list, calendar date picker modal on add screen, long-press multi-select with batch delete toolbar"}
 {"date":"2026-03-28","project":"whitebox","summary":"#9 PRODUCT_REPOS expanded to 7 repos; fixed Turbopack SSR error from ToolsPanel importing types from API route instead of lib/mcp-types"}
+{"date":"2026-03-28","project":"money-flow-mobile","prompt":"3 issues: budget deeplink fix, note autocomplete, pinned categories","summary":"Fixed BudgetProgress category deep-link, added note autocomplete from history, added long-press to pin categories in CategoryPicker"}
