@@ -151,7 +151,7 @@ export default async function ProductsPage() {
 
               {/* Group by actual board status */}
               {(() => {
-                const statusOrder = ["In Progress", "Todo", "Done"];
+                const statusOrder = ["In Progress", "Todo"]; // "Done" intentionally excluded
                 // Collect any statuses not in the known order
                 const extra = [...new Set(ideasBoard.items.map(i => i.status))]
                   .filter(s => !statusOrder.includes(s));

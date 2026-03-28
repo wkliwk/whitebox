@@ -117,6 +117,56 @@ export function getAgentActivity(): AgentActivity[] {
     .sort((a, b) => b.lastDate.localeCompare(a.lastDate));
 }
 
+// ─── Product Registry (parsed from ~/.claude/commands/shared/product-registry.md) ─
+
+export interface RegistryProduct {
+  name: string;
+  cwdMatch: string;
+  repos: { owner: string; name: string }[];
+  boardNumber: number;
+  platform: string;
+  context: string;
+}
+
+export function getRegistryProducts(): RegistryProduct[] {
+  const registryPath = path.join(HOME, ".claude/commands/shared/product-registry.md");
+  const raw = readFile(registryPath);
+  if (!raw) return [];
+
+  const products: RegistryProduct[] = [];
+  const lines = raw.split("\n");
+  let inTable = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|")) { inTable = false; continue; }
+
+    const cells = trimmed.split("|").map(c => c.trim()).filter(Boolean);
+    if (cells.length < 6) { inTable = true; continue; } // header or separator
+    if (cells[0].toLowerCase() === "product" || cells[0].startsWith("-")) { inTable = true; continue; }
+    if (!inTable) continue;
+
+    const name = cells[0];
+    const cwdMatch = cells[1].replace(/`/g, "");
+    const repoCell = cells[2];
+    const boardNum = parseInt(cells[3]);
+    const platform = cells[4];
+    const context = cells[5];
+
+    if (!name || isNaN(boardNum)) continue;
+
+    // Parse repo strings like `wkliwk/repo-name`, `wkliwk/other-repo`
+    const repos: { owner: string; name: string }[] = [];
+    for (const match of repoCell.matchAll(/`([^/`]+)\/([^`]+)`/g)) {
+      repos.push({ owner: match[1], name: match[2] });
+    }
+
+    products.push({ name, cwdMatch, repos, boardNumber: boardNum, platform, context });
+  }
+
+  return products;
+}
+
 // ─── Product Repos (auto-discovered from ~/Dev/) ─────────────────────────────
 
 export interface ProductRepo {
