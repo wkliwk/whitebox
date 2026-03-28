@@ -4,6 +4,7 @@ import path from "path";
 import { execSync } from "child_process";
 import { NextResponse } from "next/server";
 import type { McpServer, InstalledPlugin } from "@/lib/mcp-types";
+import { withCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -81,14 +82,22 @@ function readPlugins(): InstalledPlugin[] {
 }
 
 export async function GET() {
-  const globalServers = readMcpServers(path.join(HOME, ".claude.json"), "global");
-  const projectServers = readMcpServers(path.join(HOME, ".claude/mcp.json"), "project");
+  const data = await withCache<{ servers: McpServer[]; plugins: InstalledPlugin[]; updatedAt: string }>(
+    "mcp",
+    30000,
+    async () => {
+      const globalServers = readMcpServers(path.join(HOME, ".claude.json"), "global");
+      const projectServers = readMcpServers(path.join(HOME, ".claude/mcp.json"), "project");
 
-  const all = [...globalServers, ...projectServers];
-  const ps = getRunningProcesses();
+      const all = [...globalServers, ...projectServers];
+      const ps = getRunningProcesses();
 
-  const servers = all.map(s => ({ ...s, running: isRunning(s, ps) }));
-  const plugins = readPlugins();
+      const servers = all.map(s => ({ ...s, running: isRunning(s, ps) }));
+      const plugins = readPlugins();
 
-  return NextResponse.json({ servers, plugins, updatedAt: new Date().toISOString() });
+      return { servers, plugins, updatedAt: new Date().toISOString() };
+    }
+  );
+
+  return NextResponse.json(data);
 }

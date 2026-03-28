@@ -7,7 +7,7 @@ import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { getDecisions, getAgentActivity, getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 
-export const revalidate = 5;
+export const revalidate = 30;
 
 export default async function Page() {
   const [decisions, activity, tasks] = await Promise.all([

@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { NextResponse } from "next/server";
+import { withCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,15 @@ function getLoopRuns(limit = 50): LoopRun[] {
 }
 
 export async function GET() {
-  const cronJobs = getCronJobs();
-  const loopRuns = getLoopRuns();
-  return NextResponse.json({ cronJobs, loopRuns, updatedAt: new Date().toISOString() });
+  const data = await withCache<{ cronJobs: CronJob[]; loopRuns: LoopRun[]; updatedAt: string }>(
+    "schedule",
+    60000,
+    async () => {
+      const cronJobs = getCronJobs();
+      const loopRuns = getLoopRuns();
+      return { cronJobs, loopRuns, updatedAt: new Date().toISOString() };
+    }
+  );
+
+  return NextResponse.json(data);
 }

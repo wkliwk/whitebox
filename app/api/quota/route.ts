@@ -2,6 +2,7 @@ import fs from "fs";
 import os from "os";
 import { execSync } from "child_process";
 import { NextResponse } from "next/server";
+import { withCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -94,28 +95,32 @@ function readLegacyCache(): QuotaResponse | null {
 }
 
 export async function GET() {
-  // On Vercel, local file reads and macOS keychain are unavailable
-  if (process.env.VERCEL) {
-    return NextResponse.json({
+  const data = await withCache<QuotaResponse>("quota", 60000, async () => {
+    // On Vercel, local file reads and macOS keychain are unavailable
+    if (process.env.VERCEL) {
+      return {
+        fiveHourPct: null, sevenDayPct: null, sevenDaySonnetPct: null,
+        fiveHourResetsAt: null, sevenDayResetsAt: null, updatedAt: null, source: "none",
+      } satisfies QuotaResponse;
+    }
+
+    // 1. Statusline cache — use it if it exists at any age (freshness shown in UI)
+    const statusline = readStatuslineCache();
+    if (statusline) return statusline;
+
+    // 2. Legacy usage-cache.json (written by capture.sh hook)
+    const legacy = readLegacyCache();
+    if (legacy) return legacy;
+
+    // 3. Last resort: live fetch from Anthropic API (slow if token expired)
+    const live = await fetchLive();
+    if (live) return live;
+
+    return {
       fiveHourPct: null, sevenDayPct: null, sevenDaySonnetPct: null,
       fiveHourResetsAt: null, sevenDayResetsAt: null, updatedAt: null, source: "none",
-    } satisfies QuotaResponse);
-  }
+    } satisfies QuotaResponse;
+  });
 
-  // 1. Statusline cache — use it if it exists at any age (freshness shown in UI)
-  const statusline = readStatuslineCache();
-  if (statusline) return NextResponse.json(statusline);
-
-  // 2. Legacy usage-cache.json (written by capture.sh hook)
-  const legacy = readLegacyCache();
-  if (legacy) return NextResponse.json(legacy);
-
-  // 3. Last resort: live fetch from Anthropic API (slow if token expired)
-  const live = await fetchLive();
-  if (live) return NextResponse.json(live);
-
-  return NextResponse.json({
-    fiveHourPct: null, sevenDayPct: null, sevenDaySonnetPct: null,
-    fiveHourResetsAt: null, sevenDayResetsAt: null, updatedAt: null, source: "none",
-  } satisfies QuotaResponse);
+  return NextResponse.json(data);
 }

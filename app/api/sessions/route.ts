@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 import { Octokit } from "octokit";
 import { getProductRepos } from "@/lib/local";
 import { getAllHeartbeats } from "@/lib/redis";
+import { withCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -222,102 +223,106 @@ async function fetchGitHubActiveTasks(): Promise<ActiveTaskFile[]> {
 
 export async function GET() {
   try {
-    const { pidMap, allEntries } = buildTaskMaps();
+    const data = await withCache("sessions", 5000, async () => {
+      const { pidMap, allEntries } = buildTaskMaps();
 
-    let sessions: Session[] = [];
-    let activeTasks: ActiveTaskFile[] = [];
+      let sessions: Session[] = [];
+      let activeTasks: ActiveTaskFile[] = [];
 
-    // Try local process detection first
-    try {
-      const out = execSync("ps aux", { timeout: 3000 }).toString();
-      const lines = out.trim().split("\n").slice(1);
+      // Try local process detection first
+      try {
+        const out = execSync("ps aux", { timeout: 3000 }).toString();
+        const lines = out.trim().split("\n").slice(1);
 
-      for (const line of lines) {
-        if (!line.includes(" claude") && !line.startsWith("claude")) continue;
-        const cols = line.trim().split(/\s+/);
-        if (cols.length < 11) continue;
-        const cmdStart = cols.slice(10).join(" ");
-        if (!cmdStart.match(/^\/?.*claude(\s|$)/)) continue;
-        if (cmdStart.includes("python") || cmdStart.includes("bun") || cmdStart.includes("grep")) continue;
+        for (const line of lines) {
+          if (!line.includes(" claude") && !line.startsWith("claude")) continue;
+          const cols = line.trim().split(/\s+/);
+          if (cols.length < 11) continue;
+          const cmdStart = cols.slice(10).join(" ");
+          if (!cmdStart.match(/^\/?.*claude(\s|$)/)) continue;
+          if (cmdStart.includes("python") || cmdStart.includes("bun") || cmdStart.includes("grep")) continue;
 
-        const pid = parseInt(cols[1]);
-        const cpu = parseFloat(cols[2]);
-        const mem = parseFloat(cols[3]);
-        const started = cols[8];
-        const elapsed = cols[9];
+          const pid = parseInt(cols[1]);
+          const cpu = parseFloat(cols[2]);
+          const mem = parseFloat(cols[3]);
+          const started = cols[8];
+          const elapsed = cols[9];
 
-        const resumeMatch = cmdStart.match(/--resume\s+([a-f0-9-]{36})/);
-        const sessionId = resumeMatch?.[1] ?? null;
+          const resumeMatch = cmdStart.match(/--resume\s+([a-f0-9-]{36})/);
+          const sessionId = resumeMatch?.[1] ?? null;
 
-        const flags: string[] = [];
-        if (cmdStart.includes("--dangerously-skip-permissions")) flags.push("skip-permissions");
-        if (cmdStart.includes("--channels")) flags.push("telegram");
-        if (sessionId) flags.push("resumed");
+          const flags: string[] = [];
+          if (cmdStart.includes("--dangerously-skip-permissions")) flags.push("skip-permissions");
+          if (cmdStart.includes("--channels")) flags.push("telegram");
+          if (sessionId) flags.push("resumed");
 
-        // 1. Try PID-based join (new format)
-        const task = pidMap.get(pid) ?? null;
+          // 1. Try PID-based join (new format)
+          const task = pidMap.get(pid) ?? null;
 
-        // Note: lsof cwd lookup removed — all Claude processes report home dir,
-        // so hash matching never succeeds. activeTasks covers agent status instead.
-        const cwd: string | null = null;
+          // Note: lsof cwd lookup removed — all Claude processes report home dir,
+          // so hash matching never succeeds. activeTasks covers agent status instead.
+          const cwd: string | null = null;
 
-        const project = task?.project ?? null;
-        const label = task?.label ?? null;
-        const agentType = task?.agentType ?? null;
+          const project = task?.project ?? null;
+          const label = task?.label ?? null;
+          const agentType = task?.agentType ?? null;
 
-        let title: string;
-        let titled: boolean;
-        if (label) {
-          title = label;
-          titled = true;
-        } else {
-          if (flags.includes("telegram")) title = "Telegram Worker";
-          else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
-          else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
-          else title = "Claude Session";
-          titled = false;
+          let title: string;
+          let titled: boolean;
+          if (label) {
+            title = label;
+            titled = true;
+          } else {
+            if (flags.includes("telegram")) title = "Telegram Worker";
+            else if (flags.includes("skip-permissions")) title = "Autonomous Worker";
+            else if (sessionId) title = `Resumed Session · ${sessionId.slice(0, 8)}`;
+            else title = "Claude Session";
+            titled = false;
+          }
+
+          sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
         }
 
-        sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
+        sessions.sort((a, b) => b.cpu - a.cpu);
+
+        // Active task files — recent (< 4h) task files surfaced directly for agent status
+        activeTasks = allEntries
+          .filter(e => e.ageMinutes < 240) // 4 hours
+          .map(e => ({
+            label: e.label,
+            agentType: e.agentType,
+            project: e.project,
+            updatedAt: e.updatedAt,
+            ageMinutes: Math.round(e.ageMinutes),
+          }));
+      } catch {
+        // ps aux failed (expected on Vercel)
       }
 
-      sessions.sort((a, b) => b.cpu - a.cpu);
+      // Redis heartbeat fallback: if no local sessions/tasks found, check heartbeats
+      if (sessions.length === 0 && activeTasks.length === 0) {
+        const heartbeats = await getAllHeartbeats();
+        for (const hb of heartbeats) {
+          const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
+          activeTasks.push({
+            label: hb.task || `${hb.agentType} agent active`,
+            agentType: hb.agentType,
+            project: hb.project,
+            updatedAt: hb.lastPing,
+            ageMinutes,
+          });
+        }
 
-      // Active task files — recent (< 4h) task files surfaced directly for agent status
-      activeTasks = allEntries
-        .filter(e => e.ageMinutes < 240) // 4 hours
-        .map(e => ({
-          label: e.label,
-          agentType: e.agentType,
-          project: e.project,
-          updatedAt: e.updatedAt,
-          ageMinutes: Math.round(e.ageMinutes),
-        }));
-    } catch {
-      // ps aux failed (expected on Vercel)
-    }
-
-    // Redis heartbeat fallback: if no local sessions/tasks found, check heartbeats
-    if (sessions.length === 0 && activeTasks.length === 0) {
-      const heartbeats = await getAllHeartbeats();
-      for (const hb of heartbeats) {
-        const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
-        activeTasks.push({
-          label: hb.task || `${hb.agentType} agent active`,
-          agentType: hb.agentType,
-          project: hb.project,
-          updatedAt: hb.lastPing,
-          ageMinutes,
-        });
+        // GitHub fallback: if Redis also empty and we're on Vercel, try GitHub events
+        if (activeTasks.length === 0 && process.env.VERCEL) {
+          activeTasks = await fetchGitHubActiveTasks();
+        }
       }
 
-      // GitHub fallback: if Redis also empty and we're on Vercel, try GitHub events
-      if (activeTasks.length === 0 && process.env.VERCEL) {
-        activeTasks = await fetchGitHubActiveTasks();
-      }
-    }
+      return { sessions, activeTasks, updatedAt: new Date().toISOString() };
+    });
 
-    return NextResponse.json({ sessions, activeTasks, updatedAt: new Date().toISOString() });
+    return NextResponse.json(data);
   } catch (err) {
     return NextResponse.json({ sessions: [], activeTasks: [], error: String(err), updatedAt: new Date().toISOString() });
   }
