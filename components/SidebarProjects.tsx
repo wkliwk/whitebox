@@ -17,45 +17,6 @@ interface ProductGroup {
   repos: Repo[];
 }
 
-// Static product definitions matching product-registry.md
-const PRODUCTS: ProductGroup[] = [
-  {
-    name: "Money Flow",
-    color: "#ec4899",
-    boardNumber: 1,
-    repos: [
-      { name: "money-flow-frontend", url: "https://github.com/wkliwk/money-flow-frontend" },
-      { name: "money-flow-backend",  url: "https://github.com/wkliwk/money-flow-backend"  },
-      { name: "money-flow-mobile",   url: "https://github.com/wkliwk/money-flow-mobile"   },
-    ],
-  },
-  {
-    name: "FormPilot",
-    color: "#22c55e",
-    boardNumber: 6,
-    repos: [
-      { name: "FormPilot", url: "https://github.com/wkliwk/FormPilot" },
-    ],
-  },
-  {
-    name: "Health Credit",
-    color: "#eab308",
-    boardNumber: 7,
-    repos: [
-      { name: "health-credit-frontend", url: "https://github.com/wkliwk/health-credit-frontend" },
-      { name: "health-credit-backend",  url: "https://github.com/wkliwk/health-credit-backend"  },
-    ],
-  },
-  {
-    name: "Whitebox",
-    color: "#8b5cf6",
-    boardNumber: 8,
-    repos: [
-      { name: "whitebox", url: "https://github.com/wkliwk/whitebox" },
-    ],
-  },
-];
-
 // Check if a repo is in the locally-discovered list
 function matchesLocal(repoName: string, localRepos: { name: string }[]): boolean {
   return localRepos.some(r => r.name.toLowerCase() === repoName.toLowerCase());
@@ -63,9 +24,10 @@ function matchesLocal(repoName: string, localRepos: { name: string }[]): boolean
 
 interface SidebarProjectsProps {
   projects?: { name: string; url: string }[];
+  productGroups?: ProductGroup[];
 }
 
-export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
+export function SidebarProjects({ projects = [], productGroups = [] }: SidebarProjectsProps) {
   // Start with all products collapsed
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const { t } = useLanguage();
@@ -78,7 +40,7 @@ export function SidebarProjects({ projects = [] }: SidebarProjectsProps) {
     <div className="px-2 py-2">
       <div className="text-[10px] uppercase tracking-widest text-[#444] mb-2 px-2 font-medium">{t("section_products")}</div>
       <div className="space-y-0.5">
-        {PRODUCTS.map(product => {
+        {productGroups.map(product => {
           const isOpen = !!expanded[product.name];
           // Highlight if any of its repos are locally cloned
           const hasLocal = product.repos.some(r => matchesLocal(r.name, projects));

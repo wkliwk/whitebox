@@ -4,14 +4,15 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 export interface BoardItem {
   id: string;
-  number: number;
+  number: number | null;  // null for draft items
   title: string;
-  url: string;
+  url: string;            // empty for drafts
   repo: string;
-  status: string;      // raw status field value, e.g. "Todo", "In Progress", "Done"
-  priority: string;    // e.g. "p0", "p1", "p2", ""
-  agent: string;       // e.g. "dev", "qa", ""
-  size: string;        // e.g. "s", "m", "l", ""
+  status: string;
+  priority: string;
+  agent: string;
+  size: string;
+  isDraft: boolean;
 }
 
 export interface ProjectBoard {
@@ -30,6 +31,7 @@ const GQL_QUERY = `
         items(first: 100) {
           nodes {
             id
+            type
             fieldValues(first: 12) {
               nodes {
                 ... on ProjectV2ItemFieldTextValue {
@@ -47,6 +49,9 @@ const GQL_QUERY = `
                 number title url
                 repository { name }
                 labels(first: 8) { nodes { name } }
+              }
+              ... on DraftIssue {
+                title
               }
             }
           }
@@ -79,6 +84,7 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
           items: {
             nodes: {
               id: string;
+              type: string;
               fieldValues: { nodes: { text?: string; name?: string; field?: { name?: string } }[] };
               content?: {
                 number?: number;
@@ -97,11 +103,15 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
     const items: BoardItem[] = [];
 
     for (const node of proj.items.nodes) {
-      if (!node.content?.number) continue; // skip drafts
+      const isDraft = node.type === "DRAFT_ISSUE";
       const fvNodes = node.fieldValues.nodes;
-      const labelNames = node.content.labels?.nodes.map(l => l.name) ?? [];
 
-      // Try "Status" first (standard boards), fall back to "Stage" (Ideas board)
+      // For issues, get labels for priority/agent/size; drafts have no labels
+      const labelNames = node.content?.labels?.nodes.map(l => l.name) ?? [];
+
+      const title = node.content?.title ?? extractField(fvNodes, "title") ?? "";
+      if (!title) continue;
+
       const status = extractField(fvNodes, "status") || extractField(fvNodes, "stage") || "Todo";
       const priorityRaw = labelNames.find(l => l.startsWith("priority:"))?.replace("priority:", "") ?? "";
       const agent = labelNames.find(l => l.startsWith("agent:"))?.replace("agent:", "") ?? "";
@@ -109,14 +119,15 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
 
       items.push({
         id: node.id,
-        number: node.content.number,
-        title: node.content.title ?? "",
-        url: node.content.url ?? "",
-        repo: node.content.repository?.name ?? "",
+        number: node.content?.number ?? null,
+        title,
+        url: node.content?.url ?? "",
+        repo: node.content?.repository?.name ?? "",
         status,
         priority: priorityRaw,
         agent,
         size,
+        isDraft,
       });
     }
 

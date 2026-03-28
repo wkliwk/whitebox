@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import { SidebarNav, SidebarFooter, SidebarSectionLabel } from "./SidebarNav";
 import { SidebarAgentList } from "./SidebarAgentList";
 import { SidebarProjects } from "./SidebarProjects";
+import { PRODUCTS } from "@/lib/products";
 
 interface Project {
   name: string;
@@ -13,6 +14,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ projects = [] }: SidebarProps) {
+  const productGroups = PRODUCTS.map(p => ({
+    name: p.name,
+    color: p.color,
+    boardNumber: p.boardNumber,
+    repos: p.repos.map(r => ({
+      name: r.name,
+      url: `https://github.com/${r.owner}/${r.name}`,
+    })),
+  }));
+
   return (
     <aside style={{ width: 240, minWidth: 240, background: "#161616", borderRight: "1px solid #2a2a2a" }}
       className="hidden md:flex flex-col h-screen sticky top-0 overflow-y-auto">
@@ -30,7 +41,7 @@ export function Sidebar({ projects = [] }: SidebarProps) {
       <SidebarNav />
 
       {/* Products (expandable) */}
-      <SidebarProjects projects={projects} />
+      <SidebarProjects projects={projects} productGroups={productGroups} />
 
       {/* Agents */}
       <div className="px-4 py-2">
