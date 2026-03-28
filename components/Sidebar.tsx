@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ScrollText, CircleDot, Search } from "lucide-react";
+import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, Search } from "lucide-react";
 import { SidebarAgentList } from "./SidebarAgentList";
 
 interface Project {
@@ -41,6 +41,14 @@ export function Sidebar({ projects = [] }: SidebarProps) {
         <a href="/logs" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
           <ScrollText size={13} />
           <span>Logs</span>
+        </a>
+        <a href="/schedule" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <CalendarClock size={13} />
+          <span>Schedule</span>
+        </a>
+        <a href="/about" className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded text-[#666] hover:text-[#e8e8e8] hover:bg-[#1e1e1e] text-xs">
+          <Info size={13} />
+          <span>About</span>
         </a>
       </div>
 
