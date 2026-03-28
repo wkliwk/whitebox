@@ -1,5 +1,13 @@
 import { relativeTime } from "@/lib/utils";
-import type { GitHubEvent } from "@/lib/github";
+
+export interface ActivityEvent {
+  agent: string;
+  verb: string;
+  entityType: string;
+  entityRef: string;
+  entityTitle: string;
+  timestamp: string;
+}
 
 const agentColors: Record<string, string> = {
   ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
@@ -18,7 +26,7 @@ function AgentAvatar({ name }: { name: string }) {
   );
 }
 
-export function ActivityFeed({ events }: { events: GitHubEvent[] }) {
+export function ActivityFeed({ events }: { events: ActivityEvent[] }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-widest text-[#444] font-medium mb-3">Recent Activity</div>
