@@ -1,7 +1,8 @@
-import fs from "fs";
-import os from "os";
-import path from "path";
-import { execSync } from "child_process";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs") as typeof import("fs");
+const os = require("os") as typeof import("os");
+const path = require("path") as typeof import("path");
+const { execSync } = require("child_process") as typeof import("child_process");
 import { NextResponse } from "next/server";
 import type { McpServer, InstalledPlugin } from "@/lib/mcp-types";
 import { withCache } from "@/lib/cache";
