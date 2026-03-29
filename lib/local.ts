@@ -1,6 +1,7 @@
-import fs from "fs";
-import path from "path";
-import os from "os";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const fs = require("fs") as typeof import("fs");
+const path = require("path") as typeof import("path");
+const os = require("os") as typeof import("os");
 
 const HOME = os.homedir();
 
