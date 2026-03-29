@@ -3,81 +3,93 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AgentDrawer } from "./AgentDrawer";
+import { useAgents } from "@/lib/useAgents";
+import { getAgentColor } from "@/lib/agents";
+import type { AgentDef } from "@/lib/agents";
 import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
-
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
-  ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
-  "frontend-dev": "#06b6d4", "backend-dev": "#3b82f6",
-};
-
-const agentAliases: Record<string, string[]> = {
-  ceo: ["ceo", "chief", "strategy", "idea"],
-  pm: ["pm", "product", "planning", "prd", "issue"],
-  dev: ["dev", "backend", "frontend", "implement", "build", "fix", "refactor"],
-  qa: ["qa", "quality", "test", "review"],
-  ops: ["ops", "deploy", "infra", "ci", "release"],
-  designer: ["designer", "design", "ui ", "ux"],
-  finance: ["finance", "cost", "billing"],
-};
-
-function normalizeAgentType(raw: string): string {
-  if (raw === "frontend-dev" || raw === "backend-dev") return "dev";
-  return raw;
-}
 
 interface AgentNode {
   id: string;
   name: string;
-  role: string;
+  description: string;
   children?: AgentNode[];
 }
 
-// Org hierarchy
-const ORG: AgentNode = {
-  id: "ceo",
-  name: "CEO",
-  role: "Strategy & Idea Gating",
-  children: [
-    { id: "pm",       name: "PM",       role: "Planning & PRDs" },
-    { id: "designer", name: "Designer", role: "UI/UX Audits" },
-    { id: "finance",  name: "Finance",  role: "Cost Management" },
-    {
-      id: "dev",
-      name: "Dev",
-      role: "Implementation",
-      children: [
-        { id: "qa",  name: "QA",  role: "Code Review & Testing" },
-        { id: "ops", name: "Ops", role: "CI/CD & Deploys" },
-      ],
-    },
-  ],
-};
+/** Build org hierarchy dynamically from agent list by category */
+function buildOrgTree(agents: AgentDef[]): AgentNode | null {
+  const byId = new Map(agents.map(a => [a.id, a]));
+  const ceo = byId.get("ceo");
+  if (!ceo) return agents[0] ? { id: agents[0].id, name: agents[0].name, description: agents[0].description } : null;
+
+  // Direct reports to CEO
+  const directReportIds = ["pm", "designer", "finance"];
+  // Engineering group (under a virtual "Engineering" node or flat under CEO)
+  const engineeringIds = ["frontend-dev", "backend-dev", "mobile-dev"];
+  const engineeringSubIds = ["qa", "ops"];
+  // Operations/research
+  const opsIds = ["ai-researcher", "claude-code-manager"];
+
+  function toNode(id: string): AgentNode | null {
+    const a = byId.get(id);
+    if (!a) return null;
+    return { id: a.id, name: a.name, description: a.description };
+  }
+
+  // Build engineering children
+  const engChildren = [...engineeringSubIds, ...opsIds]
+    .map(toNode)
+    .filter((n): n is AgentNode => n !== null);
+
+  const engNodes = engineeringIds
+    .map(toNode)
+    .filter((n): n is AgentNode => n !== null);
+
+  // Collect direct reports
+  const directReports = directReportIds
+    .map(toNode)
+    .filter((n): n is AgentNode => n !== null);
+
+  // Engineering group node — uses first engineering agent or synthetic
+  const engineeringGroup: AgentNode = {
+    id: engNodes[0]?.id ?? "frontend-dev",
+    name: engNodes[0]?.name ?? "Engineering",
+    description: "Implementation",
+    children: [
+      ...engNodes.slice(1),
+      ...engChildren,
+    ],
+  };
+
+  // Add any agents not in the predefined lists
+  const knownIds = new Set(["ceo", ...directReportIds, ...engineeringIds, ...engineeringSubIds, ...opsIds]);
+  const unknownAgents = agents
+    .filter(a => !knownIds.has(a.id))
+    .map(a => ({ id: a.id, name: a.name, description: a.description }));
+
+  return {
+    id: ceo.id,
+    name: ceo.name,
+    description: ceo.description,
+    children: [
+      ...directReports,
+      engineeringGroup,
+      ...unknownAgents,
+    ],
+  };
+}
 
 function isLive(agentId: string, sessions: Session[], activeTasks: ActiveTaskFile[]): { live: boolean; label: string | null } {
   // 1. Session agentType match
   for (const s of sessions) {
-    if (s.agentType && normalizeAgentType(s.agentType) === agentId) {
+    if (s.agentType && s.agentType === agentId) {
       return { live: true, label: s.label };
     }
   }
-  // 2. Session keyword fallback
-  const aliases = agentAliases[agentId] ?? [agentId];
-  for (const s of sessions) {
-    if (s.agentType) continue;
-    const haystack = `${s.label ?? ""} ${s.title ?? ""} ${s.project ?? ""}`.toLowerCase();
-    if (aliases.some(a => haystack.includes(a))) return { live: true, label: s.label };
-  }
-  // 3. Active task files (covers lsof → home dir case)
+  // 2. Active task files
   for (const t of activeTasks) {
-    if (t.agentType && normalizeAgentType(t.agentType) === agentId) {
+    if (t.agentType && t.agentType === agentId) {
       return { live: true, label: t.label };
     }
-  }
-  for (const t of activeTasks) {
-    if (t.agentType) continue;
-    const haystack = `${t.label} ${t.project}`.toLowerCase();
-    if (aliases.some(a => haystack.includes(a))) return { live: true, label: t.label };
   }
   return { live: false, label: null };
 }
@@ -90,7 +102,7 @@ interface NodeCardProps {
 }
 
 function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
-  const color = agentColors[node.id] ?? "#555";
+  const color = getAgentColor(node.id);
   const { live, label } = isLive(node.id, sessions, activeTasks);
 
   return (
@@ -100,7 +112,7 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
     >
       {/* Avatar */}
       <div className="relative">
-        {/* Pulsing live ring — renders behind avatar */}
+        {/* Pulsing live ring */}
         {live && (
           <span
             className="absolute -inset-1.5 rounded-2xl animate-ping"
@@ -118,19 +130,19 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
           {node.name[0]}
         </div>
 
-        {/* Status dot — always visible, bottom-right corner */}
+        {/* Status dot */}
         <span
           className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
           style={{ background: live ? color : "#4a4a4a", borderColor: "#111111" }}
         />
       </div>
 
-      {/* Name + role */}
+      {/* Name + description */}
       <div className="text-center">
         <div className={`text-xs font-medium transition-colors ${live ? "text-[#e8e8e8]" : "text-[#888]"} group-hover:text-[#e8e8e8]`}>
           {node.name}
         </div>
-        <div className="text-[10px] text-[#888] leading-tight mt-0.5 max-w-[90px]">{node.role}</div>
+        <div className="text-[10px] text-[#888] leading-tight mt-0.5 max-w-[90px]">{node.description}</div>
         {live && label && (
           <div className="text-[9px] mt-1 max-w-[90px] truncate px-1.5 py-0.5 rounded" style={{ background: color + "18", color: color + "cc" }}>
             {label}
@@ -141,82 +153,8 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
   );
 }
 
-interface OrgRowProps {
-  nodes: AgentNode[];
-  sessions: Session[];
-  activeTasks: ActiveTaskFile[];
-  onOpen: (id: string, name: string) => void;
-  parentColor?: string;
-}
-
-/** Renders one horizontal row of nodes with vertical connector lines */
-function OrgRow({ nodes, sessions, activeTasks, onOpen }: OrgRowProps) {
-  return (
-    <div className="flex items-start justify-center gap-12">
-      {nodes.map(node => (
-        <div key={node.id} className="flex flex-col items-center">
-          <NodeCard node={node} sessions={sessions} activeTasks={activeTasks} onOpen={onOpen} />
-
-          {/* Children */}
-          {node.children && node.children.length > 0 && (
-            <div className="flex flex-col items-center mt-1">
-              {/* Vertical stem down */}
-              <div className="w-px h-8 bg-[#2a2a2a]" />
-
-              {/* Horizontal bar spanning children */}
-              <div className="relative flex items-start justify-center gap-12">
-                {/* Horizontal connector line */}
-                {node.children.length > 1 && (
-                  <div
-                    className="absolute top-0 h-px bg-[#2a2a2a]"
-                    style={{
-                      left: `calc(50% - ${((node.children.length - 1) * (112 + 48)) / 2}px)`,
-                      width: `${(node.children.length - 1) * (112 + 48)}px`,
-                    }}
-                  />
-                )}
-
-                {node.children.map(child => (
-                  <div key={child.id} className="flex flex-col items-center">
-                    {/* Vertical drop to child */}
-                    <div className="w-px h-8 bg-[#2a2a2a]" />
-                    <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={onOpen} />
-
-                    {/* Grandchildren */}
-                    {child.children && child.children.length > 0 && (
-                      <div className="flex flex-col items-center mt-1">
-                        <div className="w-px h-8 bg-[#2a2a2a]" />
-                        <div className="relative flex items-start justify-center gap-12">
-                          {child.children.length > 1 && (
-                            <div
-                              className="absolute top-0 h-px bg-[#2a2a2a]"
-                              style={{
-                                left: `calc(50% - ${((child.children.length - 1) * (112 + 48)) / 2}px)`,
-                                width: `${(child.children.length - 1) * (112 + 48)}px`,
-                              }}
-                            />
-                          )}
-                          {child.children.map(gc => (
-                            <div key={gc.id} className="flex flex-col items-center">
-                              <div className="w-px h-8 bg-[#2a2a2a]" />
-                              <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={onOpen} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function OrgChart() {
+  const agents = useAgents();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
@@ -239,6 +177,8 @@ export function OrgChart() {
     const id = setInterval(refresh, 5000);
     return () => clearInterval(id);
   }, []);
+
+  const ORG = buildOrgTree(agents);
 
   return (
     <>
@@ -265,77 +205,79 @@ export function OrgChart() {
         </div>
       )}
 
-      <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
-        <div className="flex flex-col items-center min-w-max">
-          {/* Root */}
-          <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+      {ORG && (
+        <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
+          <div className="flex flex-col items-center min-w-max">
+            {/* Root */}
+            <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
 
-          {/* Children tree */}
-          {ORG.children && ORG.children.length > 0 && (
-            <div className="flex flex-col items-center">
-              {/* Stem */}
-              <div className="w-px h-10 bg-[#2a2a2a]" />
+            {/* Children tree */}
+            {ORG.children && ORG.children.length > 0 && (
+              <div className="flex flex-col items-center">
+                {/* Stem */}
+                <div className="w-px h-10 bg-[#2a2a2a]" />
 
-              {/* Horizontal bar */}
-              <div className="relative w-full flex justify-center">
-                <div
-                  className="absolute top-0 h-px bg-[#2a2a2a]"
-                  style={{
-                    width: `${(ORG.children.length - 1) * 160}px`,
-                    left: `calc(50% - ${((ORG.children.length - 1) * 160) / 2}px)`,
-                  }}
-                />
+                {/* Horizontal bar */}
+                <div className="relative w-full flex justify-center">
+                  <div
+                    className="absolute top-0 h-px bg-[#2a2a2a]"
+                    style={{
+                      width: `${(ORG.children.length - 1) * 160}px`,
+                      left: `calc(50% - ${((ORG.children.length - 1) * 160) / 2}px)`,
+                    }}
+                  />
 
-                <div className="flex items-start gap-10">
-                  {ORG.children.map(child => (
-                    <div key={child.id} className="flex flex-col items-center">
-                      <div className="w-px h-10 bg-[#2a2a2a]" />
-                      <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                  <div className="flex items-start gap-10">
+                    {ORG.children.map(child => (
+                      <div key={child.id} className="flex flex-col items-center">
+                        <div className="w-px h-10 bg-[#2a2a2a]" />
+                        <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
 
-                      {child.children && child.children.length > 0 && (
-                        <div className="flex flex-col items-center">
-                          <div className="w-px h-10 bg-[#2a2a2a]" />
-                          {/* Horizontal bar for grandchildren */}
-                          <div className="relative flex justify-center">
-                            <div
-                              className="absolute top-0 h-px bg-[#2a2a2a]"
-                              style={{
-                                width: `${(child.children.length - 1) * 120}px`,
-                                left: `calc(50% - ${((child.children.length - 1) * 120) / 2}px)`,
-                              }}
-                            />
-                            <div className="flex items-start gap-8">
-                              {child.children.map(gc => (
-                                <div key={gc.id} className="flex flex-col items-center">
-                                  <div className="w-px h-10 bg-[#2a2a2a]" />
-                                  <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
-                                </div>
-                              ))}
+                        {child.children && child.children.length > 0 && (
+                          <div className="flex flex-col items-center">
+                            <div className="w-px h-10 bg-[#2a2a2a]" />
+                            {/* Horizontal bar for grandchildren */}
+                            <div className="relative flex justify-center">
+                              <div
+                                className="absolute top-0 h-px bg-[#2a2a2a]"
+                                style={{
+                                  width: `${(child.children.length - 1) * 120}px`,
+                                  left: `calc(50% - ${((child.children.length - 1) * 120) / 2}px)`,
+                                }}
+                              />
+                              <div className="flex items-start gap-8">
+                                {child.children.map(gc => (
+                                  <div key={gc.id} className="flex flex-col items-center">
+                                    <div className="w-px h-10 bg-[#2a2a2a]" />
+                                    <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-5 mt-12 justify-center flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8b5cf6" }} />
-            <span className="text-[10px] text-[#777]">Live — running now</span>
+          {/* Legend */}
+          <div className="flex items-center gap-5 mt-12 justify-center flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8b5cf6" }} />
+              <span className="text-[10px] text-[#777]">Live — running now</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
+              <span className="text-[10px] text-[#777]">Idle</span>
+            </div>
+            <div className="text-[10px] text-[#777]">· Click any node to view details</div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
-            <span className="text-[10px] text-[#777]">Idle</span>
-          </div>
-          <div className="text-[10px] text-[#777]">· Click any node to view details</div>
         </div>
-      </div>
+      )}
     </>
   );
 }

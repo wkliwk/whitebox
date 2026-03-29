@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X, Terminal } from "lucide-react";
+import { getAgentColor } from "@/lib/agents";
 
 interface AgentInfo {
   id: string;
@@ -16,13 +17,6 @@ interface AgentDrawerProps {
   agentName: string;
   onClose: () => void;
 }
-
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
-  ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
-  "frontend-dev": "#06b6d4", "backend-dev": "#3b82f6",
-  "claude-code-manager": "#8b5cf6", "ai-researcher": "#f97316",
-};
 
 const categoryColors: Record<string, string> = {
   Leadership: "#8b5cf6",
@@ -164,7 +158,7 @@ export function AgentDrawer({ agentId, agentName, onClose }: AgentDrawerProps) {
 
   if (!agentId) return null;
 
-  const color = agentColors[agentId] || "#555";
+  const color = getAgentColor(agentId);
   const initial = agentName[0]?.toUpperCase() ?? "?";
   const categoryColor = info?.category ? (categoryColors[info.category] ?? "#555") : "#555";
 

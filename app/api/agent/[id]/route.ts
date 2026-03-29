@@ -5,34 +5,24 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-// Map Whitebox agent IDs to ~/.claude/agents/ filenames
-const agentFileMap: Record<string, string> = {
-  ceo: "ceo",
-  pm: "pm",
-  dev: "backend-dev",
-  qa: "qa",
-  ops: "ops",
-  designer: "designer",
-  finance: "finance",
-};
-
-// Slash commands each agent uses
-const agentSkills: Record<string, string[]> = {
-  ceo: ["/idea", "/new-product", "/launch-product"],
-  pm: ["/issue", "/add-task", "/daily", "/status", "/dev-cycle"],
-  dev: ["/start-working", "/post-dev", "/execute"],
-  qa: ["/dev-cycle-qa", "/release"],
-  ops: ["/sync-setup", "/release"],
-  designer: ["/poc-build", "/poc-review"],
-  finance: ["/daily", "/status"],
-};
+/** Discover slash commands from ~/.claude/commands/*.md */
+function discoverSkills(): string[] {
+  const commandsDir = path.join(os.homedir(), ".claude/commands");
+  try {
+    return fs.readdirSync(commandsDir)
+      .filter(f => f.endsWith(".md"))
+      .map(f => "/" + f.replace(/\.md$/, ""))
+      .sort();
+  } catch {
+    return [];
+  }
+}
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const fileName = agentFileMap[id] ?? id;
-  const filePath = path.join(os.homedir(), ".claude/agents", `${fileName}.md`);
+  const filePath = path.join(os.homedir(), ".claude/agents", `${id}.md`);
 
-  const skills = agentSkills[id] ?? [];
+  const skills = discoverSkills();
 
   try {
     const content = fs.readFileSync(filePath, "utf-8");
