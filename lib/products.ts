@@ -14,6 +14,8 @@ export interface ProductDef {
   status: "active" | "wip" | "paused";
   /** Live production URL, if deployed */
   productionUrl?: string;
+  /** Local dev server port (shown as http://localhost:<port> in dev env) */
+  localhostPort?: number;
 }
 
 const PALETTE = ["#ec4899", "#f97316", "#22c55e", "#eab308", "#8b5cf6", "#06b6d4", "#3b82f6", "#6366f1"];
@@ -34,6 +36,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     antiGoals: ["No bank integrations", "No AI spending advice", "No social features"],
     status: "active",
     productionUrl: "https://money-flow-frontend-ten.vercel.app/",
+    localhostPort: 3001,
   },
   "money-flow-mobile": {
     tagline: "Money Flow on the go",
@@ -42,6 +45,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Bring Money Flow to mobile with a native feel, reusing the existing backend.",
     antiGoals: ["No separate data sync", "No push notifications v1"],
     status: "wip",
+    localhostPort: 8081,
   },
   "formpilot": {
     tagline: "AI that fills forms for you",
@@ -51,6 +55,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     antiGoals: ["No storing sensitive documents server-side"],
     status: "wip",
     productionUrl: "https://formpilot-brown.vercel.app/",
+    localhostPort: 3002,
   },
   "health-credit": {
     tagline: "Private health document sharing",
@@ -60,6 +65,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     antiGoals: ["No storing unencrypted documents", "No identity verification v1"],
     status: "wip",
     productionUrl: "https://health-credit-frontend.vercel.app/",
+    localhostPort: 3003,
   },
   "whitebox": {
     tagline: "See inside your AI agents",
@@ -68,6 +74,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     goal: "Full transparency into what every agent is doing at any moment.",
     antiGoals: ["No backend server — local reads only", "No auth"],
     status: "active",
+    localhostPort: 3000,
   },
   "agentscore": {
     tagline: "AI agent reliability scoring",
@@ -77,6 +84,7 @@ const RICH: Record<string, Partial<ProductDef>> = {
     antiGoals: ["No vendor lock-in", "No storing raw agent prompts"],
     status: "wip",
     productionUrl: "https://agent-score-seven.vercel.app/",
+    localhostPort: 3004,
   },
   "pixsync": {
     tagline: "Unlimited Google Photos backup",
@@ -112,6 +120,7 @@ const HARDCODED_FALLBACK: ProductDef[] = [
     antiGoals: ["No bank integrations", "No AI spending advice"],
     status: "active",
     productionUrl: "https://money-flow-frontend-ten.vercel.app/",
+    localhostPort: 3001,
   },
   {
     id: "whitebox",
@@ -125,6 +134,7 @@ const HARDCODED_FALLBACK: ProductDef[] = [
     goal: "Full transparency into what every agent is doing at any moment.",
     antiGoals: ["No backend server", "No auth"],
     status: "active",
+    localhostPort: 3000,
   },
 ];
 
@@ -161,6 +171,7 @@ function buildProducts(): ProductDef[] {
       antiGoals: rich.antiGoals ?? [],
       status: rich.status ?? "wip",
       productionUrl: rich.productionUrl,
+      localhostPort: rich.localhostPort,
     } satisfies ProductDef;
   });
 }
