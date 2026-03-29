@@ -1,4 +1,3 @@
-2026-03-28 18:24 | loop | #244 budget copy-last-month banner
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Budget template copy last month (#244)","summary":"CopyBudgetsBanner component + budgets.tsx integration — banner shown when current month empty but prev month has budgets, Promise.all copy, session-only dismiss"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Haptic feedback on key interactions (#248)","summary":"Medium haptic on swipe-delete confirm, Heavy on bulk-delete confirm, selectionAsync() on tab press"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Upcoming recurring row with skip/edit (#256)","summary":"UpcomingRecurringRow component on dashboard — horizontal chips for items due this week, bottom sheet with skip/edit/view-all, optimistic skip via MMKV, repeat icon in Transactions header"}
@@ -48,3 +47,4 @@
 {"date":"2026-03-29","project":"money-flow-mobile","prompt":"Target date + pace indicator for savings goals (#328)","summary":"Added targetDate field to SavingsGoal, date picker in goal modal, pace indicator on goal row (On pace / Behind)"}
 {"date":"2026-03-29","project":"money-flow-mobile","prompt":"Add processSyncQueue unit tests","summary":"14 tests for processSyncQueue covering all op dispatch paths, queue management, side effects, and concurrency guard. freshSync() pattern resets module state per test."}
 {"date":"2026-03-29","project":"money-flow-mobile","prompt":"Expand mutation hook tests: offline path and optimistic rollback","summary":"14 new tests across useMutateTransaction and useMutateBudget covering offline enqueue and optimistic cache rollback paths."}
+{"date":"2026-03-29","project":"money-flow-mobile","prompt":"useMutateRecurring offline sync-queue support","summary":"Extended SyncOperationType with recurring ops, added dispatch to processSyncQueue, added isOnline guards to all 3 recurring hooks, 6 new tests."}
