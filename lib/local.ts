@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { execSync } from "child_process";
 
 const HOME = os.homedir();
 
@@ -230,6 +229,7 @@ export function getProductRepos(): ProductRepo[] {
       if (!entry.isDirectory()) continue;
       const localPath = path.join(devDir, entry.name);
       try {
+        const { execSync } = require("child_process") as typeof import("child_process");
         const remote = execSync(`git -C "${localPath}" remote get-url origin 2>/dev/null`, { timeout: 1000 })
           .toString().trim();
         // Match git@github.com:owner/repo.git or https://github.com/owner/repo.git
