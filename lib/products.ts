@@ -92,6 +92,42 @@ function normId(name: string) {
   return name.toLowerCase().replace(/\s+/g, "-");
 }
 
+// ── Fallback if registry file is missing — declared BEFORE PRODUCTS so it's
+//    initialized before buildProducts() runs (avoids TDZ on Vercel where the
+//    registry file is absent and the fallback branch actually executes).
+const HARDCODED_FALLBACK: ProductDef[] = [
+  {
+    id: "money-flow",
+    name: "Money Flow",
+    tagline: "Personal finance, simplified",
+    description: "Expense tracking PWA — clean UI, no over-engineering.",
+    platform: "web",
+    color: "#ec4899",
+    repos: [
+      { label: "Frontend", owner: "wkliwk", name: "money-flow-frontend" },
+      { label: "Backend",  owner: "wkliwk", name: "money-flow-backend" },
+    ],
+    boardNumber: 1,
+    goal: "Help users understand where their money goes with the least friction possible.",
+    antiGoals: ["No bank integrations", "No AI spending advice"],
+    status: "active",
+    productionUrl: "https://money-flow-frontend-ten.vercel.app/",
+  },
+  {
+    id: "whitebox",
+    name: "Whitebox",
+    tagline: "See inside your AI agents",
+    description: "Real-time ops dashboard for Claude Code agents.",
+    platform: "dashboard",
+    color: "#8b5cf6",
+    repos: [{ label: "Dashboard", owner: "wkliwk", name: "whitebox" }],
+    boardNumber: 8,
+    goal: "Full transparency into what every agent is doing at any moment.",
+    antiGoals: ["No backend server", "No auth"],
+    status: "active",
+  },
+];
+
 function buildProducts(): ProductDef[] {
   const registry = getRegistryProducts();
   if (registry.length === 0) return HARDCODED_FALLBACK;
@@ -134,38 +170,3 @@ export const PRODUCTS: ProductDef[] = buildProducts();
 export function getProduct(id: string): ProductDef | undefined {
   return PRODUCTS.find(p => p.id === id);
 }
-
-// ── Fallback if registry file is missing ──────────────────────────────────────
-
-const HARDCODED_FALLBACK: ProductDef[] = [
-  {
-    id: "money-flow",
-    name: "Money Flow",
-    tagline: "Personal finance, simplified",
-    description: "Expense tracking PWA — clean UI, no over-engineering.",
-    platform: "web",
-    color: "#ec4899",
-    repos: [
-      { label: "Frontend", owner: "wkliwk", name: "money-flow-frontend" },
-      { label: "Backend",  owner: "wkliwk", name: "money-flow-backend" },
-    ],
-    boardNumber: 1,
-    goal: "Help users understand where their money goes with the least friction possible.",
-    antiGoals: ["No bank integrations", "No AI spending advice"],
-    status: "active",
-    productionUrl: "https://money-flow-frontend-ten.vercel.app/",
-  },
-  {
-    id: "whitebox",
-    name: "Whitebox",
-    tagline: "See inside your AI agents",
-    description: "Real-time ops dashboard for Claude Code agents.",
-    platform: "dashboard",
-    color: "#8b5cf6",
-    repos: [{ label: "Dashboard", owner: "wkliwk", name: "whitebox" }],
-    boardNumber: 8,
-    goal: "Full transparency into what every agent is doing at any moment.",
-    antiGoals: ["No backend server", "No auth"],
-    status: "active",
-  },
-];
