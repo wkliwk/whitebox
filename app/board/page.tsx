@@ -4,7 +4,6 @@ import { Sidebar } from "@/components/Sidebar";
 import { getProductRepos } from "@/lib/local";
 import { getProjectBoard, BOARD_DEFS } from "@/lib/projects";
 import type { BoardItem } from "@/lib/projects";
-import { AGENT_COLORS } from "@/lib/agents";
 
 import type { Metadata } from "next";
 
@@ -38,6 +37,7 @@ const priorityColors: Record<string, string> = {
   p0: "#ef4444", p1: "#f97316", p2: "#777",
 };
 
+import { AGENT_COLORS } from "@/lib/agents";
 const agentColors = AGENT_COLORS;
 
 function ItemCard({ item }: { item: BoardItem }) {

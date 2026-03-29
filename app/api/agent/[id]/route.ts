@@ -5,24 +5,17 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-/** Discover slash commands from ~/.claude/commands/*.md */
-function discoverSkills(): string[] {
-  const commandsDir = path.join(os.homedir(), ".claude/commands");
-  try {
-    return fs.readdirSync(commandsDir)
-      .filter(f => f.endsWith(".md"))
-      .map(f => "/" + f.replace(/\.md$/, ""))
-      .sort();
-  } catch {
-    return [];
-  }
-}
-
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const filePath = path.join(os.homedir(), ".claude/agents", `${id}.md`);
 
-  const skills = discoverSkills();
+  // Dynamically discover skills from commands directory
+  const commandsDir = path.join(os.homedir(), ".claude/commands");
+  let skills: string[] = [];
+  try {
+    const files = fs.readdirSync(commandsDir).filter(f => f.endsWith(".md"));
+    skills = files.map(f => `/${f.replace(/\.md$/, "")}`);
+  } catch { /* silent */ }
 
   try {
     const content = fs.readFileSync(filePath, "utf-8");

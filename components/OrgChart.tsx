@@ -11,85 +11,75 @@ import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
 interface AgentNode {
   id: string;
   name: string;
-  description: string;
+  role: string;
   children?: AgentNode[];
 }
 
-/** Build org hierarchy dynamically from agent list by category */
-function buildOrgTree(agents: AgentDef[]): AgentNode | null {
+/** Build org hierarchy dynamically from agent list */
+function buildOrgTree(agents: AgentDef[]): AgentNode {
   const byId = new Map(agents.map(a => [a.id, a]));
-  const ceo = byId.get("ceo");
-  if (!ceo) return agents[0] ? { id: agents[0].id, name: agents[0].name, description: agents[0].description } : null;
 
-  // Direct reports to CEO
-  const directReportIds = ["pm", "designer", "finance"];
-  // Engineering group (under a virtual "Engineering" node or flat under CEO)
-  const engineeringIds = ["frontend-dev", "backend-dev", "mobile-dev"];
-  const engineeringSubIds = ["qa", "ops"];
-  // Operations/research
-  const opsIds = ["ai-researcher", "claude-code-manager"];
-
-  function toNode(id: string): AgentNode | null {
+  function toNode(id: string, fallbackName: string, fallbackRole: string): AgentNode {
     const a = byId.get(id);
-    if (!a) return null;
-    return { id: a.id, name: a.name, description: a.description };
+    return { id, name: a?.name ?? fallbackName, role: a?.description?.split(".")[0] ?? fallbackRole };
   }
 
-  // Build engineering children
-  const engChildren = [...engineeringSubIds, ...opsIds]
-    .map(toNode)
-    .filter((n): n is AgentNode => n !== null);
+  // Engineering agents that aren't the core roles
+  const engineeringIds = agents
+    .filter(a => a.category === "Engineering" && !["frontend-dev", "backend-dev", "mobile-dev", "qa", "ops"].includes(a.id))
+    .map(a => toNode(a.id, a.name, a.description.split(".")[0]));
 
-  const engNodes = engineeringIds
-    .map(toNode)
-    .filter((n): n is AgentNode => n !== null);
+  // Operations agents (excluding finance which is a direct report)
+  const opsAgents = agents
+    .filter(a => a.category === "Operations" && a.id !== "finance")
+    .map(a => toNode(a.id, a.name, a.description.split(".")[0]));
 
-  // Collect direct reports
-  const directReports = directReportIds
-    .map(toNode)
-    .filter((n): n is AgentNode => n !== null);
+  const devChildren: AgentNode[] = [
+    toNode("frontend-dev", "Frontend Dev", "React/TypeScript UI"),
+    toNode("backend-dev", "Backend Dev", "API/Database"),
+    toNode("mobile-dev", "Mobile Dev", "Expo/React Native"),
+  ].filter(n => byId.has(n.id));
 
-  // Engineering group node — uses first engineering agent or synthetic
-  const engineeringGroup: AgentNode = {
-    id: engNodes[0]?.id ?? "frontend-dev",
-    name: engNodes[0]?.name ?? "Engineering",
-    description: "Implementation",
-    children: [
-      ...engNodes.slice(1),
-      ...engChildren,
-    ],
+  const qaOps: AgentNode[] = [
+    toNode("qa", "QA", "Code Review & Testing"),
+    toNode("ops", "Ops", "CI/CD & Deploys"),
+  ].filter(n => byId.has(n.id));
+
+  // Dev lead node with sub-engineers
+  const devNode: AgentNode = {
+    id: "__dev-group__",
+    name: "Engineering",
+    role: "Implementation",
+    children: [...devChildren, ...qaOps, ...engineeringIds],
   };
 
-  // Add any agents not in the predefined lists
-  const knownIds = new Set(["ceo", ...directReportIds, ...engineeringIds, ...engineeringSubIds, ...opsIds]);
-  const unknownAgents = agents
-    .filter(a => !knownIds.has(a.id))
-    .map(a => ({ id: a.id, name: a.name, description: a.description }));
+  const ceo = toNode("ceo", "CEO", "Strategy & Idea Gating");
+  ceo.children = [
+    toNode("pm", "PM", "Planning & PRDs"),
+    toNode("designer", "Designer", "UI/UX Audits"),
+    toNode("finance", "Finance", "Cost Management"),
+    devNode,
+    ...opsAgents,
+  ].filter(n => n.id === "__dev-group__" || byId.has(n.id));
 
-  return {
-    id: ceo.id,
-    name: ceo.name,
-    description: ceo.description,
-    children: [
-      ...directReports,
-      engineeringGroup,
-      ...unknownAgents,
-    ],
-  };
+  return ceo;
 }
 
 function isLive(agentId: string, sessions: Session[], activeTasks: ActiveTaskFile[]): { live: boolean; label: string | null } {
-  // 1. Session agentType match
+  if (agentId.startsWith("__")) return { live: false, label: null };
+  // 1. Exact agentType match
   for (const s of sessions) {
-    if (s.agentType && s.agentType === agentId) {
-      return { live: true, label: s.label };
-    }
+    if (s.agentType === agentId) return { live: true, label: s.label };
   }
   // 2. Active task files
   for (const t of activeTasks) {
-    if (t.agentType && t.agentType === agentId) {
-      return { live: true, label: t.label };
-    }
+    if (t.agentType === agentId) return { live: true, label: t.label };
+  }
+  // 3. Keyword fallback (untyped only)
+  for (const s of sessions) {
+    if (s.agentType) continue;
+    const haystack = `${s.label ?? ""} ${s.title ?? ""} ${s.project ?? ""}`.toLowerCase();
+    if (haystack.includes(agentId)) return { live: true, label: s.label };
   }
   return { live: false, label: null };
 }
@@ -112,7 +102,7 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
     >
       {/* Avatar */}
       <div className="relative">
-        {/* Pulsing live ring */}
+        {/* Pulsing live ring — renders behind avatar */}
         {live && (
           <span
             className="absolute -inset-1.5 rounded-2xl animate-ping"
@@ -130,19 +120,19 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
           {node.name[0]}
         </div>
 
-        {/* Status dot */}
+        {/* Status dot — always visible, bottom-right corner */}
         <span
           className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2"
           style={{ background: live ? color : "#4a4a4a", borderColor: "#111111" }}
         />
       </div>
 
-      {/* Name + description */}
+      {/* Name + role */}
       <div className="text-center">
         <div className={`text-xs font-medium transition-colors ${live ? "text-[#e8e8e8]" : "text-[#888]"} group-hover:text-[#e8e8e8]`}>
           {node.name}
         </div>
-        <div className="text-[10px] text-[#888] leading-tight mt-0.5 max-w-[90px]">{node.description}</div>
+        <div className="text-[10px] text-[#888] leading-tight mt-0.5 max-w-[90px]">{node.role}</div>
         {live && label && (
           <div className="text-[9px] mt-1 max-w-[90px] truncate px-1.5 py-0.5 rounded" style={{ background: color + "18", color: color + "cc" }}>
             {label}
@@ -205,79 +195,77 @@ export function OrgChart() {
         </div>
       )}
 
-      {ORG && (
-        <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
-          <div className="flex flex-col items-center min-w-max">
-            {/* Root */}
-            <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+      <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
+        <div className="flex flex-col items-center min-w-max">
+          {/* Root */}
+          <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
 
-            {/* Children tree */}
-            {ORG.children && ORG.children.length > 0 && (
-              <div className="flex flex-col items-center">
-                {/* Stem */}
-                <div className="w-px h-10 bg-[#2a2a2a]" />
+          {/* Children tree */}
+          {ORG.children && ORG.children.length > 0 && (
+            <div className="flex flex-col items-center">
+              {/* Stem */}
+              <div className="w-px h-10 bg-[#2a2a2a]" />
 
-                {/* Horizontal bar */}
-                <div className="relative w-full flex justify-center">
-                  <div
-                    className="absolute top-0 h-px bg-[#2a2a2a]"
-                    style={{
-                      width: `${(ORG.children.length - 1) * 160}px`,
-                      left: `calc(50% - ${((ORG.children.length - 1) * 160) / 2}px)`,
-                    }}
-                  />
+              {/* Horizontal bar */}
+              <div className="relative w-full flex justify-center">
+                <div
+                  className="absolute top-0 h-px bg-[#2a2a2a]"
+                  style={{
+                    width: `${(ORG.children.length - 1) * 160}px`,
+                    left: `calc(50% - ${((ORG.children.length - 1) * 160) / 2}px)`,
+                  }}
+                />
 
-                  <div className="flex items-start gap-10">
-                    {ORG.children.map(child => (
-                      <div key={child.id} className="flex flex-col items-center">
-                        <div className="w-px h-10 bg-[#2a2a2a]" />
-                        <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                <div className="flex items-start gap-10">
+                  {ORG.children.map(child => (
+                    <div key={child.id} className="flex flex-col items-center">
+                      <div className="w-px h-10 bg-[#2a2a2a]" />
+                      <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
 
-                        {child.children && child.children.length > 0 && (
-                          <div className="flex flex-col items-center">
-                            <div className="w-px h-10 bg-[#2a2a2a]" />
-                            {/* Horizontal bar for grandchildren */}
-                            <div className="relative flex justify-center">
-                              <div
-                                className="absolute top-0 h-px bg-[#2a2a2a]"
-                                style={{
-                                  width: `${(child.children.length - 1) * 120}px`,
-                                  left: `calc(50% - ${((child.children.length - 1) * 120) / 2}px)`,
-                                }}
-                              />
-                              <div className="flex items-start gap-8">
-                                {child.children.map(gc => (
-                                  <div key={gc.id} className="flex flex-col items-center">
-                                    <div className="w-px h-10 bg-[#2a2a2a]" />
-                                    <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
-                                  </div>
-                                ))}
-                              </div>
+                      {child.children && child.children.length > 0 && (
+                        <div className="flex flex-col items-center">
+                          <div className="w-px h-10 bg-[#2a2a2a]" />
+                          {/* Horizontal bar for grandchildren */}
+                          <div className="relative flex justify-center">
+                            <div
+                              className="absolute top-0 h-px bg-[#2a2a2a]"
+                              style={{
+                                width: `${(child.children.length - 1) * 120}px`,
+                                left: `calc(50% - ${((child.children.length - 1) * 120) / 2}px)`,
+                              }}
+                            />
+                            <div className="flex items-start gap-8">
+                              {child.children.map(gc => (
+                                <div key={gc.id} className="flex flex-col items-center">
+                                  <div className="w-px h-10 bg-[#2a2a2a]" />
+                                  <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center gap-5 mt-12 justify-center flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8b5cf6" }} />
-              <span className="text-[10px] text-[#777]">Live — running now</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
-              <span className="text-[10px] text-[#777]">Idle</span>
-            </div>
-            <div className="text-[10px] text-[#777]">· Click any node to view details</div>
-          </div>
+          )}
         </div>
-      )}
+
+        {/* Legend */}
+        <div className="flex items-center gap-5 mt-12 justify-center flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#8b5cf6" }} />
+            <span className="text-[10px] text-[#777]">Live — running now</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
+            <span className="text-[10px] text-[#777]">Idle</span>
+          </div>
+          <div className="text-[10px] text-[#777]">· Click any node to view details</div>
+        </div>
+      </div>
     </>
   );
 }
