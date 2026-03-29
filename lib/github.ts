@@ -1,7 +1,14 @@
-import { Octokit } from "octokit";
 import { getProductRepos } from "./local";
 
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _octokit: any = null;
+async function getOctokit() {
+  if (!_octokit) {
+    const { Octokit } = await import("octokit");
+    _octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  }
+  return _octokit;
+}
 
 export interface RecentTask {
   number: number;
@@ -17,6 +24,7 @@ export interface RecentTask {
 export async function getRecentTasks(): Promise<RecentTask[]> {
   if (!process.env.GITHUB_TOKEN) return [];
 
+  const octokit = await getOctokit();
   const repos = getProductRepos();
   const tasks: RecentTask[] = [];
 
@@ -24,7 +32,7 @@ export async function getRecentTasks(): Promise<RecentTask[]> {
   const results = await Promise.allSettled(
     repos.map(({ owner, name: repo }) =>
       octokit.rest.issues.listForRepo({ owner, repo, state: "open", sort: "updated", per_page: 20, direction: "desc" })
-        .then(({ data }) => ({ repo, data }))
+        .then(({ data }: { data: any[] }) => ({ repo, data }))
     )
   );
 
@@ -33,13 +41,13 @@ export async function getRecentTasks(): Promise<RecentTask[]> {
     const { repo, data } = result.value;
     for (const issue of data) {
       if (issue.pull_request) continue;
-      const labels = issue.labels.map(l => typeof l === "object" ? l.name || "" : l);
+      const labels = issue.labels.map((l: any) => typeof l === "object" ? l.name || "" : l) as string[];
       let status: RecentTask["status"] = "todo";
-      if (labels.some(l => l.includes("in-progress"))) status = "in-progress";
+      if (labels.some((l: string) => l.includes("in-progress"))) status = "in-progress";
       let priority: RecentTask["priority"] = "p2";
-      if (labels.some(l => l.includes("p0"))) priority = "p0";
-      else if (labels.some(l => l.includes("p1"))) priority = "p1";
-      const agentLabel = labels.find(l => l.startsWith("agent:"));
+      if (labels.some((l: string) => l.includes("p0"))) priority = "p0";
+      else if (labels.some((l: string) => l.includes("p1"))) priority = "p1";
+      const agentLabel = labels.find((l: string) => l.startsWith("agent:"));
       const agent = agentLabel?.replace("agent:", "");
       tasks.push({ number: issue.number, title: issue.title, status, priority, agent, updatedAt: issue.updated_at, url: issue.html_url, repo });
     }

@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { NextResponse } from "next/server";
-import { Octokit } from "octokit";
+// Dynamic import to avoid TDZ issues with webpack externalization
 import { getProductRepos } from "@/lib/local";
 import { getAllHeartbeats } from "@/lib/redis";
 import { withCache } from "@/lib/cache";
@@ -29,6 +29,10 @@ export interface Session {
   /** true if title was explicitly set by agent, false if auto-derived */
   titled: boolean;
   flags: string[];
+  /** Issue number being worked on (parsed from cc-task file) */
+  issueNumber?: number;
+  /** Issue repo (e.g. "wkliwk/whitebox") */
+  issueRepo?: string;
 }
 
 /** A task file read directly — used when PID/cwd matching fails */
@@ -142,6 +146,7 @@ function buildTaskMaps(): {
 /** Fetch recent GitHub activity to infer agent sessions (Vercel fallback) */
 async function fetchGitHubActiveTasks(): Promise<ActiveTaskFile[]> {
   if (!process.env.GITHUB_TOKEN) return [];
+  const { Octokit } = await import("octokit");
   const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
   const repos = getProductRepos();
   if (repos.length === 0) return [];
