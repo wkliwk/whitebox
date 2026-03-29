@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // ISR revalidation handled per-page via revalidate export
-  serverExternalPackages: ["octokit", "@octokit/rest", "@upstash/redis"],
+  // Note: removed serverExternalPackages — was causing TDZ errors on Vercel
+  // octokit is now dynamically imported where needed
 };
 
 export default nextConfig;
