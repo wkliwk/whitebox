@@ -1,4 +1,5 @@
 import { Bot, CheckSquare, Activity } from "lucide-react";
+import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
 import { QuotaCard } from "@/components/QuotaCard";
@@ -76,6 +77,34 @@ export default async function Page() {
               value={tasks.filter(t => t.status === "todo").length}
               subtitle={`${tasks.filter(t => t.status === "in-progress").length} in progress`}
             />
+          </div>
+
+          {/* Recent Decisions */}
+          <div className="rounded-xl border border-[#222] bg-[#161616] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium">Recent Decisions</div>
+              <Link href="/logs" className="text-[11px] text-[#555] hover:text-[#999] transition-colors">
+                View all →
+              </Link>
+            </div>
+            {decisions.length === 0 ? (
+              <div className="text-xs text-[#555] py-4 text-center">No decisions logged yet</div>
+            ) : (
+              <div className="space-y-0">
+                {decisions.slice(0, 5).map((d, i) => (
+                  <div key={i} className="py-2.5 border-b border-[#1e1e1e] last:border-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[10px] text-[#666] font-mono">{d.project}</span>
+                      <span className="text-[10px] text-[#444]">·</span>
+                      <span className="text-[10px] text-[#444]">{d.date}</span>
+                    </div>
+                    <p className="text-xs text-[#888] leading-relaxed">
+                      {d.summary.length > 120 ? d.summary.slice(0, 120) + "…" : d.summary}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
