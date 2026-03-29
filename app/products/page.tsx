@@ -1,4 +1,4 @@
-import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle, Lightbulb, Globe } from "lucide-react";
+import { ExternalLink, GitBranch, LayoutGrid, Target, XCircle, Lightbulb, Globe, Monitor } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
@@ -144,6 +144,16 @@ export default async function ProductsPage() {
                       <Globe size={10} />
                       <span>Live</span>
                       <ExternalLink size={8} className="text-[#777]" />
+                    </a>
+                  )}
+                  {process.env.NODE_ENV === "development" && product.localhostPort && (
+                    <a href={`http://localhost:${product.localhostPort}`}
+                      target="_blank" rel="noreferrer"
+                      className="flex items-center gap-1.5 text-[10px] transition-colors"
+                      style={{ color: product.color + "cc" }}
+                      title={`Open local dev server on port ${product.localhostPort}`}>
+                      <Monitor size={10} />
+                      <span>:{product.localhostPort}</span>
                     </a>
                   )}
                   {product.repos.map(repo => (
