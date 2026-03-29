@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { getProductRepos } from "@/lib/local";
 import { getProjectBoard, BOARD_DEFS } from "@/lib/projects";
 import type { BoardItem } from "@/lib/projects";
+import { AGENT_COLORS } from "@/lib/agents";
 
 import type { Metadata } from "next";
 
@@ -37,11 +38,7 @@ const priorityColors: Record<string, string> = {
   p0: "#ef4444", p1: "#f97316", p2: "#777",
 };
 
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
-  ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
-  "frontend-dev": "#06b6d4", "backend-dev": "#3b82f6",
-};
+const agentColors = AGENT_COLORS;
 
 function ItemCard({ item }: { item: BoardItem }) {
   const agentColor = agentColors[item.agent] ?? "#444";

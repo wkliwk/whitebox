@@ -3,28 +3,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
-import { AGENTS } from "@/lib/agents";
+import { useAgents } from "@/lib/useAgents";
+import { getAgentColor } from "@/lib/agents";
 import { AgentDrawer } from "./AgentDrawer";
-
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
-  ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
-};
-
-const agentAliases: Record<string, string[]> = {
-  ceo: ["ceo", "chief", "strategy", "idea"],
-  pm: ["pm", "product", "planning", "prd", "issue"],
-  dev: ["dev", "backend", "frontend", "implement", "build", "fix", "refactor"],
-  qa: ["qa", "quality", "test", "review"],
-  ops: ["ops", "deploy", "infra", "ci", "release"],
-  designer: ["designer", "design", "ui ", "ux"],
-  finance: ["finance", "cost", "billing"],
-};
-
-function normalizeAgentType(raw: string): string {
-  if (raw === "frontend-dev" || raw === "backend-dev") return "dev";
-  return raw;
-}
 
 interface AgentStatus {
   running: boolean;
@@ -33,34 +14,16 @@ interface AgentStatus {
 }
 
 function resolveAgentStatus(agentId: string, sessions: Session[], activeTasks: ActiveTaskFile[]): AgentStatus {
-  // 1. Exact agentType match from session (new PID format)
+  // 1. Exact agentType match from session
   for (const s of sessions) {
-    if (s.agentType && normalizeAgentType(s.agentType) === agentId) {
+    if (s.agentType && s.agentType === agentId) {
       return { running: true, label: s.label, project: s.project };
     }
   }
 
-  // 2. Keyword fallback on session labels (old format, cwd matched)
-  const aliases = agentAliases[agentId] ?? [agentId];
-  for (const s of sessions) {
-    if (s.agentType) continue;
-    const haystack = `${s.label ?? ""} ${s.title ?? ""} ${s.project ?? ""}`.toLowerCase();
-    if (aliases.some(a => haystack.includes(a))) {
-      return { running: true, label: s.label, project: s.project };
-    }
-  }
-
-  // 3. Active task files — covers case where lsof returns home dir (most common)
+  // 2. Active task files — exact agentType match
   for (const t of activeTasks) {
-    if (t.agentType && normalizeAgentType(t.agentType) === agentId) {
-      return { running: true, label: t.label, project: t.project };
-    }
-  }
-  // Keyword match on task file labels
-  for (const t of activeTasks) {
-    if (t.agentType) continue;
-    const haystack = `${t.label} ${t.project}`.toLowerCase();
-    if (aliases.some(a => haystack.includes(a))) {
+    if (t.agentType && t.agentType === agentId) {
       return { running: true, label: t.label, project: t.project };
     }
   }
@@ -69,6 +32,7 @@ function resolveAgentStatus(agentId: string, sessions: Session[], activeTasks: A
 }
 
 export function SidebarAgentList() {
+  const agents = useAgents();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
@@ -102,8 +66,8 @@ export function SidebarAgentList() {
       )}
 
       <div className="space-y-0.5">
-        {AGENTS.map(agent => {
-          const color = agentColors[agent.id] || "#555";
+        {agents.map(agent => {
+          const color = getAgentColor(agent.id);
           const { running, label, project } = resolveAgentStatus(agent.id, sessions, activeTasks);
           const subtitle = running ? (label ?? project ?? null) : null;
 

@@ -3,34 +3,17 @@
 import { useState, useEffect } from "react";
 import { AgentDrawer } from "./AgentDrawer";
 import { StatusDot } from "./StatusDot";
-import { AGENTS } from "@/lib/agents";
+import { useAgents } from "@/lib/useAgents";
+import { getAgentColor } from "@/lib/agents";
 import type { Session } from "@/app/api/sessions/route";
 
-const agentColors: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", dev: "#06b6d4", qa: "#22c55e",
-  ops: "#eab308", designer: "#ec4899", finance: "#6366f1",
-};
-
-const agentAliases: Record<string, string[]> = {
-  ceo: ["ceo", "chief", "strategy"],
-  pm: ["pm", "product manager", "planning", "prd"],
-  dev: ["dev", "backend", "backend-dev", "implement"],
-  qa: ["qa", "quality", "test", "review"],
-  ops: ["ops", "deploy", "infra", "ci"],
-  designer: ["designer", "design", "ui", "ux"],
-  finance: ["finance", "cost", "billing"],
-};
-
 function getAgentStatus(agentId: string, sessions: Session[]): "running" | "idle" {
-  const aliases = agentAliases[agentId] ?? [agentId];
-  const running = sessions.some(s => {
-    const haystack = `${s.label ?? ""} ${s.project ?? ""} ${s.title ?? ""}`.toLowerCase();
-    return aliases.some(alias => haystack.includes(alias));
-  });
+  const running = sessions.some(s => s.agentType === agentId);
   return running ? "running" : "idle";
 }
 
 export function AgentSection() {
+  const agents = useAgents();
   const [selected, setSelected] = useState<{ id: string; name: string } | null>(null);
   const [sessions, setSessions] = useState<Session[]>([]);
 
@@ -52,8 +35,8 @@ export function AgentSection() {
       <div>
         <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">Agent Status</div>
         <div className="space-y-0">
-          {AGENTS.map(agent => {
-            const color = agentColors[agent.id] || "#555";
+          {agents.map(agent => {
+            const color = getAgentColor(agent.id);
             const status = getAgentStatus(agent.id, sessions);
             return (
               <button key={agent.id} onClick={() => setSelected({ id: agent.id, name: agent.name })}
