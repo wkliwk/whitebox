@@ -1,4 +1,3 @@
-{"date":"2026-03-28","project":"whitebox","summary":"#67 max-w-[1400px] mx-auto added to Issues, Board, Logs, Products main content divs"}
 {"date":"2026-03-28","project":"agentscore","prompt":"issue #32 web publish form","summary":"Multi-step publish form at /publish — add files, preview, publish with credential scanning, navbar link"}
 {"date":"2026-03-28","project":"whitebox","summary":"#70 OrgChart skeleton: pulse animation while API fetch in-flight; loading state prevents blank Teams page on first render"}
 {"date":"2026-03-28","project":"agentscore","prompt":"issue #33 Most Imported sort in Explore","summary":"Added imports sort option with DB join, ProfileCard import badge, 4 tests (background agent)"}
@@ -48,3 +47,4 @@
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Top spending day of week insight card on dashboard (#245)","summary":"spending-insights.ts pure fn over 90-day expense window; InsightsDayOfWeekCard with localised weekday + avg; memoized in dashboard"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Streak milestone toasts and history bottom sheet (#251)","summary":"streak.ts: checkStreakMilestone + history funcs; StreakHistorySheet 30-day dot grid; StreakBadge tappable; milestone toasts in add.tsx"}
 {"date":"2026-03-28","project":"money-flow-mobile","prompt":"Transaction export to PDF (#243)","summary":"pdf-export.ts: HTML template via expo-print + expo-sharing, reads TanStack cache; Export PDF row in settings with 6-month picker, Pro-gated"}
+{"date":"2026-03-28","project":"money-flow-mobile","prompt":"fix CI: defensive JSON.parse in getStreakHistory","summary":"Wrapped JSON.parse in try/catch in getStreakHistory() to prevent SyntaxError when Jest mock returns non-JSON string for getString"}
