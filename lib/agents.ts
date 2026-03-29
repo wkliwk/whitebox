@@ -1,7 +1,16 @@
+/** Known agent colors — used as fallback when /api/agents hasn't loaded yet */
 export const AGENT_COLORS: Record<string, string> = {
-  ceo: "#8b5cf6", pm: "#3b82f6", "frontend-dev": "#06b6d4", "backend-dev": "#0ea5e9",
-  "mobile-dev": "#14b8a6", qa: "#22c55e", ops: "#eab308", designer: "#ec4899",
-  finance: "#6366f1", "ai-researcher": "#f97316", "claude-code-manager": "#a855f7",
+  ceo: "#8b5cf6",
+  pm: "#3b82f6",
+  "frontend-dev": "#06b6d4",
+  "backend-dev": "#0ea5e9",
+  "mobile-dev": "#14b8a6",
+  qa: "#22c55e",
+  ops: "#eab308",
+  designer: "#ec4899",
+  finance: "#6366f1",
+  "ai-researcher": "#f97316",
+  "claude-code-manager": "#a855f7",
 };
 
 export interface AgentDef {

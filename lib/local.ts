@@ -2,23 +2,24 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { execSync } from "child_process";
-import { Octokit } from "octokit";
 
 const HOME = os.homedir();
 
 // ─── GitHub Fallback Helper ─────────────────────────────────────────────────
 
-let _octokitInstance: Octokit | null = null;
-function getOctokit(): Octokit | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _octokitInstance: any = null;
+async function getOctokit() {
   if (!process.env.GITHUB_TOKEN) return null;
   if (!_octokitInstance) {
+    const { Octokit } = await import("octokit");
     _octokitInstance = new Octokit({ auth: process.env.GITHUB_TOKEN });
   }
   return _octokitInstance;
 }
 
 async function fetchDecisionsFromGitHub(): Promise<string | null> {
-  const octokit = getOctokit();
+  const octokit = await getOctokit();
   if (!octokit) return null;
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;

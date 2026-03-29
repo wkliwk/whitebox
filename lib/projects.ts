@@ -1,6 +1,12 @@
-import { Octokit } from "octokit";
-
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _octokit: any = null;
+async function getOctokit() {
+  if (!_octokit) {
+    const { Octokit } = await import("octokit");
+    _octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+  }
+  return _octokit;
+}
 
 export interface BoardItem {
   id: string;
@@ -76,7 +82,8 @@ function extractField(
 export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard | null> {
   if (!process.env.GITHUB_TOKEN) return null;
   try {
-    const resp = await octokit.graphql<{
+    const octokit = await getOctokit();
+    const resp: {
       user: {
         projectV2: {
           title: string;
@@ -97,7 +104,7 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
           };
         };
       };
-    }>(GQL_QUERY, { login: "wkliwk", number: boardNumber });
+    } = await octokit.graphql(GQL_QUERY, { login: "wkliwk", number: boardNumber });
 
     const proj = resp.user.projectV2;
     const items: BoardItem[] = [];
@@ -107,7 +114,7 @@ export async function getProjectBoard(boardNumber: number): Promise<ProjectBoard
       const fvNodes = node.fieldValues.nodes;
 
       // For issues, get labels for priority/agent/size; drafts have no labels
-      const labelNames = node.content?.labels?.nodes.map(l => l.name) ?? [];
+      const labelNames: string[] = node.content?.labels?.nodes.map((l: { name: string }) => l.name) ?? [];
 
       const title = node.content?.title ?? extractField(fvNodes, "title") ?? "";
       if (!title) continue;
