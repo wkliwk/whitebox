@@ -21,6 +21,82 @@ export interface RecentTask {
   repo: string;
 }
 
+/** Returns total open issue count per repo key ("{owner}/{name}"). Silently returns {} on error. */
+export async function getOpenIssueCountsForRepos(
+  repos: Array<{ owner: string; name: string }>
+): Promise<Record<string, number>> {
+  if (!process.env.GITHUB_TOKEN || repos.length === 0) return {};
+  try {
+    const octokit = await getOctokit();
+    const results = await Promise.allSettled(
+      repos.map(({ owner, name }) =>
+        octokit.rest.repos.get({ owner, repo: name })
+          .then(({ data }: { data: { open_issues_count: number } }) => ({
+            key: `${owner}/${name}`,
+            count: data.open_issues_count,
+          }))
+      )
+    );
+    const counts: Record<string, number> = {};
+    for (const r of results) {
+      if (r.status === "fulfilled") counts[r.value.key] = r.value.count;
+    }
+    return counts;
+  } catch {
+    return {};
+  }
+}
+
+export interface PullRequest {
+  number: number;
+  title: string;
+  repo: string;
+  owner: string;
+  url: string;
+  draft: boolean;
+  reviewComments: number;
+  updatedAt: string;
+  createdAt: string;
+  author: string;
+}
+
+export async function getOpenPRs(): Promise<PullRequest[]> {
+  if (!process.env.GITHUB_TOKEN) return [];
+
+  const octokit = await getOctokit();
+  const repos = getProductRepos();
+  const prs: PullRequest[] = [];
+
+  const results = await Promise.allSettled(
+    repos.map(({ owner, name: repo }) =>
+      octokit.rest.pulls.list({ owner, repo, state: "open", sort: "updated", direction: "desc", per_page: 20 })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .then(({ data }: { data: any[] }) => ({ owner, repo, data }))
+    )
+  );
+
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    const { owner, repo, data } = result.value;
+    for (const pr of data) {
+      prs.push({
+        number: pr.number,
+        title: pr.title,
+        repo,
+        owner,
+        url: pr.html_url,
+        draft: pr.draft ?? false,
+        reviewComments: pr.review_comments ?? 0,
+        updatedAt: pr.updated_at,
+        createdAt: pr.created_at,
+        author: pr.user?.login ?? "",
+      });
+    }
+  }
+
+  return prs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+}
+
 export async function getRecentTasks(): Promise<RecentTask[]> {
   if (!process.env.GITHUB_TOKEN) return [];
 
