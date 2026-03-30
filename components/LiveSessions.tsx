@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Session } from "@/app/api/sessions/route";
+import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
 
 export function LiveSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [updatedAt, setUpdatedAt] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
@@ -13,6 +14,7 @@ export function LiveSessions() {
       const res = await fetch("/api/sessions", { cache: "no-store" });
       const data = await res.json();
       setSessions(data.sessions ?? []);
+      setActiveTasks(data.activeTasks ?? []);
       setUpdatedAt(data.updatedAt ?? "");
     } catch { /* silent */ }
     setLoading(false);
@@ -43,7 +45,7 @@ export function LiveSessions() {
 
       {loading ? (
         <div className="text-xs text-[#888] py-4">Detecting sessions…</div>
-      ) : sessions.length === 0 ? (
+      ) : sessions.length === 0 && activeTasks.filter(t => t.isStale).length === 0 ? (
         <div className="text-xs text-[#888] py-4 text-center">No active Claude sessions</div>
       ) : (
         <div className="space-y-0">
@@ -78,6 +80,26 @@ export function LiveSessions() {
               <div className="text-right shrink-0">
                 <div className="text-[10px] text-[#777]">{s.cpu}% CPU</div>
                 <div className="text-[10px] text-[#777]">{s.elapsed}</div>
+              </div>
+            </div>
+          ))}
+
+          {/* Stale task entries — previously active agents with no recent update */}
+          {activeTasks.filter(t => t.isStale).map((t, i) => (
+            <div key={`stale-${i}`} className="flex items-center gap-3 py-2.5 border-b border-[#222] opacity-60">
+              <span className="relative flex shrink-0 w-2 h-2">
+                <span className="relative inline-flex w-2 h-2 rounded-full bg-[#eab308]" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-[#888] truncate">{t.label}</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0 bg-[#eab30818] text-[#eab308]">
+                    Stale · {t.ageMinutes}m ago
+                  </span>
+                </div>
+                {t.project && (
+                  <span className="text-[10px] text-[#555]">{t.project}</span>
+                )}
               </div>
             </div>
           ))}

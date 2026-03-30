@@ -9,26 +9,27 @@ import { AgentDrawer } from "./AgentDrawer";
 
 interface AgentStatus {
   running: boolean;
+  stale: boolean;
   label: string | null;
   project: string | null;
 }
 
 function resolveAgentStatus(agentId: string, sessions: Session[], activeTasks: ActiveTaskFile[]): AgentStatus {
-  // 1. Exact agentType match from session
+  // 1. Exact agentType match from live session (never stale — process is running)
   for (const s of sessions) {
     if (s.agentType && s.agentType === agentId) {
-      return { running: true, label: s.label, project: s.project };
+      return { running: true, stale: false, label: s.label, project: s.project };
     }
   }
 
   // 2. Active task files — exact agentType match
   for (const t of activeTasks) {
     if (t.agentType && t.agentType === agentId) {
-      return { running: true, label: t.label, project: t.project };
+      return { running: true, stale: t.isStale, label: t.label, project: t.project };
     }
   }
 
-  return { running: false, label: null, project: null };
+  return { running: false, stale: false, label: null, project: null };
 }
 
 export function SidebarAgentList() {
@@ -68,8 +69,9 @@ export function SidebarAgentList() {
       <div className="space-y-0.5">
         {agents.map(agent => {
           const color = getAgentColor(agent.id);
-          const { running, label, project } = resolveAgentStatus(agent.id, sessions, activeTasks);
+          const { running, stale, label, project } = resolveAgentStatus(agent.id, sessions, activeTasks);
           const subtitle = running ? (label ?? project ?? null) : null;
+          const dotColor = stale ? "#eab308" : running ? color : "#4a4a4a";
 
           return (
             <div key={agent.id}
@@ -94,14 +96,14 @@ export function SidebarAgentList() {
                 )}
               </div>
 
-              {/* Status dot: pulsing when live, dim grey when idle */}
-              <span className="shrink-0 relative flex w-2 h-2">
-                {running && (
+              {/* Status dot: pulsing green=live, yellow=stale, grey=idle */}
+              <span className="shrink-0 relative flex w-2 h-2" title={stale ? "Stale — no update in >10 min" : undefined}>
+                {running && !stale && (
                   <span className="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping"
                     style={{ background: color }} />
                 )}
                 <span className="relative inline-flex w-2 h-2 rounded-full"
-                  style={{ background: running ? color : "#4a4a4a" }} />
+                  style={{ background: dotColor }} />
               </span>
             </div>
           );

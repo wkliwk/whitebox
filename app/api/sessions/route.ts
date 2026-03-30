@@ -45,7 +45,11 @@ export interface ActiveTaskFile {
   updatedAt: string;
   /** Age in minutes */
   ageMinutes: number;
+  /** True when last update was >10 minutes ago — agent may have stalled */
+  isStale: boolean;
 }
+
+const STALE_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
 
 // Export kept for legacy import compatibility
 export interface ActiveTask {
@@ -186,6 +190,7 @@ async function fetchGitHubActiveTasks(): Promise<ActiveTaskFile[]> {
         project: repo,
         updatedAt,
         ageMinutes,
+        isStale: ageMinutes > 10,
       });
     }
   }
@@ -213,12 +218,14 @@ async function fetchGitHubActiveTasks(): Promise<ActiveTaskFile[]> {
         const agentId = "ops";
         if (seenAgents.has(agentId)) continue;
         seenAgents.add(agentId);
+        const eventAge = Math.round((Date.now() - eventTime) / 60000);
         activeTasks.push({
           label: `Recent ${event.type ?? "activity"} in ${repo}`,
           agentType: agentId,
           project: repo,
           updatedAt: event.created_at,
-          ageMinutes: Math.round((Date.now() - eventTime) / 60000),
+          ageMinutes: eventAge,
+          isStale: eventAge > 10,
         });
       }
     }
@@ -300,6 +307,7 @@ export async function GET() {
             project: e.project,
             updatedAt: e.updatedAt,
             ageMinutes: Math.round(e.ageMinutes),
+            isStale: e.ageMinutes * 60 * 1000 > STALE_THRESHOLD_MS,
           }));
       } catch {
         // ps aux failed (expected on Vercel)
@@ -311,13 +319,15 @@ export async function GET() {
       for (const hb of heartbeats) {
         // Skip if we already have a local task file for this agent type
         if (seenAgentTypes.has(hb.agentType)) continue;
-        const ageMinutes = Math.round((Date.now() - new Date(hb.lastPing).getTime()) / 60000);
+        const ageMs = Date.now() - new Date(hb.lastPing).getTime();
+        const ageMinutes = Math.round(ageMs / 60000);
         activeTasks.push({
           label: hb.task || `${hb.agentType} agent active`,
           agentType: hb.agentType,
           project: hb.project,
           updatedAt: hb.lastPing,
           ageMinutes,
+          isStale: ageMs > STALE_THRESHOLD_MS,
         });
       }
 
