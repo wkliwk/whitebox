@@ -13,8 +13,10 @@ export const metadata: Metadata = {
 export const revalidate = 10;
 
 export default async function LogsPage() {
-  const decisions = await getDecisions(50);
-  const loopLog = getLoopLog(30);
+  const [decisions, loopLog] = await Promise.all([
+    getDecisions(50),
+    getLoopLog(30),
+  ]);
 
   const activityEvents = decisions.slice(0, 20).map(d => ({
     agent: d.project,

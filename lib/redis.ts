@@ -1,3 +1,5 @@
+import type { LogEntry } from "./local";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _redis: any = null;
 
@@ -57,4 +59,26 @@ export async function getAllHeartbeats(): Promise<Heartbeat[]> {
     } catch { /* skip malformed */ }
   }
   return heartbeats;
+}
+
+// ─── Loop Events ─────────────────────────────────────────────────────────────
+
+const LOOP_EVENTS_KEY = "whitebox:loop-events";
+
+export async function getLoopEvents(limit = 30): Promise<LogEntry[]> {
+  const redis = getRedis();
+  if (!redis) return [];
+  try {
+    const raw: string[] = await redis.lrange(LOOP_EVENTS_KEY, 0, limit - 1);
+    return raw.map(item => {
+      try {
+        const parsed = typeof item === "string" ? JSON.parse(item) : item;
+        return parsed as LogEntry;
+      } catch {
+        return { timestamp: "", product: "", action: String(item), level: "debug" as const };
+      }
+    });
+  } catch {
+    return [];
+  }
 }

@@ -120,7 +120,13 @@ function classifyLevel(action: string): LogEntry["level"] {
   return "info";
 }
 
-export function getLoopLog(limit = 30): LogEntry[] {
+export async function getLoopLog(limit = 30): Promise<LogEntry[]> {
+  // In production, read from Redis (pushed by local machine via push-loop-event.sh)
+  if (process.env.NODE_ENV === "production") {
+    const { getLoopEvents } = await import("./redis");
+    return getLoopEvents(limit);
+  }
+  // Local dev: read file directly
   const raw = readFile(path.join(HOME, "Dev/whitebox/history/loop-log.txt"));
   if (!raw) return [];
   return raw
@@ -140,7 +146,6 @@ export function getLoopLog(limit = 30): LogEntry[] {
         const action = parts[1]?.trim() ?? "";
         return { timestamp, product: "", action, level: classifyLevel(action) };
       }
-      // graceful fallback for non-standard lines
       return { timestamp: "", product: "", action: line.trim(), level: "debug" as const };
     })
     .slice(-limit)
