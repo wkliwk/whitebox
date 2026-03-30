@@ -3,6 +3,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
 import { getProjectBoard } from "@/lib/projects";
+import { getOpenIssueCountsForRepos } from "@/lib/github";
+import { getDeploymentStatuses, deployStateColor, deployStateLabel } from "@/lib/vercel";
 import { GitHubIcon } from "@/components/GitHubIcon";
 
 import type { Metadata } from "next";
@@ -43,12 +45,16 @@ function getIdeaStatusColor(status: string) {
 }
 
 export default async function ProductsPage() {
-  const [sidebarProjects, ideasBoard] = await Promise.all([
+  const allRepos = PRODUCTS.flatMap(p => p.repos);
+  const productionUrls = PRODUCTS.map(p => p.productionUrl).filter((u): u is string => !!u);
+  const [sidebarProjects, ideasBoard, issueCounts, deployStatuses] = await Promise.all([
     Promise.resolve(getProductRepos().map(r => ({
       name: r.name,
       url: `https://github.com/${r.owner}/${r.name}`,
     }))),
     getProjectBoard(3),
+    getOpenIssueCountsForRepos(allRepos),
+    getDeploymentStatuses(productionUrls),
   ]);
 
   return (
@@ -97,6 +103,15 @@ export default async function ProductsPage() {
                           style={{ background: statusColor[product.status] + "22", color: statusColor[product.status] }}>
                           {statusLabel[product.status]}
                         </span>
+                        {(() => {
+                          const total = product.repos.reduce((sum, r) => sum + (issueCounts[`${r.owner}/${r.name}`] ?? 0), 0);
+                          if (total === 0) return null;
+                          return (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-[#1e1e1e] text-[#666]">
+                              {total} open
+                            </span>
+                          );
+                        })()}
                       </div>
                       <div className="text-xs text-[#888] mt-0.5">{product.tagline}</div>
                     </div>
@@ -137,15 +152,30 @@ export default async function ProductsPage() {
 
                 {/* Footer: production link + repos + board */}
                 <div className="flex items-center gap-3 pt-1 flex-wrap">
-                  {product.productionUrl && (
-                    <a href={product.productionUrl}
-                      target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1.5 text-[10px] text-[#777] hover:text-[#999] transition-colors">
-                      <Globe size={10} />
-                      <span>Live</span>
-                      <ExternalLink size={8} className="text-[#777]" />
-                    </a>
-                  )}
+                  {product.productionUrl && (() => {
+                    const state = deployStatuses[product.productionUrl];
+                    const dotColor = deployStateColor(state);
+                    const label = deployStateLabel(state);
+                    return (
+                      <a href={product.productionUrl}
+                        target="_blank" rel="noreferrer"
+                        className="flex items-center gap-1.5 text-[10px] text-[#777] hover:text-[#999] transition-colors"
+                        title={label || undefined}>
+                        {state ? (
+                          <span className="relative flex w-2 h-2 shrink-0">
+                            {state === "READY" && (
+                              <span className="absolute inline-flex w-full h-full rounded-full opacity-60 animate-ping" style={{ background: dotColor }} />
+                            )}
+                            <span className="relative inline-flex w-2 h-2 rounded-full" style={{ background: dotColor }} />
+                          </span>
+                        ) : (
+                          <Globe size={10} />
+                        )}
+                        <span>Live</span>
+                        <ExternalLink size={8} className="text-[#777]" />
+                      </a>
+                    );
+                  })()}
                   {process.env.NODE_ENV === "development" && product.localhostPort && (
                     <a href={`http://localhost:${product.localhostPort}`}
                       target="_blank" rel="noreferrer"

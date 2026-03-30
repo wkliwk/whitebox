@@ -245,6 +245,7 @@ UPSTASH_REDIS_REST_TOKEN=  # upstash token
 
 # Optional
 HEARTBEAT_SECRET=      # shared secret for POST /api/heartbeat (omit to allow all)
+VERCEL_TOKEN=          # Vercel personal access token — shows deployment status dots on Products page
 ```
 
 ---
