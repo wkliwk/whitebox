@@ -109,9 +109,18 @@ export interface LogEntry {
   timestamp: string;
   product: string;
   action: string;
+  level: "info" | "warn" | "error" | "debug";
 }
 
-export function getLoopLog(limit = 15): LogEntry[] {
+function classifyLevel(action: string): LogEntry["level"] {
+  const lower = action.toLowerCase();
+  if (/error|failed|exception|crash|fatal/.test(lower)) return "error";
+  if (/warn|blocked|skipped|rate.?limit|circuit.?breaker|deferred/.test(lower)) return "warn";
+  if (/debug|verbose/.test(lower)) return "debug";
+  return "info";
+}
+
+export function getLoopLog(limit = 30): LogEntry[] {
   const raw = readFile(path.join(HOME, "Dev/whitebox/history/loop-log.txt"));
   if (!raw) return [];
   return raw
@@ -119,8 +128,20 @@ export function getLoopLog(limit = 15): LogEntry[] {
     .split("\n")
     .filter(Boolean)
     .map(line => {
-      const [timestamp, product, ...rest] = line.split(" | ");
-      return { timestamp: timestamp?.trim() ?? "", product: product?.trim() ?? "", action: rest.join(" | ").trim() };
+      const parts = line.split(" | ");
+      if (parts.length >= 3) {
+        const timestamp = parts[0]?.trim() ?? "";
+        const product = parts[1]?.trim() ?? "";
+        const action = parts.slice(2).join(" | ").trim();
+        return { timestamp, product, action, level: classifyLevel(action) };
+      }
+      if (parts.length === 2) {
+        const timestamp = parts[0]?.trim() ?? "";
+        const action = parts[1]?.trim() ?? "";
+        return { timestamp, product: "", action, level: classifyLevel(action) };
+      }
+      // graceful fallback for non-standard lines
+      return { timestamp: "", product: "", action: line.trim(), level: "debug" as const };
     })
     .slice(-limit)
     .reverse();
