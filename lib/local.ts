@@ -152,6 +152,32 @@ export async function getLoopLog(limit = 30): Promise<LogEntry[]> {
     .reverse();
 }
 
+// ─── Daily Activity (last 7 days, from decisions.jsonl) ──────────────────────
+
+export interface DayBar {
+  date: string;
+  label: string;
+  count: number;
+}
+
+export async function getDailyActivity(): Promise<DayBar[]> {
+  const decisions = await getDecisions(500);
+  const countByDate: Record<string, number> = {};
+  for (const d of decisions) {
+    countByDate[d.date] = (countByDate[d.date] ?? 0) + 1;
+  }
+
+  const days: DayBar[] = [];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const date = d.toISOString().slice(0, 10);
+    days.push({ date, label: i === 0 ? "Today" : dayNames[d.getDay()], count: countByDate[date] ?? 0 });
+  }
+  return days;
+}
+
 // ─── Agent Activity (derived from decisions.jsonl) ───────────────────────────
 
 export interface AgentActivity {

@@ -5,16 +5,18 @@ import { MetricCard } from "@/components/MetricCard";
 import { QuotaCard } from "@/components/QuotaCard";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
-import { getDecisions, getAgentActivity, getProductRepos } from "@/lib/local";
+import { CostChart } from "@/components/CostChart";
+import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 
 export const revalidate = 30;
 
 export default async function Page() {
-  const [decisions, activity, tasks] = await Promise.all([
+  const [decisions, activity, tasks, dailyActivity] = await Promise.all([
     getDecisions(),
     getAgentActivity(),
     getRecentTasks(),
+    getDailyActivity(),
   ]);
 
   const repos = getProductRepos();
@@ -78,6 +80,11 @@ export default async function Page() {
               subtitle={`${tasks.filter(t => t.status === "in-progress").length} in progress`}
             />
           </div>
+
+          {/* Activity Chart */}
+          {dailyActivity.filter(d => d.count > 0).length >= 2 && (
+            <CostChart bars={dailyActivity} />
+          )}
 
           {/* Recent Decisions */}
           <div className="rounded-xl border border-[#222] bg-[#161616] p-5">
