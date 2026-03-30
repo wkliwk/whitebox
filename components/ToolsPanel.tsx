@@ -214,7 +214,7 @@ export function ToolsPanel() {
 
       {servers.length === 0 && plugins.length === 0 && (
         <div className="text-xs text-[#777] py-8 text-center">
-          No MCP servers or plugins found. Check ~/.claude.json and ~/.claude/mcp.json
+          MCP server data is sourced from your local machine. Run Whitebox locally to see your installed MCP servers and plugins.
         </div>
       )}
     </div>

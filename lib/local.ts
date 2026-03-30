@@ -21,8 +21,8 @@ async function getOctokit() {
 async function fetchDecisionsFromGitHub(): Promise<string | null> {
   const octokit = await getOctokit();
   if (!octokit) return null;
-  const owner = process.env.GITHUB_OWNER;
-  const repo = process.env.GITHUB_REPO;
+  const owner = process.env.GITHUB_OWNER?.trim();
+  const repo = process.env.GITHUB_REPO?.trim();
   if (!owner || !repo) return null;
   try {
     const { data } = await octokit.rest.repos.getContent({
@@ -270,7 +270,7 @@ export function getProductRepos(): ProductRepo[] {
 
   // Fallback: if local scan found nothing, parse PRODUCT_REPOS env var
   if (repos.length === 0 && process.env.PRODUCT_REPOS && process.env.GITHUB_OWNER) {
-    const owner = process.env.GITHUB_OWNER;
+    const owner = process.env.GITHUB_OWNER.trim();
     const repoNames = process.env.PRODUCT_REPOS.split(",").map(r => r.trim()).filter(Boolean);
     for (const name of repoNames) {
       repos.push({ name, owner, localPath: "" });
