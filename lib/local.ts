@@ -265,6 +265,33 @@ export function getRegistryProducts(): RegistryProduct[] {
   return products;
 }
 
+// ─── Cost Report ─────────────────────────────────────────────────────────────
+
+import type { CostReport } from "@/lib/costs";
+
+async function fetchCostReportFromGitHub(): Promise<CostReport | null> {
+  const octokit = await getOctokit();
+  if (!octokit) return null;
+  const owner = process.env.GITHUB_OWNER?.trim();
+  const repo = process.env.GITHUB_REPO?.trim();
+  if (!owner || !repo) return null;
+  try {
+    const { data } = await octokit.rest.repos.getContent({ owner, repo, path: "costs.json" });
+    if ("content" in data && typeof data.content === "string") {
+      return JSON.parse(Buffer.from(data.content, "base64").toString("utf-8")) as CostReport;
+    }
+    return null;
+  } catch { return null; }
+}
+
+export async function getCostReport(): Promise<CostReport | null> {
+  const raw = readFile(path.join(process.cwd(), "costs.json"));
+  if (raw) {
+    try { return JSON.parse(raw) as CostReport; } catch { return null; }
+  }
+  return fetchCostReportFromGitHub();
+}
+
 // ─── Product Repos (auto-discovered from ~/Dev/) ─────────────────────────────
 
 export interface ProductRepo {
