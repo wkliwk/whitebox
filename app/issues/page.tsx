@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { TaskList } from "@/components/TaskList";
+import { IssuesFilter } from "@/components/IssuesFilter";
 import { getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { PRODUCTS } from "@/lib/products";
@@ -16,9 +17,9 @@ export const revalidate = 30;
 export default async function IssuesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ repo?: string }>;
+  searchParams: Promise<{ repo?: string; q?: string }>;
 }) {
-  const { repo: activeRepo } = await searchParams;
+  const { repo: activeRepo, q: initialQuery } = await searchParams;
 
   const [tasks, repos] = await Promise.all([
     getRecentTasks(),
@@ -38,12 +39,17 @@ export default async function IssuesPage({
   }
   const reposWithTasks = [...byRepo.keys()].sort();
 
-  // Apply filter
-  const filtered = activeRepo ? (byRepo.get(activeRepo) ?? []) : tasks;
+  // Apply repo filter (server-side); q filter is client-side
+  const repoFiltered = activeRepo ? (byRepo.get(activeRepo) ?? []) : tasks;
 
-  const todo = filtered.filter(t => t.status === "todo");
-  const inProgress = filtered.filter(t => t.status === "in-progress");
-  const done = filtered.filter(t => t.status === "done");
+  // Apply q filter server-side for initial stats
+  const qFiltered = initialQuery
+    ? repoFiltered.filter(t => t.title.toLowerCase().includes(initialQuery.toLowerCase()))
+    : repoFiltered;
+
+  const todo = qFiltered.filter(t => t.status === "todo");
+  const inProgress = qFiltered.filter(t => t.status === "in-progress");
+  const done = qFiltered.filter(t => t.status === "done");
 
   // Build color map from PRODUCTS
   const repoColor = new Map<string, string>();
@@ -106,8 +112,10 @@ export default async function IssuesPage({
             ))}
           </div>
 
-          {/* Filtered task list */}
-          <TaskList tasks={filtered} />
+          {/* Filtered task list with client-side search */}
+          <Suspense fallback={<div className="text-xs text-[#555] py-4">Loading…</div>}>
+            <IssuesFilter tasks={repoFiltered} initialQuery={initialQuery ?? ""} />
+          </Suspense>
         </div>
       </main>
     </div>

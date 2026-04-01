@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ActivityFeed } from "@/components/ActivityFeed";
-import { DecisionLog } from "@/components/DecisionLog";
 import { LoopLog } from "@/components/LoopLog";
+import { DecisionFilter } from "@/components/DecisionFilter";
 import { getDecisions, getLoopLog, getProductRepos } from "@/lib/local";
 
 import type { Metadata } from "next";
@@ -12,7 +13,13 @@ export const metadata: Metadata = {
 
 export const revalidate = 10;
 
-export default async function LogsPage() {
+export default async function LogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q: initialQuery } = await searchParams;
+
   const [decisions, loopLog] = await Promise.all([
     getDecisions(50),
     getLoopLog(30),
@@ -49,8 +56,10 @@ export default async function LogsPage() {
           {/* Loop Log */}
           <LoopLog entries={loopLog} />
 
-          {/* Decision Log */}
-          <DecisionLog decisions={decisions} />
+          {/* Decision Log with client-side filter */}
+          <Suspense fallback={<div className="text-xs text-[#555] py-4">Loading…</div>}>
+            <DecisionFilter decisions={decisions} initialQuery={initialQuery ?? ""} />
+          </Suspense>
         </div>
       </main>
     </div>
