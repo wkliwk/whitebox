@@ -6,17 +6,19 @@ import { QuotaCard } from "@/components/QuotaCard";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { CostChart } from "@/components/CostChart";
-import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity } from "@/lib/local";
+import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity, getCostReport } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
+import { AgentCostBreakdown } from "@/components/AgentCostBreakdown";
 
 export const revalidate = 30;
 
 export default async function Page() {
-  const [decisions, activity, tasks, dailyActivity] = await Promise.all([
+  const [decisions, activity, tasks, dailyActivity, costReport] = await Promise.all([
     getDecisions(),
     getAgentActivity(),
     getRecentTasks(),
     getDailyActivity(),
+    getCostReport(),
   ]);
 
   const repos = getProductRepos();
@@ -79,6 +81,11 @@ export default async function Page() {
               value={tasks.filter(t => t.status === "todo").length}
               subtitle={`${tasks.filter(t => t.status === "in-progress").length} in progress`}
             />
+          </div>
+
+          {/* Agent Cost Breakdown */}
+          <div className="rounded-xl border border-[#222] bg-[#161616] p-5">
+            <AgentCostBreakdown report={costReport} />
           </div>
 
           {/* Activity Chart */}
