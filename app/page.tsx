@@ -9,6 +9,7 @@ import { CostChart } from "@/components/CostChart";
 import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity, getCostReport } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { AgentCostBreakdown } from "@/components/AgentCostBreakdown";
+import { SessionHistory } from "@/components/SessionHistory";
 import { formatSpend, budgetPct } from "@/lib/costs";
 
 export const revalidate = 30;
@@ -59,6 +60,9 @@ export default async function Page() {
 
           {/* Live Sessions */}
           <LiveSessions />
+
+          {/* Session History */}
+          <SessionHistory />
 
           {/* Metric Cards */}
           <div className="grid grid-cols-2 xl:grid-cols-5 gap-3">

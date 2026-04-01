@@ -143,3 +143,38 @@ export async function getLoopEvents(limit = 50, offset = 0): Promise<LoopEventsR
     return { events: [], total: 0, totalErrors: 0, offset, limit };
   }
 }
+
+// ─── Session History ─────────────────────────────────────────────────────────
+
+const SESSION_HISTORY_KEY = "whitebox:session-history";
+const SESSION_HISTORY_CAP = 50;
+
+export interface SessionHistoryRecord {
+  agentType: string;
+  task: string;
+  project: string;
+  startedAt: string;
+  completedAt: string;
+  durationMs: number;
+}
+
+export async function pushSessionHistory(record: SessionHistoryRecord): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  try {
+    await redis.lpush(SESSION_HISTORY_KEY, JSON.stringify(record));
+    await redis.ltrim(SESSION_HISTORY_KEY, 0, SESSION_HISTORY_CAP - 1);
+  } catch { /* silent */ }
+}
+
+export async function getSessionHistory(): Promise<SessionHistoryRecord[]> {
+  const redis = getRedis();
+  if (!redis) return [];
+  try {
+    const raw: string[] = await redis.lrange(SESSION_HISTORY_KEY, 0, SESSION_HISTORY_CAP - 1);
+    return raw.map(item => {
+      try { return JSON.parse(item) as SessionHistoryRecord; }
+      catch { return null; }
+    }).filter((r): r is SessionHistoryRecord => r !== null);
+  } catch { return []; }
+}
