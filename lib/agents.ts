@@ -13,6 +13,14 @@ export const AGENT_COLORS: Record<string, string> = {
   "claude-code-manager": "#a855f7",
 };
 
+export interface AgentLastTask {
+  task: string;
+  project: string;
+  issueNumber?: number;
+  issueRepo?: string;
+  completedAt: string;
+}
+
 export interface AgentDef {
   id: string;
   name: string;
@@ -20,6 +28,7 @@ export interface AgentDef {
   category: string;
   color: string;
   githubLabel: string;
+  lastTask?: AgentLastTask;
 }
 
 export function getAgentColor(id: string): string {

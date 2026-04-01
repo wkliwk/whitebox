@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { AgentDrawer } from "./AgentDrawer";
 import { useAgents } from "@/lib/useAgents";
 import { getAgentColor } from "@/lib/agents";
+import { relativeTime } from "@/lib/utils";
 import type { AgentDef } from "@/lib/agents";
 import type { Session, ActiveTaskFile } from "@/app/api/sessions/route";
 
@@ -89,11 +90,13 @@ interface NodeCardProps {
   sessions: Session[];
   activeTasks: ActiveTaskFile[];
   onOpen: (id: string, name: string) => void;
+  agentMap: Map<string, AgentDef>;
 }
 
-function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
+function NodeCard({ node, sessions, activeTasks, onOpen, agentMap }: NodeCardProps) {
   const color = getAgentColor(node.id);
   const { live, label } = isLive(node.id, sessions, activeTasks);
+  const lastTask = agentMap.get(node.id)?.lastTask;
 
   return (
     <button
@@ -138,6 +141,27 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
             {label}
           </div>
         )}
+        {!live && lastTask && (
+          <div className="mt-1.5 space-y-0.5">
+            <div className="text-[9px] text-[#666] max-w-[90px] truncate leading-tight">
+              {lastTask.task.length > 50 ? lastTask.task.slice(0, 50) + "…" : lastTask.task || "completed task"}
+            </div>
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-[9px] text-[#444]">{relativeTime(lastTask.completedAt)}</span>
+              {lastTask.issueNumber && lastTask.issueRepo && (
+                <a
+                  href={`https://github.com/${lastTask.issueRepo}/issues/${lastTask.issueNumber}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="text-[9px] px-1 py-0.5 rounded bg-[#2a2a2a] text-[#666] hover:text-[#999] transition-colors"
+                >
+                  #{lastTask.issueNumber}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -145,6 +169,7 @@ function NodeCard({ node, sessions, activeTasks, onOpen }: NodeCardProps) {
 
 export function OrgChart() {
   const agents = useAgents();
+  const agentMap = new Map(agents.map(a => [a.id, a]));
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeTasks, setActiveTasks] = useState<ActiveTaskFile[]>([]);
   const [openAgent, setOpenAgent] = useState<{ id: string; name: string } | null>(null);
@@ -198,7 +223,7 @@ export function OrgChart() {
       <div className={`overflow-x-auto pb-8 ${loading ? "hidden" : ""}`}>
         <div className="flex flex-col items-center min-w-max">
           {/* Root */}
-          <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+          <NodeCard node={ORG} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} agentMap={agentMap} />
 
           {/* Children tree */}
           {ORG.children && ORG.children.length > 0 && (
@@ -220,7 +245,7 @@ export function OrgChart() {
                   {ORG.children.map(child => (
                     <div key={child.id} className="flex flex-col items-center">
                       <div className="w-px h-10 bg-[#2a2a2a]" />
-                      <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                      <NodeCard node={child} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} agentMap={agentMap} />
 
                       {child.children && child.children.length > 0 && (
                         <div className="flex flex-col items-center">
@@ -238,7 +263,7 @@ export function OrgChart() {
                               {child.children.map(gc => (
                                 <div key={gc.id} className="flex flex-col items-center">
                                   <div className="w-px h-10 bg-[#2a2a2a]" />
-                                  <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} />
+                                  <NodeCard node={gc} sessions={sessions} activeTasks={activeTasks} onOpen={(id, name) => setOpenAgent({ id, name })} agentMap={agentMap} />
                                 </div>
                               ))}
                             </div>
