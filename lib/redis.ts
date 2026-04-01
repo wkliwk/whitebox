@@ -65,20 +65,42 @@ export async function getAllHeartbeats(): Promise<Heartbeat[]> {
 
 const LOOP_EVENTS_KEY = "whitebox:loop-events";
 
-export async function getLoopEvents(limit = 30): Promise<LogEntry[]> {
-  const redis = getRedis();
-  if (!redis) return [];
+function parseLoopEvent(item: unknown): LogEntry {
   try {
-    const raw: string[] = await redis.lrange(LOOP_EVENTS_KEY, 0, limit - 1);
-    return raw.map(item => {
-      try {
-        const parsed = typeof item === "string" ? JSON.parse(item) : item;
-        return parsed as LogEntry;
-      } catch {
-        return { timestamp: "", product: "", action: String(item), level: "debug" as const };
-      }
-    });
+    const parsed = typeof item === "string" ? JSON.parse(item) : item;
+    return parsed as LogEntry;
   } catch {
-    return [];
+    return { timestamp: "", product: "", action: String(item), level: "debug" as const };
+  }
+}
+
+export interface LoopEventsResult {
+  events: LogEntry[];
+  total: number;
+  totalErrors: number;
+  offset: number;
+  limit: number;
+}
+
+export async function getLoopEvents(limit = 50, offset = 0): Promise<LoopEventsResult> {
+  const redis = getRedis();
+  if (!redis) return { events: [], total: 0, totalErrors: 0, offset, limit };
+  try {
+    const [page, allRaw, totalRaw] = await Promise.all([
+      redis.lrange(LOOP_EVENTS_KEY, offset, offset + limit - 1) as Promise<string[]>,
+      redis.lrange(LOOP_EVENTS_KEY, 0, 199) as Promise<string[]>,
+      redis.llen(LOOP_EVENTS_KEY) as Promise<number>,
+    ]);
+    const all = allRaw.map(parseLoopEvent);
+    const totalErrors = all.filter(e => e.level === "error").length;
+    return {
+      events: page.map(parseLoopEvent),
+      total: totalRaw,
+      totalErrors,
+      offset,
+      limit,
+    };
+  } catch {
+    return { events: [], total: 0, totalErrors: 0, offset, limit };
   }
 }

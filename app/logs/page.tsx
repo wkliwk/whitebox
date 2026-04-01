@@ -20,10 +20,11 @@ export default async function LogsPage({
 }) {
   const { q: initialQuery } = await searchParams;
 
-  const [decisions, loopLog] = await Promise.all([
+  const [decisions, loopLogResult] = await Promise.all([
     getDecisions(50),
-    getLoopLog(30),
+    getLoopLog(50),
   ]);
+  const { entries: loopEntries, total: loopTotal, totalErrors: loopErrors } = loopLogResult;
 
   const activityEvents = decisions.slice(0, 20).map(d => ({
     agent: d.project,
@@ -54,7 +55,7 @@ export default async function LogsPage({
           <ActivityFeed events={activityEvents} />
 
           {/* Loop Log */}
-          <LoopLog entries={loopLog} />
+          <LoopLog entries={loopEntries} total={loopTotal} totalErrors={loopErrors} />
 
           {/* Decision Log with client-side filter */}
           <Suspense fallback={<div className="text-xs text-[#555] py-4">Loading…</div>}>
