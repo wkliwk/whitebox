@@ -7,7 +7,7 @@ const os = require("os") as typeof import("os");
 import { NextResponse } from "next/server";
 // Dynamic import to avoid TDZ issues with webpack externalization
 import { getProductRepos } from "@/lib/local";
-import { getAllHeartbeats, getSessionHistory } from "@/lib/redis";
+import { getAllHeartbeats, getSessionHistory, getCostHistory } from "@/lib/redis";
 import { withCache } from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
@@ -325,7 +325,9 @@ export async function GET() {
       }
 
       // Always merge Redis heartbeats — they carry agent type info that ps aux lacks
-      const [heartbeats, history] = await Promise.all([getAllHeartbeats(), getSessionHistory()]);
+      const today = new Date().toISOString().slice(0, 10);
+      const [heartbeats, history, costHistory] = await Promise.all([getAllHeartbeats(), getSessionHistory(), getCostHistory()]);
+      const todaySpend = costHistory.find(s => s.date === today)?.totalSpend ?? null;
       const seenAgentTypes = new Set(activeTasks.map(t => t.agentType).filter(Boolean));
       for (const hb of heartbeats) {
         // Skip if we already have a local task file for this agent type
@@ -347,7 +349,7 @@ export async function GET() {
         activeTasks = await fetchGitHubActiveTasks();
       }
 
-      return { sessions, activeTasks, history, updatedAt: new Date().toISOString() };
+      return { sessions, activeTasks, history, todaySpend, updatedAt: new Date().toISOString() };
     });
 
     return NextResponse.json(data);

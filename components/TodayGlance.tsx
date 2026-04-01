@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { formatSpend } from "@/lib/costs";
 import type { SessionHistoryRecord } from "@/lib/redis";
 import type { RecentTask } from "@/lib/github";
 
@@ -20,6 +21,7 @@ interface Props {
 
 export function TodayGlance({ doneTasks }: Props) {
   const [history, setHistory] = useState<SessionHistoryRecord[]>([]);
+  const [todaySpend, setTodaySpend] = useState<number | null>(null);
   const pollingActive = useRef(true);
 
   useEffect(() => {
@@ -31,6 +33,7 @@ export function TodayGlance({ doneTasks }: Props) {
         if (res.ok) {
           const data = await res.json();
           setHistory((data.history ?? []) as SessionHistoryRecord[]);
+          setTodaySpend(data.todaySpend ?? null);
         }
       } catch { /* silent */ }
     };
@@ -63,6 +66,8 @@ export function TodayGlance({ doneTasks }: Props) {
       {stat(formatActiveTime(activeMsTotal), "active")}
       <div className="w-px h-3 bg-[#2a2a2a]" />
       {stat(issuesClosedToday || "—", issuesClosedToday === 1 ? "issue closed" : "issues closed")}
+      <div className="w-px h-3 bg-[#2a2a2a]" />
+      {stat(todaySpend !== null ? formatSpend(todaySpend) : "—", "spent today")}
     </div>
   );
 }
