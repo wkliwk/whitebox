@@ -47,6 +47,8 @@ export interface ActiveTaskFile {
   ageMinutes: number;
   /** True when last update was >10 minutes ago — agent may have stalled */
   isStale: boolean;
+  issueNumber?: number;
+  issueRepo?: string;
 }
 
 const STALE_THRESHOLD_MS = 10 * 60 * 1000; // 10 minutes
@@ -87,6 +89,8 @@ interface TaskEntry {
   project: string;
   projectPath: string;
   updatedAt: string;
+  issueNumber?: number;
+  issueRepo?: string;
 }
 
 function buildTaskMaps(): {
@@ -131,7 +135,12 @@ function buildTaskMaps(): {
       const explicitAgentType = lines[2] ?? null;
       const agentType = explicitAgentType || inferAgentType(label);
 
-      const entry: TaskEntry = { label, agentType, project, projectPath, updatedAt };
+      // line 4 = issue number, line 5 = issue repo (optional)
+      const rawIssueNum = lines[3] ?? "";
+      const issueNumber = rawIssueNum ? (parseInt(rawIssueNum.replace(/^#/, "")) || undefined) : undefined;
+      const issueRepo = lines[4] ?? undefined;
+
+      const entry: TaskEntry = { label, agentType, project, projectPath, updatedAt, issueNumber, issueRepo };
 
       // New format: line 2 is PID
       const pid = parseInt(lines[1] ?? "");
@@ -293,7 +302,7 @@ export async function GET() {
             titled = false;
           }
 
-          sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags });
+          sessions.push({ pid, cpu, mem, started, elapsed, sessionId, cwd, project, label, agentType, title, titled, flags, issueNumber: task?.issueNumber, issueRepo: task?.issueRepo });
         }
 
         sessions.sort((a, b) => b.cpu - a.cpu);
@@ -308,6 +317,8 @@ export async function GET() {
             updatedAt: e.updatedAt,
             ageMinutes: Math.round(e.ageMinutes),
             isStale: e.ageMinutes * 60 * 1000 > STALE_THRESHOLD_MS,
+            issueNumber: e.issueNumber,
+            issueRepo: e.issueRepo,
           }));
       } catch {
         // ps aux failed (expected on Vercel)
