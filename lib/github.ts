@@ -120,7 +120,7 @@ export async function getRecentTasks(): Promise<RecentTask[]> {
   const [openResults, closedResults] = await Promise.all([
     Promise.allSettled(
       repos.map(({ owner, name: repo }) =>
-        octokit.rest.issues.listForRepo({ owner, repo, state: "open", sort: "updated", per_page: 20, direction: "desc" })
+        octokit.rest.issues.listForRepo({ owner, repo, state: "open", sort: "updated", per_page: 10, direction: "desc" })
           .then(({ data }: { data: any[] }) => ({ repo, data }))
       )
     ),
@@ -155,5 +155,6 @@ export async function getRecentTasks(): Promise<RecentTask[]> {
   const sorted = (arr: RecentTask[]) =>
     arr.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
-  return [...sorted(openTasks), ...sorted(closedTasks)].slice(0, 30);
+  const cap = Math.max(repos.length * 10, 30);
+  return [...sorted(openTasks), ...sorted(closedTasks)].slice(0, cap);
 }
