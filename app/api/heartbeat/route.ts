@@ -48,6 +48,8 @@ export async function POST(req: Request) {
         startedAt,
         completedAt,
         durationMs,
+        issueNumber: issueNumber ?? undefined,
+        issueRepo: issueRepo ?? undefined,
       }),
     ]);
     return NextResponse.json({ ok, agentType, status });
