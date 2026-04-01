@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getAgentColor } from "@/lib/agents";
 import type { LogEntry } from "@/lib/local";
 
 const PAGE_SIZE = 50;
@@ -114,6 +115,16 @@ export function LoopLog({ entries: initialEntries, total: initialTotal, totalErr
                       {e.product}
                     </span>
                   )}
+                  {e.agent && e.agent !== "loop" && (() => {
+                    const ac = getAgentColor(e.agent);
+                    const al = e.agent.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+                    return (
+                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0"
+                        style={{ background: ac + "22", color: ac }}>
+                        {al}
+                      </span>
+                    );
+                  })()}
                   <span className="text-xs leading-relaxed" style={{ color: s.text }}>{e.action}</span>
                 </div>
               );
