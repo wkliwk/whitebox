@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAgentColor } from "@/lib/agents";
 import type { LogEntry } from "@/lib/local";
 
@@ -32,6 +32,11 @@ export function LoopLog({ entries: initialEntries, total: initialTotal, totalErr
   const [loading, setLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isProduction, setIsProduction] = useState(false);
+  const [secondsSince, setSecondsSince] = useState(0);
+  const lastFetchedAt = useRef<number>(0);
+  const pollingActive = useRef(true);
+  const offsetRef = useRef(offset);
+  offsetRef.current = offset;
 
   useEffect(() => {
     setIsClient(true);
@@ -47,9 +52,43 @@ export function LoopLog({ entries: initialEntries, total: initialTotal, totalErr
       setTotal(data.total ?? 0);
       setTotalErrors(data.totalErrors ?? 0);
       setOffset(newOffset);
+      lastFetchedAt.current = Date.now();
+      setSecondsSince(0);
     } catch { /* retain current page */ }
     setLoading(false);
   }
+
+  // Auto-poll every 20s on page 0 when tab is visible (production only)
+  useEffect(() => {
+    if (!isProduction) return;
+    pollingActive.current = true;
+
+    const poll = () => {
+      if (pollingActive.current && offsetRef.current === 0) fetchPage(0);
+    };
+    const intervalId = setInterval(poll, 20000);
+
+    const onVisibility = () => {
+      if (document.hidden) { pollingActive.current = false; }
+      else { pollingActive.current = true; if (offsetRef.current === 0) fetchPage(0); }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      pollingActive.current = false;
+      clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isProduction]);
+
+  // "Updated Xs ago" tick
+  useEffect(() => {
+    const tickId = setInterval(() => {
+      if (lastFetchedAt.current > 0) setSecondsSince(Math.floor((Date.now() - lastFetchedAt.current) / 1000));
+    }, 1000);
+    return () => clearInterval(tickId);
+  }, []);
 
   // For local dev, slice the server-provided flat array; for production, use fetched page
   const visibleEntries = (!isClient || !isProduction)
@@ -90,6 +129,11 @@ export function LoopLog({ entries: initialEntries, total: initialTotal, totalErr
           {effectiveTotal > PAGE_SIZE && (
             <span className="text-[10px] text-[#555]">
               {start}–{end} of {effectiveTotal}
+            </span>
+          )}
+          {isProduction && lastFetchedAt.current > 0 && (
+            <span className="text-[10px] text-[#444]">
+              {secondsSince < 5 ? "just now" : `${secondsSince}s ago`}
             </span>
           )}
         </div>
