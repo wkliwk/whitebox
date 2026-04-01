@@ -10,6 +10,7 @@ import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity, getC
 import { getRecentTasks } from "@/lib/github";
 import { AgentCostBreakdown } from "@/components/AgentCostBreakdown";
 import { SessionHistory } from "@/components/SessionHistory";
+import { TodayGlance } from "@/components/TodayGlance";
 import { formatSpend, budgetPct } from "@/lib/costs";
 
 export const revalidate = 30;
@@ -60,6 +61,9 @@ export default async function Page() {
 
           {/* Live Sessions */}
           <LiveSessions />
+
+          {/* Today at a glance */}
+          <TodayGlance doneTasks={tasks.filter(t => t.status === "done")} />
 
           {/* Session History */}
           <SessionHistory />
