@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { IssuesFilter } from "@/components/IssuesFilter";
+import { IssuesClient } from "@/components/IssuesClient";
 import { getProductRepos } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { PRODUCTS } from "@/lib/products";
@@ -112,9 +112,9 @@ export default async function IssuesPage({
             ))}
           </div>
 
-          {/* Filtered task list with client-side search */}
+          {/* Filtered task list with live polling + client-side search */}
           <Suspense fallback={<div className="text-xs text-[#555] py-4">Loading…</div>}>
-            <IssuesFilter tasks={repoFiltered} initialQuery={initialQuery ?? ""} />
+            <IssuesClient initialTasks={tasks} initialQuery={initialQuery ?? ""} activeRepo={activeRepo} />
           </Suspense>
         </div>
       </main>
