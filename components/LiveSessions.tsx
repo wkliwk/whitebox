@@ -120,6 +120,16 @@ export function LiveSessions() {
                   {s.project && (
                     <span className="text-[10px] text-[#777]">{s.project}</span>
                   )}
+                  {s.issueNumber && s.issueRepo && (
+                    <a
+                      href={`https://github.com/${s.issueRepo}/issues/${s.issueNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-[#777] bg-[#1a1a1a] px-1 py-0.5 rounded hover:text-[#aaa] transition-colors"
+                    >
+                      #{s.issueNumber}
+                    </a>
+                  )}
                   {s.flags.map(f => (
                     <span key={f} className="text-[10px] text-[#777] bg-[#1a1a1a] px-1 py-0.5 rounded">{f}</span>
                   ))}
@@ -148,9 +158,21 @@ export function LiveSessions() {
                     Stale · {t.ageMinutes}m ago
                   </span>
                 </div>
-                {t.project && (
-                  <span className="text-[10px] text-[#555]">{t.project}</span>
-                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                  {t.project && (
+                    <span className="text-[10px] text-[#555]">{t.project}</span>
+                  )}
+                  {t.issueNumber && t.issueRepo && (
+                    <a
+                      href={`https://github.com/${t.issueRepo}/issues/${t.issueNumber}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-[#555] bg-[#1a1a1a] px-1 py-0.5 rounded hover:text-[#888] transition-colors"
+                    >
+                      #{t.issueNumber}
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ))}
