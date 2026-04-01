@@ -178,3 +178,35 @@ export async function getSessionHistory(): Promise<SessionHistoryRecord[]> {
     }).filter((r): r is SessionHistoryRecord => r !== null);
   } catch { return []; }
 }
+
+// ─── Cost History ─────────────────────────────────────────────────────────────
+
+const COST_HISTORY_KEY = "whitebox:cost-history";
+const COST_HISTORY_CAP = 14; // 2 weeks of daily snapshots
+
+export interface DailyCostSnapshot {
+  date: string; // "YYYY-MM-DD"
+  totalSpend: number;
+  byAgent: Record<string, number>;
+}
+
+export async function pushCostSnapshot(snapshot: DailyCostSnapshot): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  try {
+    await redis.lpush(COST_HISTORY_KEY, JSON.stringify(snapshot));
+    await redis.ltrim(COST_HISTORY_KEY, 0, COST_HISTORY_CAP - 1);
+  } catch { /* silent */ }
+}
+
+export async function getCostHistory(): Promise<DailyCostSnapshot[]> {
+  const redis = getRedis();
+  if (!redis) return [];
+  try {
+    const raw: string[] = await redis.lrange(COST_HISTORY_KEY, 0, COST_HISTORY_CAP - 1);
+    return raw.map(item => {
+      try { return JSON.parse(item) as DailyCostSnapshot; }
+      catch { return null; }
+    }).filter((r): r is DailyCostSnapshot => r !== null);
+  } catch { return []; }
+}
