@@ -6,6 +6,7 @@ import { QuotaCard } from "@/components/QuotaCard";
 import { LiveSessions } from "@/components/LiveSessions";
 import { RefreshIndicator } from "@/components/RefreshIndicator";
 import { CostChart } from "@/components/CostChart";
+import { DevServers } from "@/components/DevServers";
 import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 
@@ -80,6 +81,9 @@ export default async function Page() {
               subtitle={`${tasks.filter(t => t.status === "in-progress").length} in progress`}
             />
           </div>
+
+          {/* Dev Servers */}
+          <DevServers />
 
           {/* Activity Chart */}
           {dailyActivity.filter(d => d.count > 0).length >= 2 && (
