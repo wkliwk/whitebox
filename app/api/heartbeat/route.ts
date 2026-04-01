@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { writeHeartbeat, removeHeartbeat, getAllHeartbeats, setAgentLastTask, pushSessionHistory, type Heartbeat } from "@/lib/redis";
+import { writeDailyCostSnapshot } from "@/lib/costs";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,8 @@ export async function POST(req: Request) {
         issueRepo: issueRepo ?? undefined,
       }),
     ]);
+    // Fire-and-forget — snapshot the current costs.json into Redis history
+    writeDailyCostSnapshot();
     return NextResponse.json({ ok, agentType, status });
   }
 
