@@ -1,5 +1,6 @@
 import { ArrowUp, Minus } from "lucide-react";
 import { relativeTime } from "@/lib/utils";
+import { getAgentColor } from "@/lib/agents";
 import type { RecentTask } from "@/lib/github";
 
 const repoColors: Record<string, string> = {
@@ -50,11 +51,16 @@ export function TaskList({ tasks }: { tasks: RecentTask[] }) {
                   style={{ background: color + "22", color }}>
                   {t.repo}
                 </span>
-                {t.agent && (
-                  <span className="text-[10px] text-[#888] bg-[#1e1e1e] px-1.5 py-0.5 rounded flex-shrink-0">
-                    {t.agent.toUpperCase().slice(0, 2)}
-                  </span>
-                )}
+                {t.agent && (() => {
+                  const agentColor = getAgentColor(t.agent);
+                  const agentLabel = t.agent.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+                  return (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0 font-medium"
+                      style={{ background: agentColor + "22", color: agentColor }}>
+                      {agentLabel}
+                    </span>
+                  );
+                })()}
                 <span className="text-[10px] text-[#888] flex-shrink-0 w-12 text-right">{relativeTime(t.updatedAt)}</span>
               </a>
             );
