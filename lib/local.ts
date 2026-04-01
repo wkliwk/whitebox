@@ -110,6 +110,7 @@ export interface LogEntry {
   product: string;
   action: string;
   level: "info" | "warn" | "error" | "debug";
+  agent?: string;
 }
 
 function classifyLevel(action: string): LogEntry["level"] {
