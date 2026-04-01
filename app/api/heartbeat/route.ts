@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeHeartbeat, removeHeartbeat, getAllHeartbeats, setAgentLastTask, type Heartbeat } from "@/lib/redis";
+import { writeHeartbeat, removeHeartbeat, getAllHeartbeats, setAgentLastTask, pushSessionHistory, type Heartbeat } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +14,14 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { agentType, status, task, project, issueNumber, issueRepo } = body as {
+  const { agentType, status, task, project, issueNumber, issueRepo, startedAt: bodyStartedAt } = body as {
     agentType?: string;
     status?: string;
     task?: string;
     project?: string;
     issueNumber?: number;
     issueRepo?: string;
+    startedAt?: string;
   };
 
   if (!agentType || !status) {
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
   }
 
   if (status === "completed") {
+    const completedAt = new Date().toISOString();
+    const startedAt = bodyStartedAt ?? completedAt;
+    const durationMs = new Date(completedAt).getTime() - new Date(startedAt).getTime();
     const [ok] = await Promise.all([
       removeHeartbeat(agentType),
       setAgentLastTask(agentType, {
@@ -35,7 +39,15 @@ export async function POST(req: Request) {
         project: project ?? "",
         issueNumber: issueNumber ?? undefined,
         issueRepo: issueRepo ?? undefined,
-        completedAt: new Date().toISOString(),
+        completedAt,
+      }),
+      pushSessionHistory({
+        agentType,
+        task: task ?? "",
+        project: project ?? "",
+        startedAt,
+        completedAt,
+        durationMs,
       }),
     ]);
     return NextResponse.json({ ok, agentType, status });
