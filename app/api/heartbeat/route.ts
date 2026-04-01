@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { agentType, status, task, project, issueNumber, issueRepo, startedAt: bodyStartedAt } = body as {
+  const { agentType, status, task, project, issueNumber, issueRepo, startedAt: bodyStartedAt, inputTokens, outputTokens, costUsd } = body as {
     agentType?: string;
     status?: string;
     task?: string;
@@ -23,6 +23,9 @@ export async function POST(req: Request) {
     issueNumber?: number;
     issueRepo?: string;
     startedAt?: string;
+    inputTokens?: number;
+    outputTokens?: number;
+    costUsd?: number;
   };
 
   if (!agentType || !status) {
@@ -51,6 +54,9 @@ export async function POST(req: Request) {
         durationMs,
         issueNumber: issueNumber ?? undefined,
         issueRepo: issueRepo ?? undefined,
+        inputTokens: inputTokens ?? undefined,
+        outputTokens: outputTokens ?? undefined,
+        costUsd: costUsd ?? undefined,
       }),
     ]);
     // Fire-and-forget — snapshot the current costs.json into Redis history
