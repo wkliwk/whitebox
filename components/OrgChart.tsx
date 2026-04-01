@@ -94,14 +94,15 @@ interface NodeCardProps {
 }
 
 function NodeCard({ node, sessions, activeTasks, onOpen, agentMap }: NodeCardProps) {
+  const isVirtual = node.id.startsWith("__");
   const color = getAgentColor(node.id);
   const { live, label } = isLive(node.id, sessions, activeTasks);
   const lastTask = agentMap.get(node.id)?.lastTask;
 
   return (
     <button
-      onClick={() => onOpen(node.id, node.name)}
-      className="flex flex-col items-center gap-2 group focus:outline-none"
+      onClick={isVirtual ? undefined : () => onOpen(node.id, node.name)}
+      className={`flex flex-col items-center gap-2 group focus:outline-none${isVirtual ? " cursor-default" : ""}`}
     >
       {/* Avatar */}
       <div className="relative">
