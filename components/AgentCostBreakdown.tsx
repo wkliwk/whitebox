@@ -1,12 +1,53 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getAgentColor } from "@/lib/agents";
 import { formatCents } from "@/lib/utils";
 import type { CostReport } from "@/lib/costs";
+import type { DailyCostSnapshot } from "@/lib/redis";
 
 interface Props {
   report: CostReport | null;
 }
 
+/** Inline div-based sparkline — no chart lib dependency */
+function Sparkline({ values, color }: { values: number[]; color: string }) {
+  const max = Math.max(...values, 1);
+  return (
+    <div className="flex items-end gap-px" style={{ width: 48, height: 16 }}>
+      {values.map((v, i) => (
+        <div
+          key={i}
+          className="flex-1 rounded-sm"
+          style={{
+            height: `${Math.max(2, Math.round((v / max) * 16))}px`,
+            background: v > 0 ? color : "#2a2a2a",
+            opacity: v > 0 ? 0.7 : 0.3,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function AgentCostBreakdown({ report }: Props) {
+  const [history, setHistory] = useState<DailyCostSnapshot[]>([]);
+
+  useEffect(() => {
+    fetch("/api/costs/history", { cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.history) setHistory(d.history); })
+      .catch(() => {});
+  }, []);
+
+  // Build last-7-days date strings (newest first → oldest last for display)
+  const last7: string[] = [];
+  for (let i = 6; i >= 0; i--) {
+    last7.push(new Date(Date.now() - i * 86400000).toISOString().slice(0, 10));
+  }
+  const historyMap = new Map(history.map(s => [s.date, s]));
+  const hasSparklines = history.length >= 2;
+
   const header = (
     <div className="text-[10px] uppercase tracking-widest text-[#888] font-medium mb-3">
       Agent Cost Breakdown
@@ -35,6 +76,7 @@ export function AgentCostBreakdown({ report }: Props) {
         {entries.map(({ agent, cents }) => {
           const pct = total > 0 ? Math.round((cents / total) * 100) : 0;
           const color = getAgentColor(agent);
+          const sparkValues = last7.map(d => historyMap.get(d)?.byAgent[agent] ?? 0);
           return (
             <div key={agent}>
               <div className="flex items-center justify-between text-xs mb-1">
@@ -42,7 +84,10 @@ export function AgentCostBreakdown({ report }: Props) {
                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
                   <span className="text-[#ccc] capitalize">{agent}</span>
                 </div>
-                <div className="flex items-center gap-2 text-[#888]">
+                <div className="flex items-center gap-3 text-[#888]">
+                  {hasSparklines && (
+                    <Sparkline values={sparkValues} color={color} />
+                  )}
                   <span>{formatCents(cents)}</span>
                   <span className="text-[#555] w-7 text-right">{pct}%</span>
                 </div>
