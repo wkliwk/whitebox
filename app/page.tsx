@@ -1,4 +1,4 @@
-import { Bot, CheckSquare, Activity } from "lucide-react";
+import { Bot, CheckSquare, Activity, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { MetricCard } from "@/components/MetricCard";
@@ -9,6 +9,7 @@ import { CostChart } from "@/components/CostChart";
 import { getDecisions, getAgentActivity, getProductRepos, getDailyActivity, getCostReport } from "@/lib/local";
 import { getRecentTasks } from "@/lib/github";
 import { AgentCostBreakdown } from "@/components/AgentCostBreakdown";
+import { formatSpend, budgetPct } from "@/lib/costs";
 
 export const revalidate = 30;
 
@@ -60,7 +61,7 @@ export default async function Page() {
           <LiveSessions />
 
           {/* Metric Cards */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 xl:grid-cols-5 gap-3">
             <QuotaCard />
             <MetricCard
               icon={Bot}
@@ -80,6 +81,12 @@ export default async function Page() {
               label="Open Tasks"
               value={tasks.filter(t => t.status === "todo").length}
               subtitle={`${tasks.filter(t => t.status === "in-progress").length} in progress`}
+            />
+            <MetricCard
+              icon={DollarSign}
+              label={costReport ? `Spend ${costReport.month}` : "Monthly Spend"}
+              value={costReport ? formatSpend(costReport.mtdSpend) : "--"}
+              subtitle={costReport ? `${budgetPct(costReport)}% of ${formatSpend(costReport.budget)} budget` : "costs.json not found"}
             />
           </div>
 
