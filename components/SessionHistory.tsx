@@ -113,6 +113,16 @@ export function SessionHistory() {
                             <span className="text-[10px] text-[#555] font-mono">{r.project}</span>
                           </>
                         )}
+                        {r.issueNumber && r.issueRepo && (
+                          <a
+                            href={`https://github.com/${r.issueRepo}/issues/${r.issueNumber}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-[#777] bg-[#1a1a1a] px-1 py-0.5 rounded hover:text-[#aaa] transition-colors"
+                          >
+                            #{r.issueNumber}
+                          </a>
+                        )}
                         <span className="text-[10px] text-[#444]">·</span>
                         <span className="text-[10px] text-[#444]">{relativeTime(r.completedAt)}</span>
                       </div>

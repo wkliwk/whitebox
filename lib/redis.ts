@@ -156,6 +156,8 @@ export interface SessionHistoryRecord {
   startedAt: string;
   completedAt: string;
   durationMs: number;
+  issueNumber?: number;
+  issueRepo?: string;
 }
 
 export async function pushSessionHistory(record: SessionHistoryRecord): Promise<void> {
