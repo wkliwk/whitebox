@@ -3,17 +3,9 @@ const fs = require("fs") as typeof import("fs");
 const path = require("path") as typeof import("path");
 const os = require("os") as typeof import("os");
 import { NextResponse } from "next/server";
+import type { AgentDef } from "@/lib/agents";
 
 export const dynamic = "force-dynamic";
-
-export interface AgentDef {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  color: string;
-  githubLabel: string;
-}
 
 const KNOWN_COLORS: Record<string, string> = {
   ceo: "#8b5cf6", pm: "#3b82f6", "frontend-dev": "#06b6d4", "backend-dev": "#0ea5e9",
@@ -51,5 +43,16 @@ function loadAgents(): AgentDef[] {
 }
 
 export async function GET() {
-  return NextResponse.json({ agents: loadAgents() });
+  const agents = loadAgents();
+  // Merge last-task data from Redis (production only — Redis not available in local dev without env vars)
+  try {
+    const { getAgentLastTasks } = await import("@/lib/redis");
+    const lastTasks = await getAgentLastTasks();
+    if (Object.keys(lastTasks).length > 0) {
+      for (const agent of agents) {
+        if (lastTasks[agent.id]) agent.lastTask = lastTasks[agent.id];
+      }
+    }
+  } catch { /* no Redis — return without lastTask */ }
+  return NextResponse.json({ agents });
 }

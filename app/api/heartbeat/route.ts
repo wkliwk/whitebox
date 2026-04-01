@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { writeHeartbeat, removeHeartbeat, getAllHeartbeats, type Heartbeat } from "@/lib/redis";
+import { writeHeartbeat, removeHeartbeat, getAllHeartbeats, setAgentLastTask, type Heartbeat } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +14,13 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { agentType, status, task, project } = body as {
+  const { agentType, status, task, project, issueNumber, issueRepo } = body as {
     agentType?: string;
     status?: string;
     task?: string;
     project?: string;
+    issueNumber?: number;
+    issueRepo?: string;
   };
 
   if (!agentType || !status) {
@@ -26,7 +28,16 @@ export async function POST(req: Request) {
   }
 
   if (status === "completed") {
-    const ok = await removeHeartbeat(agentType);
+    const [ok] = await Promise.all([
+      removeHeartbeat(agentType),
+      setAgentLastTask(agentType, {
+        task: task ?? "",
+        project: project ?? "",
+        issueNumber: issueNumber ?? undefined,
+        issueRepo: issueRepo ?? undefined,
+        completedAt: new Date().toISOString(),
+      }),
+    ]);
     return NextResponse.json({ ok, agentType, status });
   }
 

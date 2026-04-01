@@ -15,6 +15,45 @@ export function getRedis(): any | null {
   return _redis;
 }
 
+// ─── Last Task ───────────────────────────────────────────────────────────────
+
+export interface LastTask {
+  task: string;
+  project: string;
+  issueNumber?: number;
+  issueRepo?: string;
+  completedAt: string;
+}
+
+const LAST_TASK_PREFIX = "agent:last-task:";
+const LAST_TASK_TTL = 86400; // 24h
+
+export async function setAgentLastTask(agentType: string, record: LastTask): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  try {
+    await redis.set(`${LAST_TASK_PREFIX}${agentType}`, JSON.stringify(record), { ex: LAST_TASK_TTL });
+  } catch { /* silent */ }
+}
+
+export async function getAgentLastTasks(): Promise<Record<string, LastTask>> {
+  const redis = getRedis();
+  if (!redis) return {};
+  try {
+    const keys: string[] = await redis.keys(`${LAST_TASK_PREFIX}*`);
+    if (!keys.length) return {};
+    const values: (string | null)[] = await redis.mget(...keys);
+    const result: Record<string, LastTask> = {};
+    keys.forEach((key, i) => {
+      const val = values[i];
+      if (!val) return;
+      const agentType = key.replace(LAST_TASK_PREFIX, "");
+      try { result[agentType] = JSON.parse(val) as LastTask; } catch { /* skip malformed */ }
+    });
+    return result;
+  } catch { return {}; }
+}
+
 // ─── Heartbeat Types ────────────────────────────────────────────────────────
 
 export interface Heartbeat {
