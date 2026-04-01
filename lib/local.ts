@@ -120,16 +120,23 @@ function classifyLevel(action: string): LogEntry["level"] {
   return "info";
 }
 
-export async function getLoopLog(limit = 30): Promise<LogEntry[]> {
+export interface LoopLogResult {
+  entries: LogEntry[];
+  total: number;
+  totalErrors: number;
+}
+
+export async function getLoopLog(limit = 50): Promise<LoopLogResult> {
   // In production, read from Redis (pushed by local machine via push-loop-event.sh)
   if (process.env.NODE_ENV === "production") {
     const { getLoopEvents } = await import("./redis");
-    return getLoopEvents(limit);
+    const result = await getLoopEvents(limit, 0);
+    return { entries: result.events, total: result.total, totalErrors: result.totalErrors };
   }
   // Local dev: read file directly
   const raw = readFile(path.join(HOME, "Dev/whitebox/history/loop-log.txt"));
-  if (!raw) return [];
-  return raw
+  if (!raw) return { entries: [], total: 0, totalErrors: 0 };
+  const parsed = raw
     .trim()
     .split("\n")
     .filter(Boolean)
@@ -150,6 +157,7 @@ export async function getLoopLog(limit = 30): Promise<LogEntry[]> {
     })
     .slice(-limit)
     .reverse();
+  return { entries: parsed, total: parsed.length, totalErrors: parsed.filter((e: LogEntry) => e.level === "error").length };
 }
 
 // ─── Daily Activity (last 7 days, from decisions.jsonl) ──────────────────────
