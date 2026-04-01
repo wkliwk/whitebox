@@ -133,11 +133,14 @@ export function SessionHistory() {
                       )}
                     </div>
 
-                    {r.durationMs > 0 && (
-                      <div className="flex-shrink-0 text-[10px] text-[#444] font-mono mt-0.5">
-                        {formatDuration(r.durationMs)}
-                      </div>
-                    )}
+                    <div className="flex-shrink-0 flex items-center gap-1.5 mt-0.5">
+                      {r.durationMs > 0 && (
+                        <span className="text-[10px] text-[#444] font-mono">{formatDuration(r.durationMs)}</span>
+                      )}
+                      {r.costUsd !== undefined && r.costUsd > 0 && (
+                        <span className="text-[10px] text-[#555] font-mono">${r.costUsd.toFixed(2)}</span>
+                      )}
+                    </div>
                   </div>
                 );
               })}
