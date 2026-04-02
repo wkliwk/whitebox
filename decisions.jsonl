@@ -1,4 +1,3 @@
-{"date":"2026-04-01","project":"whitebox","summary":"#98 Global search/filter: IssuesFilter and DecisionFilter client components with real-time filtering, ?q= URL sync, / keyboard shortcut, and clear button. Issues page filters by title; Logs page filters decisions by summary+project."}
 {"date":"2026-04-01","project":"whitebox","summary":"#117 Live Sessions auto-refresh: 15s poll, green pulse dot, Updated Xs ago counter, error badge with stale data retention, tab blur pause/resume."}
 {"date":"2026-04-01","project":"whitebox","summary":"#119 Loop log pagination: 50/page with Older/Newer buttons, Redis cap 200, API offset+limit params, totalErrors across all pages in error badge."}
 {"date":"2026-04-01","project":"whitebox","summary":"#120 Agent last-task cards: Redis agent:last-task:<type> key (24h TTL) written on completed heartbeat, merged into /api/agents, shown on Teams page NodeCard with task label, relative time, and issue chip."}
@@ -48,3 +47,4 @@
 {"date":"2026-04-02","project":"FormPilot","prompt":"Issues #295 and #296 — JWT secret fallback and falsy merge bug","summary":"Removed dev-secret fallback from all 3 JWT routes (fail closed with 500); fixed deepMergeOnlyBlanks to not overwrite 0/false values"}
 {"date":"2026-04-02","project":"FormPilot","prompt":"Issue #202 — multi-language field guidance banner and i18n","summary":"Added language preference one-time banner in FormPageClient + confidence/banner i18n strings in i18n.ts for all 12 supported languages"}
 {"date":"2026-04-02","project":"FormPilot","prompt":"Issue #297 — DB-backed rate limiter","summary":"Replaced in-memory Map rate limiter with RateLimit Prisma model; serverless-safe across cold starts and multiple instances"}
+{"date":"2026-04-02","project":"FormPilot","prompt":"#302 resume toast on form load","summary":"Added 2s auto-dismiss toast when saved draft values exist on form page load"}
