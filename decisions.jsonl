@@ -1,4 +1,3 @@
-{"date":"2026-03-30","project":"whitebox","summary":"#102 Redis bridge: local machine pushes loop events via push-loop-event.sh, production Whitebox reads from /api/loop-events (Upstash). Hooks in settings.json auto-push session start/end."}
 {"date":"2026-03-30","project":"FormPilot","prompt":"#180 confetti burst on successful form export","summary":"Added canvas-confetti dynamic import in doExport() success path with prefers-reduced-motion guard"}
 {"date":"2026-03-30","project":"FormPilot","prompt":"#181 /changelog page driven by CHANGELOG.md","summary":"Added remark-based changelog page, CHANGELOG.md with v1.0 entry, footer and dashboard nav links"}
 {"date":"2026-03-30","project":"FormPilot","prompt":"#187 save & resume fill sessions","summary":"Added 30-day session expiry cron, resume banner in FormViewer; core auto-save was already implemented"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-02","project":"gym-form-coach","summary":"Issue #24 done: Sentry crash reporting + analytics breadcrumbs (trackSessionStart/End, trackExerciseSelected). PR #27."}
 {"date":"2026-04-02","project":"gym-form-coach","summary":"Issue #25 done: Upgraded to react-native-vision-camera. 100ms interval with skip-if-busy pattern. Target 10-15fps (was 5fps). Requires dev client build. PR #28."}
 {"date":"2026-04-02","project":"FormPilot","prompt":"Referral program — free users earn +1 form per referral (up to 5 bonus forms)","summary":"Added referral code generation, bonus quota tracking, fp_ref cookie flow, ReferralTracker on landing, ReferralCard on dashboard"}
+{"date":"2026-04-02","project":"FormPilot","prompt":"Word (.docx) export — Pro-only structured output for all form types","summary":"Added docx export via docx npm package; Pro-gated API; ExportPreviewModal format selection properly threaded through FormViewer"}
