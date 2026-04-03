@@ -1,4 +1,3 @@
-{"date":"2026-04-01","project":"whitebox","prompt":"Auto cost snapshot on heartbeat completion (#140)","summary":"writeDailyCostSnapshot() in lib/costs.ts reads costs.json and pushes to Redis; called fire-and-forget from heartbeat completed branch"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Colored agent pill on issue rows (#139)","summary":"Replace 2-char uppercase badge in TaskList with full agent name + getAgentColor colored pill"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Agent label badge in loop log events (#138)","summary":"Add agent? to LogEntry, colored pill in LoopLog when agent is not generic loop, update log-loop-event.sh for optional agent arg"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Today at a glance summary bar (#137)","summary":"TodayGlance client component: sessions today + active time from Redis history, issues closed from doneTasks prop, shown between Live Sessions and Session History"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-03","project":"FormPilot","prompt":"issue #336 — progress ring on form cards and fill page","summary":"SVG ProgressRing component; 32px ring on dashboard form cards; 48px live-updating ring in FormViewer header"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"issue #338 — shareable form field guide","summary":"POST/DELETE /api/forms/[id]/share with nanoid token; public /share/[token] page with OG tags; ShareModal in FormViewer header"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"Fix: AI returns malformed JSON for complex forms","summary":"Added parse-level retry in analyzeFormFields with simplified prompt on JSON parse failure"}
+{"date":"2026-04-03","project":"FormPilot","prompt":"UX: client-side upload timeout","summary":"Added 75s AbortController timeout on upload fetch with friendly error message and retry path"}
