@@ -1,4 +1,3 @@
-{"date":"2026-04-01","project":"gym-form-coach","summary":"Issue #12 done: Navigation stack + exercise picker. React Navigation bottom tabs (Train/History) + native stack (Home→Session→Summary). Home screen with 3 exercise cards. Session accepts exerciseType param. PR #17."}
 {"date":"2026-04-01","project":"FormPilot","summary":"#243 Added Batch Fill nav link to DashboardNav — one-line fix, feature was fully built but unreachable"}
 {"date":"2026-04-01","project":"FormPilot","summary":"#244 Guided Fill Finish now triggers mark-as-complete + FormCompleteOverlay via onFinish prop"}
 {"date":"2026-04-01","project":"FormPilot","summary":"#247 Dashboard empty state: new /api/forms/sample endpoint + DashboardEmptyState component, no quota increment"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-03","project":"FormPilot","prompt":"Upgrade nudge at export for free-tier users at limit (#350)","summary":"Added isAtFreeLimit prop chain from page → FormPageClient → FormViewer; handleExport shows upgrade modal instead of export flow when !isPro && isAtFreeLimit; modal has billing CTA and dismiss link"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"Stalled-form 48h re-engagement email (#351)","summary":"Form.stalledEmailSentAt field; daily cron finds 48-72h old forms with all-empty fields; sends targeted nudge with autofill CTA and optional profile CTA when completeness < 50%"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"Inline rename form title from dashboard card (#352)","summary":"Pencil icon on card hover; click → input with autoFocus; Enter/blur saves via PATCH; Escape cancels; optimistic update with rollback"}
+{"date":"2026-04-03","project":"FormPilot","prompt":"autofill confidence summary banner","summary":"Added dismissible banner above field list after autofill showing high/medium/low confidence counts with scroll-to CTA for low confidence fields"}
