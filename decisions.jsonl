@@ -1,4 +1,3 @@
-{"date":"2026-04-01","project":"whitebox","prompt":"Show linked GitHub issue badge in Live Sessions panel (#126)","summary":"Parse issueNumber/issueRepo from cc-task file lines 4/5, render clickable #N badge in live session and stale task rows"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Session history grouped by day (#127)","summary":"Remove today-only filter, group by Today/Yesterday/date, per-day count headers, expand truncation to 120 chars"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Show recently closed issues in Issues page (#128)","summary":"Parallel closed-issue fetch per repo, map to status done, append after open issues, raise cap to 30"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Fix issue fetch cap per-repo (#129)","summary":"Reduce open per_page 20→10, set global cap to repos.length*10 so all repos get fair representation in Issues list"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-02","project":"FormPilot","prompt":"#305 inline required-field validation","summary":"On-blur required check, export pre-flight banner, required-empty pill in header, consistent in GuidedFillMode"}
 {"date":"2026-04-02","project":"FormPilot","prompt":"#306 extension badge + detection toast","summary":"Blue dot badge when >=3 qualifying inputs, in-page toast once per domain/day, MutationObserver + SPA nav hooks, v1.1.0"}
 {"date":"2026-04-02","project":"FormPilot","prompt":"Email verification soft gate (#312)","summary":"Added verify-status, resend-verification, verify-email API routes + VerificationEmail template + EmailVerificationBanner client component on all dashboard pages"}
+{"date":"2026-04-03","project":"FormPilot","prompt":"issue #322 — interactive demo form selector","summary":"Updated demo page: badge+label tab selector, select field rendering, subtitle text, buildInitialValues handles select type"}
