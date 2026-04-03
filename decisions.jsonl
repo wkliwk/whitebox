@@ -1,4 +1,3 @@
-{"date":"2026-04-01","project":"whitebox","prompt":"Todays spend in TodayGlance + Loop Log auto-refresh (#148 #149)","summary":"todaySpend from getCostHistory in /api/sessions response; 4th stat in TodayGlance; 20s LoopLog poll on page 0 with visibility pause"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Live-refresh Issues page (#147)","summary":"New /api/issues route, IssuesClient component with 30s polling + visibility pause, replaces static IssuesFilter in page"}
 {"date":"2026-04-01","project":"whitebox","prompt":"Record token count and cost per session (#146)","summary":"Add inputTokens/outputTokens/costUsd to SessionHistoryRecord and heartbeat route; render cost badge in SessionHistory"}
 {"date":"2026-04-01","project":"gym-form-coach","summary":"Product launched: Expo/React Native iOS app for real-time gym form analysis. Single repo wkliwk/gym-form-coach, Project board 10. 5 seed issues created: Expo setup, camera+pose estimation, squat form module, session summary, deadlift+pushup modules."}
@@ -48,3 +47,4 @@
 {"date":"2026-04-03","project":"FormPilot","prompt":"Retention: re-fill from prior same-category form","summary":"Added prior-form detection endpoint and offer banner in FormViewer — reuses existing re-fill AI mapping"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"Conversion: testimonials + trust bar on landing page","summary":"Added 5-star ratings to testimonial cards and W-4/I-9/DS-160/1040 trust bar below hero"}
 {"date":"2026-04-03","project":"FormPilot","prompt":"Reliability: PDF export fallback for image-based forms","summary":"Added generateSummaryPDF() for IMAGE source forms; export route branches to summary PDF; modal shows amber notice"}
+{"date":"2026-04-03","project":"FormPilot","prompt":"Retention: weekly stale form digest email","summary":"Cron job + email template + unsubscribe endpoint for 14-day stale form digest with 7-day cooldown"}
