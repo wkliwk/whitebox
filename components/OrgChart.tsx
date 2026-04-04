@@ -100,8 +100,8 @@ function NodeCard({ node, sessions, activeTasks, onOpen, agentMap }: NodeCardPro
 
   return (
     <button
-      onClick={() => onOpen(node.id, node.name)}
-      className="flex flex-col items-center gap-2 group focus:outline-none"
+      onClick={() => !node.id.startsWith("__") && onOpen(node.id, node.name)}
+      className={`flex flex-col items-center gap-2 group focus:outline-none ${node.id.startsWith("__") ? "cursor-default" : "cursor-pointer"}`}
     >
       {/* Avatar */}
       <div className="relative">
