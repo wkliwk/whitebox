@@ -72,6 +72,8 @@ export async function writeHeartbeat(agentType: string, heartbeat: Heartbeat): P
   const redis = getRedis();
   if (!redis) return false;
   await redis.set(`${KEY_PREFIX}${agentType}`, JSON.stringify(heartbeat), { ex: TTL_SECONDS });
+  // Agent is alive — clear any stale alert suppression so future stalls re-alert
+  await clearStaleAlertSent(agentType).catch(() => {});
   return true;
 }
 
@@ -98,6 +100,30 @@ export async function getAllHeartbeats(): Promise<Heartbeat[]> {
     } catch { /* skip malformed */ }
   }
   return heartbeats;
+}
+
+// ─── Stale Alert Suppression ─────────────────────────────────────────────────
+
+const STALE_ALERT_PREFIX = "agent:stale-alert-sent:";
+const STALE_ALERT_TTL = 1800; // 30 minutes
+
+export async function setStaleAlertSent(agentType: string): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  await redis.set(`${STALE_ALERT_PREFIX}${agentType}`, "1", { ex: STALE_ALERT_TTL });
+}
+
+export async function isStaleAlertSent(agentType: string): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) return false;
+  const val = await redis.get(`${STALE_ALERT_PREFIX}${agentType}`);
+  return !!val;
+}
+
+export async function clearStaleAlertSent(agentType: string): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+  await redis.del(`${STALE_ALERT_PREFIX}${agentType}`);
 }
 
 // ─── Loop Events ─────────────────────────────────────────────────────────────
