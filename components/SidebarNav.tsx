@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, KanbanSquare, Globe, Users, Plug, GitPullRequest } from "lucide-react";
+import { LayoutDashboard, Package, ScrollText, CircleDot, Info, CalendarClock, KanbanSquare, Globe, Users, Plug, GitPullRequest, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +19,7 @@ export function SidebarNav({ onNavItemClick }: SidebarNavProps = {}) {
     { href: "/products", icon: Package,          key: "nav_products"  as const },
     { href: "/issues",   icon: CircleDot,        key: "nav_issues"    as const },
     { href: "/prs",      icon: GitPullRequest,   key: "nav_prs"       as const },
+    { href: "/costs",    icon: DollarSign,        key: "nav_costs"     as const },
     { href: "/logs",     icon: ScrollText,        key: "nav_logs"      as const },
     { href: "/board",    icon: KanbanSquare,      key: "nav_board"     as const },
     { href: "/tools",    icon: Plug,             key: "nav_mcp"       as const },

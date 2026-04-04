@@ -12,6 +12,7 @@ export const translations = {
     nav_board:      "Board",
     nav_schedule:   "Schedule",
     nav_prs:        "PRs",
+    nav_costs:      "Costs",
     nav_about:      "About",
 
     // Sidebar sections
@@ -114,6 +115,7 @@ export const translations = {
     nav_board:      "看板",
     nav_schedule:   "排程",
     nav_prs:        "PRs",
+    nav_costs:      "費用",
     nav_about:      "關於",
 
     // Sidebar sections
