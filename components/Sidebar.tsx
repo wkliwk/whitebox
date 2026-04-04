@@ -2,6 +2,7 @@ import { SidebarNav, SidebarFooter } from "./SidebarNav";
 import { SidebarAgentList } from "./SidebarAgentList";
 import { SidebarProjects } from "./SidebarProjects";
 import { SidebarCollapsible } from "./SidebarCollapsible";
+import { SidebarSearchTrigger } from "./SidebarSearchTrigger";
 import { PRODUCTS } from "@/lib/products";
 
 interface Project {
@@ -33,6 +34,9 @@ export function Sidebar({ projects = [] }: SidebarProps) {
         <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-xs font-bold text-white">W</div>
         <span className="font-semibold text-[#e8e8e8] text-sm">Whitebox</span>
       </div>
+
+      {/* Search trigger */}
+      <SidebarSearchTrigger />
 
       {/* Nav links (client — reads language context) */}
       <SidebarNav />
