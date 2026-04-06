@@ -1,0 +1,17 @@
+#!/bin/sh
+# Whitebox pre-push hook — verifies production build before pushing.
+# Bypass with: git push --no-verify
+
+echo "Running production build check before push..."
+
+npm run build:check
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Build failed. Push aborted."
+  echo "Fix the build errors above, then push again."
+  echo "To bypass (emergency only): git push --no-verify"
+  exit 1
+fi
+
+echo "Build passed. Pushing..."
