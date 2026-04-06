@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "build:check": "next build"
+    "build:check": "next build",
+    "setup-hooks": "sh scripts/install-hooks.sh"
   },
   "dependencies": {
     "@upstash/redis": "^1.37.0",
