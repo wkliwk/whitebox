@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { MobileNav } from "@/components/MobileNav";
+import { CommandPalette } from "@/components/CommandPalette";
 import { PRODUCTS } from "@/lib/products";
 import { getProductRepos } from "@/lib/local";
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} ${geistMono.variable}`} style={{ margin: 0, background: "#111111" }}>
         <LanguageProvider>
           <MobileNav productGroups={productGroups} projects={projectsForNav} />
+          <CommandPalette />
           {children}
         </LanguageProvider>
       </body>
