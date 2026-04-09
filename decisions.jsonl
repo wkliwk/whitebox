@@ -45,3 +45,5 @@
 {"date":"2026-04-02","project":"FormPilot","summary":"feat(#286): proactive re-fill banner — detects same-category prior form within 90 days, offers one-click answer reuse"}
 {"date":"2026-04-09","project":"FormPilot","decision":"Built AI value validation (#399): deterministic fix suggestions for SSN/EIN/phone/ZIP/date + Claude fallback endpoint + Apply fix button in FormViewer + format errors in ExportPreviewModal"}
 {"date":"2026-04-09","project":"FormPilot","decision":"Built insights page (#401): time saved calc, accuracy trend sparkline, category breakdown, streak, top field. Server-rendered, no chart lib needed."}
+{"date":"2026-04-09","project":"FormPilot","decision":"Public community form library (#400): ISR /library page with search + category filter, admin approval API, PUBLIC_PENDING visibility state"}
+{"date":"2026-04-09","project":"FormPilot","decision":"Webhook integration (#403): HMAC-SHA256 signed payloads on form completion, Pro-gated, fire-and-forget delivery, settings page with test button"}
