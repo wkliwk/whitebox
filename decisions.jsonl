@@ -1,4 +1,3 @@
-{"date":"2026-04-07","project":"agent-score","summary":"Tier filter on Explore page — background agent built it (#53). PR #58 merged."}
 {"date":"2026-04-07","project":"money-flow-backend","prompt":"issue-149-parse-text-endpoint","summary":"Added POST /api/transactions/parse-text with regex-based parser (no Anthropic API dependency). Ported from mobile app, enhanced with participants, date, split-bill, Cantonese support. 30 tests. Merged to main via PR #151."}
 {"date":"2026-04-08","project":"money-flow-backend","summary":"Added compound index owner+category+date on Expense model (#153). CJK amount parsing fix deployed."}
 {"date":"2026-04-08","project":"money-flow-frontend","prompt":"#263 contextual empty states for new users","summary":"Extended EmptyState component with icon prop, replaced inline empty states in BudgetsPage and GoalsPage with shared component, updated dashboard copy. All 37 tests pass. PR #264."}
@@ -48,3 +47,4 @@
 {"date":"2026-04-10","project":"recallth","summary":"AI chat auto-title+summary: added summary field to Conversation schema, async Gemini title generation after first exchange, GET /chat/history returns summary. PR#94 merged."}
 {"date":"2026-04-11","project":"recallth","summary":"GET /cabinet/redundancies: AI supplement redundancy detector with Gemini, 1h in-memory cache per user, bust on cabinet writes. PR#95 merged."}
 {"date":"2026-04-11","project":"recallth","summary":"Redundancy detector UI panel on cabinet page. Fetches GET /cabinet/redundancies, collapsible panel, risk badges (low/moderate/high), cache bust on mutations. PR#139 merged."}
+{"date":"2026-04-11","project":"recallth-web","prompt":"i18n: translate hardcoded English nav labels across 9 pages","summary":"Updated 9 pages to use t(labelKey) via useT() hook, added missing nav keys to all 3 locale files, created AppNav shared component"}
