@@ -1,4 +1,3 @@
-{"date":"2026-04-09","project":"gym-form-coach","summary":"Form trends chart #85: daily score line chart on History with exercise filter + 4/8/12w range. react-native-chart-kit + trendData.ts. 7 new tests (145 total). PR #91 merged."}
 {"date":"2026-04-09","project":"gym-form-coach","summary":"Bench press exercise #79: formAnalysis/benchPress.ts with bar path drift, elbow flare, uneven press, insufficient depth flags. 15 new tests. Background worker PR #88 merged + integration fix PR #92."}
 {"date":"2026-04-10T04:01:35Z","project":"recallth","summary":"Backend #1 done: Express+TS+MongoDB scaffold, GET /health 200, PR #14 open"}
 {"date":"2026-04-10T04:03:28Z","project":"recallth","summary":"Backend #2 done: JWT auth, register+login endpoints, PR #15 open"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-11","project":"recallth","prompt":"Weekly wellness digest (#170)","summary":"Full-stack weekly digest: WeeklyDigest Mongoose model + GET /digest endpoint with Gemini + MongoDB caching + /digest frontend page with week nav, stat pills, summary/suggestion, low-data state"}
 {"date":"2026-04-11","project":"recallth-web","prompt":"Smart notification scheduling — auto-suggest reminder times based on supplement schedule (#161)","summary":"Added suggested reminders section to notifications page: derives time slots from supplement schedule, per-slot toggle + editable time, accept-all button, in-app toast via setInterval; added i18n for en/zh-HK/zh-TW"}
 {"date":"2026-04-11","project":"recallth-backend","prompt":"Body stats timeline API (#108)","summary":"Added BodyStatEntry Mongoose model + POST/GET/PUT/DELETE /body-stats CRUD routes with date filtering and limit cap; registered in index.ts"}
+{"date":"2026-04-11","project":"recallth-backend","prompt":"Bloodwork AI interpretation endpoint (#107)","summary":"Added POST /bloodwork/interpret with per-marker Gemini analysis, trend detection, personalised insights, 24h InsightCache caching"}
