@@ -1,4 +1,3 @@
-{"date":"2026-04-08","project":"money-flow-mobile","summary":"App Store submission prep #14/#154: EAS production config, CI workflow, store metadata, submission runbook. PR #364 merged. Manual steps remain (account setup)."}
 {"date":"2026-04-08","project":"money-flow-frontend","summary":"Code splitting #67: lazy load routes+tabs+vendor chunks. Initial load 360KB→100KB gzipped (3.6x smaller). PR #270 merged."}
 {"date":"2026-04-09","project":"FormPilot","summary":"Keyboard shortcuts + a11y #392: Ctrl/Cmd+Enter (autofill), Ctrl/Cmd+E (export), Enter/Escape (accept/reject), Arrow keys (guided nav), ? help overlay, ARIA improvements. PR #395 merged."}
 {"date":"2026-04-09","project":"FormPilot","summary":"Autofill quality rating #383: thumbs up/down widget in confidence banner, AutofillRating model, POST API endpoint, 30s auto-dismiss, Pro nudge on low scores. PR #396 merged."}
@@ -48,3 +47,4 @@
 {"date":"2026-04-11","project":"recallth","prompt":"#148 bloodwork AI interpretation","summary":"Added POST /bloodwork/analyse backend endpoint (Gemini AI) + BloodworkAIPanel frontend component with markers of note, supplement adjustments, what to watch — full i18n"}
 {"date":"2026-04-11","project":"recallth","prompt":"#149 dashboard daily AI health brief","summary":"POST /insights/daily-brief backend with InsightCache model (24h TTL) + DailyBrief component on dashboard with loading/error/empty states"}
 {"date":"2026-04-11","project":"recallth","prompt":"#150 chat history search","summary":"Client-side search on history conversations tab — filter by title/firstMessage, zero-results state, i18n in all 3 locales"}
+{"date":"2026-04-11","project":"recallth","prompt":"Issue #151: Schedule dose history logging","summary":"Added DoseLog model + schedule endpoints (log-dose POST/DELETE, dose-logs GET), schedule page backend hydration, AdherenceHistory component showing 7-day panel with weekly adherence %"}
