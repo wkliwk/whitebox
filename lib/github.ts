@@ -97,6 +97,111 @@ export async function getOpenPRs(): Promise<PullRequest[]> {
   return prs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
+// ─── Agent Performance Metrics ───────────────────────────────────────────────
+
+export interface AgentPerformanceMetric {
+  agentType: string;
+  issuesClosed: number;
+  avgCloseTimeMs: number | null;  // null when no issues closed
+  fastestCloseMs: number | null;
+  /** Sum of costUsd from Redis session history for this agent type */
+  totalCostUsd: number;
+}
+
+export interface AgentPerformanceSummary {
+  totalIssuesClosed: number;
+  avgCloseTimeMs: number | null;
+  agents: AgentPerformanceMetric[];
+  windowDays: number;
+}
+
+/**
+ * Fetches recently closed issues across all product repos with `agent:*` labels.
+ * Groups them by agent type and computes performance metrics.
+ */
+export async function getAgentPerformanceMetrics(
+  windowDays = 7
+): Promise<AgentPerformanceSummary> {
+  if (!process.env.GITHUB_TOKEN) {
+    return { totalIssuesClosed: 0, avgCloseTimeMs: null, agents: [], windowDays };
+  }
+
+  const octokit = await getOctokit();
+  const { getProductRepos } = await import("./local");
+  const repos = getProductRepos();
+
+  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+
+  // Fetch closed issues from all repos in the time window
+  const results = await Promise.allSettled(
+    repos.map(({ owner, name: repo }) =>
+      octokit.rest.issues.listForRepo({
+        owner,
+        repo,
+        state: "closed",
+        sort: "updated",
+        direction: "desc",
+        since,
+        per_page: 100,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }).then(({ data }: { data: any[] }) => ({ owner, repo, data }))
+    )
+  );
+
+  // Group close times by agent type
+  const agentCloseTimes = new Map<string, number[]>();
+
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue;
+    const { data } = result.value;
+    for (const issue of data) {
+      // Skip pull requests
+      if (issue.pull_request) continue;
+      // Must have been closed within window
+      if (!issue.closed_at) continue;
+      const closedAt = new Date(issue.closed_at).getTime();
+      if (closedAt < Date.now() - windowDays * 24 * 60 * 60 * 1000) continue;
+
+      // Find agent label
+      const labels: string[] = (issue.labels ?? []).map((l: { name?: string } | string) =>
+        typeof l === "object" ? (l.name ?? "") : l
+      );
+      const agentLabel = labels.find(l => l.startsWith("agent:"));
+      if (!agentLabel) continue;
+
+      const agentType = agentLabel.replace("agent:", "");
+      const createdAt = new Date(issue.created_at).getTime();
+      const closeTimeMs = closedAt - createdAt;
+
+      if (!agentCloseTimes.has(agentType)) agentCloseTimes.set(agentType, []);
+      agentCloseTimes.get(agentType)!.push(closeTimeMs);
+    }
+  }
+
+  // Build per-agent metrics (session cost data merged in caller via Redis)
+  const agents: AgentPerformanceMetric[] = Array.from(agentCloseTimes.entries()).map(([agentType, times]) => {
+    const issuesClosed = times.length;
+    const avgCloseTimeMs = times.length > 0
+      ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
+      : null;
+    const fastestCloseMs = times.length > 0 ? Math.min(...times) : null;
+    return { agentType, issuesClosed, avgCloseTimeMs, fastestCloseMs, totalCostUsd: 0 };
+  });
+
+  // Sort by issues closed descending
+  agents.sort((a, b) => b.issuesClosed - a.issuesClosed);
+
+  const totalIssuesClosed = agents.reduce((sum, a) => sum + a.issuesClosed, 0);
+  const allTimes = agents.flatMap(a =>
+    agentCloseTimes.get(a.agentType) ?? []
+  );
+  const avgCloseTimeMs = allTimes.length > 0
+    ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length)
+    : null;
+
+  return { totalIssuesClosed, avgCloseTimeMs, agents, windowDays };
+}
+
 function parseIssueToTask(issue: any, repo: string, forceStatus?: RecentTask["status"]): RecentTask | null {
   if (issue.pull_request) return null;
   const labels = issue.labels.map((l: any) => typeof l === "object" ? l.name || "" : l) as string[];
