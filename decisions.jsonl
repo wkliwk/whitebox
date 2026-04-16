@@ -1,4 +1,3 @@
-{"date":"2026-04-10","project":"recallth","summary":"Data Export: AI-generated health summary report via GET /profile/export-report, export modal on profile page with copy + .txt download"}
 {"date":"2026-04-10","project":"recallth","summary":"Stack Sharing: SharedStack model, POST /cabinet/share, public GET /cabinet/shared/:token, Share Stack button on cabinet page, public /shared-stack/:token page with CTA"}
 {"date":"2026-04-10","project":"recallth","summary":"Bloodwork profile section (backend+frontend), fixed PATCH->PUT profile bug, OCR label scan via Gemini Vision (backend+frontend)"}
 {"date":"2026-04-10","project":"recallth","summary":"Family Profiles: FamilyMember model, ?memberId scoping on profile/cabinet, switcher UI, member management modal"}
@@ -48,3 +47,4 @@
 {"date":"2026-04-16","project":"FormPilot","prompt":"feat: profile import from LinkedIn URL and government ID scan (#402)","summary":"Added LinkedIn URL and ID scan import methods to ProfileQuickFillModal; new /api/profile/import-linkedin and /api/profile/import-id routes; 5/hr rate limit; Haiku vision for ID, never stored"}
 {"date":"2026-04-16","project":"FormPilot","prompt":"feat: inline profile gap prompts — contextual slide-over when autofill can't fill a field (#422)","summary":"Added clickable Add to profile badge on skipped fields; ProfileGapSlideOver component; PATCH /api/profile for single-key merge; re-runs autofill after save; localStorage dismissal on manual edit"}
 {"date":"2026-04-16","project":"FormPilot","prompt":"feat: learn from corrections (#423)","summary":"Correction toast now fires at confidence>=0.5 + auto-dismisses in 5s; /api/profile/learn writes to both FormMemory and profile; CorrectionsReviewModal shown before export"}
+{"date":"2026-04-16","project":"FormPilot","prompt":"feat: deadline reminders milestone-based (#424)","summary":"Fixed cron to send 7d/2d/day-of milestones exactly once each per form; updated PRODUCT.md with feature docs"}
